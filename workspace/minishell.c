@@ -28,10 +28,23 @@ void	get_input(char **input)
 	*input = str;
 }
 
+void	skip_space(char **str)
+{
+	while (**str ==32 || (**str > 7 && **str < 13))
+		(*str)++;
+}
+
+void	command_branch(char *command)
+{
+	if (ft_strncmp(command, "echo", 4))
+		echo();
+}
+
 int	main()
 {
 	char	*input;
 	int 	status;
+	char	**lst;
 
 	status = 1;
 	while(status)
@@ -39,7 +52,14 @@ int	main()
 		write(1, "test->", 6);
 		get_input(&input);
 		printf("input test : %s\n", input);
-		sleep(1);
+		lst = ft_split(input, ';');
+		while (*lst)
+		{
+			skip_space(lst);
+			command_branch(*lst);
+			lst++;
+		}
+
 	}
 
 	return (0);
