@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/11 15:14:54 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/11 15:24:37 by kimjoocha        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 # include <signal.h>
 # include <sys/stat.h>
 # include <dirent.h>
-# include "./utils/libft/libft.h"
-# include "./utils/libftprintf/include/ft_printf.h"
+# include "../libs/libft/libft.h"
+# include "../libs/libftprintf/include/ft_printf.h"
 
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"

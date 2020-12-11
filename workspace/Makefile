@@ -6,7 +6,7 @@
 #    By: joockim <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/10 16:22:30 by joockim           #+#    #+#              #
-#    Updated: 2020/12/11 15:14:13 by joockim          ###   ########.fr        #
+#    Updated: 2020/12/11 15:30:00 by kimjoocha        ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,10 +18,10 @@ UTILS = ./libs/
 
 LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 
-SRCS = ${addprefix ./srcs/ , \
+SRCS = $(addprefix ./srcs/, \
 	branch.c \
 	utils.c \
-	minishell.c}
+	minishell.c)
 
 OBJS = $(SRCS:.c=.o)
 
@@ -34,9 +34,6 @@ ${NAME} : ${OBJS}
 	@make -C ${UTILS}libftprintf
 	@${CC} ${LIBFT_FLAGS} ${OBJS} -o ${NAME}
 	@echo ----------make success minishell----------
-
-.c.o :
-	@$(CC) -c $<
 
 clean :
 	@make clean -C ${UTILS}libft

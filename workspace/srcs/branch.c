@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 15:06:27 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/11 15:08:13 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/11 15:24:51 by kimjoocha        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,5 +15,5 @@
 void	command_branch(char *command)
 {
 	if (ft_strncmp(command, "echo", 4))
-		echo();
+		;
 }
