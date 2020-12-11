@@ -1,4 +1,4 @@
-#include "./minishell.h"
+#include "../include/minishell.h"
 #include <stdio.h>
 
 void	signal_handler(int signo)
@@ -28,18 +28,6 @@ void	get_input(char **input)
 	*input = str;
 }
 
-void	skip_space(char **str)
-{
-	while (**str ==32 || (**str > 7 && **str < 13))
-		(*str)++;
-}
-
-void	command_branch(char *command)
-{
-	if (ft_strncmp(command, "echo", 4))
-		echo();
-}
-
 int	main()
 {
 	char	*input;
@@ -59,8 +47,6 @@ int	main()
 			command_branch(*lst);
 			lst++;
 		}
-
 	}
-
 	return (0);
 }

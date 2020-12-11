@@ -6,7 +6,7 @@
 #    By: joockim <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/10 16:22:30 by joockim           #+#    #+#              #
-#    Updated: 2020/12/11 14:33:46 by kimjoocha        ###   ########.fr        #
+#    Updated: 2020/12/11 15:14:13 by joockim          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,11 +14,14 @@ NAME = minishell
 
 CC = gcc
 
-UTILS = ./utils/
+UTILS = ./libs/
 
 LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 
-SRCS = minishell.c
+SRCS = ${addprefix ./srcs/ , \
+	branch.c \
+	utils.c \
+	minishell.c}
 
 OBJS = $(SRCS:.c=.o)
 
