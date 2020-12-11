@@ -6,7 +6,7 @@
 #    By: joockim <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/10 16:22:30 by joockim           #+#    #+#              #
-#    Updated: 2020/12/11 04:58:43 by joockim          ###   ########.fr        #
+#    Updated: 2020/12/11 14:33:46 by kimjoocha        ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ UTILS = ./utils/
 
 LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 
-SRCS = test.c
+SRCS = minishell.c
 
 OBJS = $(SRCS:.c=.o)
 
