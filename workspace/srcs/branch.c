@@ -130,7 +130,7 @@ int		cmd_echo_cmp(t_word_block command)
 	return (1);
 }
 
-void	branch_echo(char *line)			//	어려워보이니까 나중에 짜자....
+void	branch_echo(char **ref)			//	어려워보이니까 나중에 짜자....
 {
 	printf("here is echo part\n");
 }
@@ -142,6 +142,16 @@ int		cmd_cd_cmp(t_word_block command)
 	else if (ft_strncmp(command.word, "cd", 2) != 0)
 		return (0);
 	return (1);
+}
+
+void	branch_cd(char **ref)
+{
+	t_word_block	word;
+
+	word = get_word(ref);
+	if (chdir(word.word) != 0)
+		printf("chdir error\t-\tbranch_cd\n");
+	free(word.word);
 }
 
 int		cmd_pwd_cmp(t_word_block command)
@@ -180,9 +190,9 @@ void	command_branch(char *line)
 	}
 //	printf("cmd : %s\n", command.word);
 	if (cmd_echo_cmp(command) == 1)
-		branch_echo(line);
-	// else if (cmd_cd_cmp(command) == 1)
-	// 	branch_cd();
+		branch_echo(&line);
+	else if (cmd_cd_cmp(command) == 1)
+		branch_cd(&line);
 	else if (cmd_pwd_cmp(command) == 1)
 		branch_pwd();
 //	else
