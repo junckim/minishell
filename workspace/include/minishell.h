@@ -18,6 +18,8 @@
 # include <signal.h>
 # include <sys/stat.h>
 # include <dirent.h>
+# include <errno.h>
+# include <string.h>
 # include "../libs/libft/libft.h"
 # include "../libs/libftprintf/include/ft_printf.h"
 

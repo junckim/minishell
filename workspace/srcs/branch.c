@@ -123,9 +123,9 @@ void	word_free(t_word_block *word)
 
 int		cmd_echo_cmp(t_word_block command)
 {
-	if (ft_strlen(command.word) != 4)
+	if (ft_strlen(command.word) != 4 && ft_strlen(command.word) != 9)
 		return (0);
-	else if (ft_strncmp(command.word, "echo", 4) != 0)
+	else if (ft_strncmp(command.word, "echo", 4) != 0 && ft_strncmp(command.word, "/bin/echo", 9))
 		return (0);
 	return (1);
 }
@@ -156,9 +156,9 @@ void	branch_cd(char **ref)
 
 int		cmd_pwd_cmp(t_word_block command)
 {
-	if (ft_strlen(command.word) != 3)
+	if (ft_strlen(command.word) != 3 && ft_strlen(command.word) != 8)
 		return (0);
-	else if (ft_strncmp(command.word, "pwd", 3) != 0)
+	else if (ft_strncmp(command.word, "pwd", 3) != 0 && ft_strncmp(command.word, "/bin/pwd", 8) != 0)
 		return (0);
 	return (1);
 }
@@ -169,9 +169,47 @@ void	branch_pwd(void)
 	char	*buf;
 
 	size = (1 << 10);
-	getcwd(buf, size);
+	if (getcwd(buf, size) == 0)
+	{
+		write(1, strerror(errno), ft_strlen(strerror(errno)));
+		return ;
+	}
 	write(1, buf, ft_strlen(buf));
 	write(1, "\n", 1);
+}
+
+int		cmd_ls_cmp(t_word_block command)
+{
+	if (ft_strlen(command.word) != 2 && ft_strlen(command.word) != 7)
+		return (0);
+	else if (ft_strncmp(command.word, "ls", 2) != 0 && ft_strncmp(command.word, "/bin/ls", 7) != 0)
+		return (0);
+	return (1);
+}
+
+void	branch_ls(void)
+{
+	DIR				*dir_ptr;
+	struct dirent	*file;
+	char			buf[1 << 10];
+
+	if (getcwd(buf, (1 << 10)) == 0)
+	{
+		write(1, strerror(errno), ft_strlen(strerror(errno)));
+		return ;
+	}
+	if ((dir_ptr = opendir(buf)) == NULL)
+	{
+		write(1, strerror(errno), ft_strlen(strerror(errno)));
+		return ;
+	}
+	while ((file = readdir(dir_ptr)) != NULL)
+	{
+		if (file->d_name[0] == '.')
+			continue ;
+		write(1, file->d_name, ft_strlen(file->d_name));
+		write(1, "\n", 1);
+	}
 }
 
 void	command_branch(char *line)
@@ -184,17 +222,19 @@ void	command_branch(char *line)
 	{
 		next = get_word(&line);
 		word_join(&command, &next);
-//		printf("next->quotation : %c\nnext->word : %s\nnext->space_has : %d\n\n", next.quotation, next.word, next.space_has);
-//		printf("cmd->quotation : %c\ncmd->word : %s\ncmd->space_has : %d\n\n", command.quotation, command.word, command.space_has);
+		// printf("next->quotation : %c\nnext->word : %s\nnext->space_has : %d\n\n", next.quotation, next.word, next.space_has);
+		// printf("cmd->quotation : %c\ncmd->word : %s\ncmd->space_has : %d\n\n", command.quotation, command.word, command.space_has);
 		word_free(&next);
 	}
-//	printf("cmd : %s\n", command.word);
+	// printf("cmd : %s\n", command.word);
 	if (cmd_echo_cmp(command) == 1)
 		branch_echo(&line);
 	else if (cmd_cd_cmp(command) == 1)
 		branch_cd(&line);
 	else if (cmd_pwd_cmp(command) == 1)
 		branch_pwd();
-//	else
-//		branch_error();
+	else if (cmd_ls_cmp(command) == 1)
+		branch_ls();
+	// else
+		// branch_error();
 }
