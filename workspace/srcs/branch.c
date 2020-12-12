@@ -29,15 +29,22 @@ int		ft_str_echo_cmp(char *command)
 	return (0);
 }
 
-void	remove_quotation(char **command)
+void	find_quotation_word(char **command, int idx)
 {
+	char	quota;
+	
+	quota = (*command)[idx];
+	while ((*command)[++idx] != quota && (*command)[idx] != 0)
+	{
+		
+	}
 	return ;
 }
 
 void	command_branch(char *command)
 {
 	if (command[0] == '\'' || command[0] == '\"')
-		remove_quotation(&command);
+		find_quotation_word(&command, 0);
 	if (ft_str_echo_cmp(command))
 		printf("I found echo!\n");		// 동작할 함수를 넣어보자
 }
