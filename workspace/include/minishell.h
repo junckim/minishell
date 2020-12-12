@@ -36,6 +36,12 @@
 # define COLOR_BCYAN	"\x1b[96m"
 # define COLOR_RESET	"\x1b[0m"
 
+typedef struct  s_echo_word
+{
+    char    quotation;
+    char    *word;
+}               t_echo_word;
+
 void	command_branch(char *command);
 void	skip_space(char **str);
 

@@ -29,9 +29,15 @@ int		ft_str_echo_cmp(char *command)
 	return (0);
 }
 
+void	remove_quotation(char **command)
+{
+	return ;
+}
+
 void	command_branch(char *command)
 {
-	int			ret = 100;
-	if ((ret = ft_str_echo_cmp(command)))
-		printf("I found echo!\n");
+	if (command[0] == '\'' || command[0] == '\"')
+		remove_quotation(&command);
+	if (ft_str_echo_cmp(command))
+		printf("I found echo!\n");		// 동작할 함수를 넣어보자
 }
