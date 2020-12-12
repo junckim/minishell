@@ -36,11 +36,12 @@
 # define COLOR_BCYAN	"\x1b[96m"
 # define COLOR_RESET	"\x1b[0m"
 
-typedef struct  s_echo_word
+typedef struct  s_word_block
 {
-    char    quotation;
-    char    *word;
-}               t_echo_word;
+    char    quotation;		//	기본 == 0 / 작은 따옴표 / 큰 따옴표
+    char    *word;			//	단어
+	int		space_has;		//	뒤에 공백이 있는가? 0 == 문자 / 1 == 공백 / 2 == 마지막 단어
+}               t_word_block;
 
 void	command_branch(char *command);
 void	skip_space(char **str);
