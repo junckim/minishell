@@ -12,26 +12,6 @@
 
 #include "../include/minishell.h"
 
-int		cmd_echo_cmp(t_word_block command)
-{
-	char		*cmd;
-
-	cmd = command.word;
-	if (ft_strncmp(cmd, "echo", 4) == 0)
-		return (1);
-	else if (ft_strncmp(cmd, "Echo", 4) == 0)
-		return (1);
-	else if (ft_strncmp(cmd, "\'echo\'", 6) == 0)
-		return (1);
-	else if (ft_strncmp(cmd, "\"echo\"", 6) == 0)
-		return (1);
-	else if (ft_strncmp(cmd, "\'Echo\'", 6) == 0)
-		return (1);
-	else if (ft_strncmp(cmd, "\"Echo\"", 6) == 0)
-		return (1);
-	return (0);
-}
-
 int		ft_isspace(char c)
 {
 	if (c == 32 || (c > 7 && c < 13))
@@ -141,6 +121,49 @@ void	word_free(t_word_block *word)
 	word->space_has = 0;
 }
 
+int		cmd_echo_cmp(t_word_block command)
+{
+	if (ft_strlen(command.word) != 4)
+		return (0);
+	else if (ft_strncmp(command.word, "echo", 4) != 0)
+		return (0);
+	return (1);
+}
+
+void	branch_echo(char *line)			//	어려워보이니까 나중에 짜자....
+{
+	printf("here is echo part\n");
+}
+
+int		cmd_cd_cmp(t_word_block command)
+{
+	if (ft_strlen(command.word) != 2)
+		return (0);
+	else if (ft_strncmp(command.word, "cd", 2) != 0)
+		return (0);
+	return (1);
+}
+
+int		cmd_pwd_cmp(t_word_block command)
+{
+	if (ft_strlen(command.word) != 3)
+		return (0);
+	else if (ft_strncmp(command.word, "pwd", 3) != 0)
+		return (0);
+	return (1);
+}
+
+void	branch_pwd(void)
+{
+	int		size;
+	char	*buf;
+
+	size = (1 << 10);
+	getcwd(buf, size);
+	write(1, buf, ft_strlen(buf));
+	write(1, "\n", 1);
+}
+
 void	command_branch(char *line)
 {
 	t_word_block		command;
@@ -155,13 +178,13 @@ void	command_branch(char *line)
 //		printf("cmd->quotation : %c\ncmd->word : %s\ncmd->space_has : %d\n\n", command.quotation, command.word, command.space_has);
 		word_free(&next);
 	}
-	printf("cmd : %s\n", command.word);
-//	if (cmd_echo_cmp(command) == 1)
-//		branch_echo(line);
-//	else if (cmd_cd_cmp(command) == 1)
-//		branch_cd();
-//	else if (cmd_pwd_cmp(command) == 1)
-//		branch_pwd();
+//	printf("cmd : %s\n", command.word);
+	if (cmd_echo_cmp(command) == 1)
+		branch_echo(line);
+	// else if (cmd_cd_cmp(command) == 1)
+	// 	branch_cd();
+	else if (cmd_pwd_cmp(command) == 1)
+		branch_pwd();
 //	else
 //		branch_error();
 }
