@@ -33,6 +33,7 @@ int	main()
 	char	*input;
 	int 	status;
 	char	**lst;
+	char	**tmp;
 
 	status = 1;
 	while(status)
@@ -41,10 +42,12 @@ int	main()
 		get_input(&input);
 		printf("input test : %s\n", input);
 		lst = ft_split(input, ';');
+		tmp = lst;
 		while (*lst)
 		{
 			skip_space(lst);
-			command_branch(*lst);
+			printf("%s\n", *lst);
+			//command_branch(*lst);
 			lst++;
 		}
 	}
