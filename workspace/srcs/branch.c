@@ -19,7 +19,18 @@ int		ft_isspace(char c)
 	return (0);
 }
 
-void	get_quotation(t_word_block *ret, char **ref)
+int		ft_isset(char c, const char *set)
+{
+	while (*set)
+	{
+		if (*set == c)
+			return (1);
+		set++;
+	}
+	return (0);
+}
+
+void	get_single_quotation(t_word_block *ret, char **ref)
 {
 	char	*line;
 	int		i;
@@ -45,15 +56,34 @@ void	get_quotation(t_word_block *ret, char **ref)
 	(*ref) += (i + 1);
 }
 
-int		ft_isset(char c, const char *set)
+void	get_double_quotation(t_word_block *ret, char **ref)
 {
-	while (*set)
+	char	*line;
+	int		i;
+
+	(*ref)++;
+	line = *ref;
+	i = -1;
+	while (line[++i])
 	{
-		if (*set == c)
-			return (1);
-		set++;
+		if (line[i] == ret->quotation)
+			break ;
+		else if (ft_isset(line[i], "\\"))
+			i++;
 	}
-	return (0);
+	if (line[i] == 0)
+	{
+		printf("Wait standard input\t-\tget_quotation\n");
+		return ;
+	}
+	if (ft_isspace(line[i + 1]))
+		ret->space_has = 1;
+	else if (line[i + 1] == 0)
+		ret->space_has = 2;
+	line[i] = 0;
+	free(ret->word);
+	ret->word = ft_strdup(line);
+	(*ref) += (i + 1);
 }
 
 void	get_basic(t_word_block *ret, char **ref)
@@ -65,8 +95,12 @@ void	get_basic(t_word_block *ret, char **ref)
 	line = *ref;
 	i = -1;
 	while (line[++i])
+	{
 		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
+		else if (ft_isset(line[i], "\\"))
+			i++;
+	}
 	if (ft_isspace(line[i]))
 		ret->space_has = 1;
 	else if (line[i] == 0)
@@ -84,6 +118,7 @@ void	word_init(t_word_block *word)
 	word->quotation = 0;
 	word->word = ft_strdup("");
 	word->space_has = 0;
+
 }
 
 t_word_block	get_word(char **ref)
@@ -97,7 +132,10 @@ t_word_block	get_word(char **ref)
 	if (line[0] == '\'' || line[0] == '\"')
 	{
 		ret.quotation = line[0];
-		get_quotation(&ret, ref);
+		if (line[0] == '\'')
+			get_single_quotation(&ret, ref);
+		else
+			get_double_quotation(&ret, ref);
 	}
 	else
 		get_basic(&ret, ref);
