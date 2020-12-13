@@ -47,7 +47,7 @@ int	main()
 		{
 			skip_space(lst);
 			printf("%s\n", *lst);
-			//command_branch(*lst);
+			command_branch(*lst);
 			lst++;
 		}
 	}
