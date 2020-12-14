@@ -50,6 +50,7 @@ int	main(int argc, char **argv, char **envp)
 	char	*input;
 	char	**lst;
 	char	**tmp;
+	int		i;		// ! erase later
 
 	argu.status = 1;
 	argu.argv = argv;
@@ -60,12 +61,13 @@ int	main(int argc, char **argv, char **envp)
 		make_prompt_msg(argu);
 		get_input(&input);
 		printf("input test : %s\n", input);
-		lst = ft_split(input, ';');
+		lst = semi_colon_split(input);
 		tmp = lst;
+		i = 0;
 		while (*lst)
 		{
 			skip_space(lst);
-			printf("%s\n", *lst);
+			printf("line[%d] : %s\n", i++, *lst);
 			command_branch(*lst);
 			lst++;
 		}

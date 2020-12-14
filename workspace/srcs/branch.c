@@ -129,6 +129,11 @@ t_word_block	get_word(char **ref)
 	line = *ref;
 	skip_space(&line);
 	word_init(&ret);
+	if (line[0] == 0)
+	{
+		ret.word = NULL;
+		return (ret);
+	}
 	if (line[0] == '\'' || line[0] == '\"')
 	{
 		ret.quotation = line[0];
@@ -147,7 +152,7 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 	char		*tmp;
 
 	tmp = dest->word;
-	dest->word = ft_strjoin(dest->word, srcs->word);
+	dest->word = ft_strjoin(dest->word, srcs->word);		// null이 들와
 	free(tmp);
 	dest->space_has = srcs->space_has;
 }
@@ -258,13 +263,13 @@ void	command_branch(char *line)
 	word_init(&command);
 	while (command.space_has == 0)		//	command part
 	{
-		next = get_word(&line);
+		if ((next = get_word(&line)).word == 0){
+			next.word = ft_strdup("");
+			next.space_has = 1;
+		}
 		word_join(&command, &next);
-		// printf("next->quotation : %c\nnext->word : %s\nnext->space_has : %d\n\n", next.quotation, next.word, next.space_has);
-		// printf("cmd->quotation : %c\ncmd->word : %s\ncmd->space_has : %d\n\n", command.quotation, command.word, command.space_has);
 		word_free(&next);
 	}
-	// printf("cmd : %s\n", command.word);
 	if (cmd_echo_cmp(command) == 1)
 		branch_echo(&line);
 	else if (cmd_cd_cmp(command) == 1)
@@ -275,4 +280,129 @@ void	command_branch(char *line)
 		branch_ls();
 	// else
 		// branch_error();
+}
+
+/**
+* *		this line is for 'semi_colon_split' function
+*
+*		! means "add fuction in header"
+**/
+
+char			**empty_split(void)
+{
+	char	**ret;
+
+	if ((ret = (char **)malloc(sizeof(char *) * 2)) == 0)
+		return (NULL);
+	if ((ret[0] = ft_strdup("")) == 0)
+	{
+		free(ret);
+		return (NULL);
+	}
+	ret[1] = 0;
+	return (ret);
+}
+
+int				need_split(t_word_block word)
+{
+	if (word.quotation == 0 && ft_isset(';', word.word))
+		return (1);
+	return (0);
+}
+
+int				sizeof_paragraph(char **paragraph)
+{
+	int			size;
+
+	size = 0;
+	while (*paragraph)
+	{
+		paragraph++;
+		size++;
+	}
+	return (size);
+}
+
+char			**free_paragraph(char **paragraph, int fail_idx)
+{
+	int		i;
+
+	i = 0;
+	while (i < fail_idx)
+	{
+		free(paragraph[i]);
+		i++;
+	}
+	free(paragraph);
+	return (NULL);
+}
+
+char			**join_paragraph(char **dest, char **src)
+{
+	int			dest_size;
+	int			src_size;
+	char		**ret;
+	int			i;
+	int			j;
+
+	dest_size = sizeof_paragraph(dest);
+	src_size = sizeof_paragraph(src);
+	if ((ret = (char **)malloc(sizeof(char *) * (dest_size + src_size + 1))) == 0)
+		return (NULL);
+	i = -1;
+	while (++i < dest_size)
+	{
+		if ((ret[i] = ft_strdup(dest[i])) == 0)
+			return (free_paragraph(ret, i));
+	}
+	j = -1;
+	while (++j < src_size)
+	{
+		if ((ret[i] = ft_strdup(src[j])) == 0)
+			return (free_paragraph(ret, i));
+		i++;
+	}
+	ret[dest_size + src_size] = 0;
+	return (ret);
+}
+
+int				join_tail(char **paragraph, char *str)			//	error -1
+{
+	int		size;
+	char	*tmp;
+
+	size = sizeof_paragraph(paragraph);
+	tmp = paragraph[size - 1];
+	if ((paragraph[size - 1] = ft_strjoin(paragraph[size - 1], str)) == 0)
+		return (-1);
+	free(tmp);
+	return (0);
+}
+
+char			**semi_colon_split(char *line)		//	!
+{
+	t_word_block		word;
+	char				**ret;
+	char				**tmp;
+	char				**spt;
+
+	ret = empty_split();
+	while ((word = get_word(&line)).word)
+	{
+		if (need_split(word))
+		{
+			if ((ret = join_paragraph((tmp = ret), (spt = ft_split(word.word, ';')))) == 0)
+				return (NULL);
+			free_paragraph(tmp, sizeof_paragraph(tmp));
+			free_paragraph(spt, sizeof_paragraph(spt));
+		}
+		else
+		{
+			if (join_tail((tmp = ret), word.word) == -1)
+				return (NULL);
+			free_paragraph(tmp, sizeof_paragraph(tmp));
+			word_free(&word);
+		}
+	}
+	return (ret);
 }
