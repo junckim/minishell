@@ -28,17 +28,36 @@ void	get_input(char **input)
 	*input = str;
 }
 
-int	main()
+void	make_prompt_msg(t_argu items)
 {
+	char *path;
+
+	path = ft_strrchr(items.cur_path, '/');
+	ft_printf(COLOR_MAGENTA);
+	ft_printf("dir :");
+	ft_printf(COLOR_BCYAN);
+	ft_printf("%s", path);
+	ft_printf(COLOR_BRED);
+	ft_printf(" @~"COLOR_BYELLOW"=+"COLOR_BWHITE"=+"
+			COLOR_BGREEN"=+>");
+	ft_printf(COLOR_RESET);
+}
+
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_argu	argu;
 	char	*input;
-	int 	status;
 	char	**lst;
 	char	**tmp;
 
-	status = 1;
-	while(status)
+	argu.status = 1;
+	argu.argv = argv;
+	argu.envp = envp;
+	argu.cur_path = getcwd(NULL, 0);
+	while(argu.status)
 	{
-		write(1, "test->", 6);
+		make_prompt_msg(argu);
 		get_input(&input);
 		printf("input test : %s\n", input);
 		lst = ft_split(input, ';');

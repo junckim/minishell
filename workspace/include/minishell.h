@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/11 15:24:37 by kimjoocha        ###   ########.fr       */
+/*   Updated: 2020/12/14 21:49:34 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,16 @@
 # define COLOR_BBLUE	"\x1b[94m"
 # define COLOR_BMAGENTA	"\x1b[95m"
 # define COLOR_BCYAN	"\x1b[96m"
+# define COLOR_BWHITE	"\x1b[97m"
 # define COLOR_RESET	"\x1b[0m"
+
+typedef struct	s_argu
+{
+	int		status;
+	char	*cur_path;
+	char	**argv;
+	char	**envp;
+}				t_argu;
 
 typedef struct  s_word_block
 {
