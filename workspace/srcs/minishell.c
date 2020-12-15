@@ -48,10 +48,9 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_argu		argu;
 	char		*input;
-	char		**lst;
 	char		**tmp;
-	t_inputs	*lst;
-	int		i;		// ! erase later
+	t_list		*lst;
+	int			i;		// ! erase later
 
 	argu.status = 1;
 	argu.argv = argv;
@@ -62,7 +61,7 @@ int	main(int argc, char **argv, char **envp)
 		make_prompt_msg(argu);
 		get_input(&input);
 		printf("input test : %s\n", input);
-		lst = semi_colon_split(input);
+		lst = split_separator(input);
 		tmp = lst;
 		i = 0;
 		while (*lst)

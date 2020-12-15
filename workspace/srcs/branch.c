@@ -19,12 +19,20 @@ int		ft_isspace(char c)
 	return (0);
 }
 
-int		ft_isset(char c, const char *set)
+int		ft_isset(const char *str, const char *set)
 {
+	char	*tmp;
+
 	while (*set)
 	{
-		if (*set == c)
-			return (1);
+		tmp = str;
+		while (*str)
+		{
+			if (*set == *str)
+				return (1);
+			str++;	
+		}
+		str = tmp;
 		set++;
 	}
 	return (0);
@@ -288,126 +296,62 @@ void	command_branch(char *line)
 *		! means "add fuction in header"
 **/
 
-char			**empty_split(void)
-{
-	char	**ret;
-
-	if ((ret = (char **)malloc(sizeof(char *) * 2)) == 0)
-		return (NULL);
-	if ((ret[0] = ft_strdup("")) == 0)
-	{
-		free(ret);
-		return (NULL);
-	}
-	ret[1] = 0;
-	return (ret);
-}
-
 int				need_split(t_word_block word)
 {
-	if (word.quotation == 0 && ft_isset(';', word.word))
+	if (word.quotation == 0 && ft_isset(word.word, ";|><"))
 		return (1);
 	return (0);
 }
 
-int				sizeof_paragraph(char **paragraph)
+void				split_and_save_node(t_list **ret, char *buf, char *str)
 {
-	int			size;
-
-	size = 0;
-	while (paragraph[size])
-		size++;
-	return (size);
-}
-
-char			**free_paragraph(char **paragraph, int fail_idx)
-{
-	int		i;
-
-	i = 0;
-	while (i < fail_idx)
-	{
-		free(paragraph[i]);
-		i++;
-	}
-	free(paragraph);
-	return (NULL);
-}
-
-char			**join_paragraph(char **dest, char **src)
-{
-	int			dest_size;
-	int			src_size;
-	char		**ret;
+	t_list		*lst;
+	t_inputs	*node;
 	int			i;
-	int			j;
 
-	dest_size = sizeof_paragraph(dest);
-	src_size = sizeof_paragraph(src);
-	if ((ret = (char **)malloc(sizeof(char *) * (dest_size + src_size))) == 0)
-		return (NULL);
 	i = -1;
-	while (++i < dest_size)
+	while (++i < ft_strlen(str))
 	{
-		if (i == dest_size - 1)
+		if (str[i] == '>' && i != ft_strlen(str) - 1 && str[i + 1] != '>')
 		{
-			if ((ret[i] = ft_strjoin(dest[i], src[0])) == 0)
-				return (free_paragraph(ret, i));
+			make_node(buf, D_REDIR)
+			node.sep = D_REDIR;
+			i++;
 		}
-		else if ((ret[i] = ft_strdup(dest[i])) == 0)
-			return (free_paragraph(ret, i));
+		else if (str[i] == '>')
+			node.sep = REDIR;
+		else if (str[i] == '<')
+			node.sep = REV_REDIR;
+		else if (str[i] == '|')
+			node.sep = PIPE;
+		
 	}
-	j = 0;
-	while (++j < src_size)
-	{
-		if ((ret[i] = ft_strdup(src[j])) == 0)
-			return (free_paragraph(ret, i));
-		i++;
-	}
-	ret[dest_size + src_size - 1] = 0;
-	return (ret);
 }
 
-int				join_tail(char **paragraph, char *str)			//	error -1
-{
-	int		size;
-	char	*tmp;
-
-	size = sizeof_paragraph(paragraph);
-	tmp = paragraph[size - 1];
-	// printf("str : %s\nsize : %d\n", str, size);
-	// for (int i = 0 ;i < size; i++) {
-		// printf("para[%d] : %s\n", i, paragraph[i]);
-	// }
-	if ((paragraph[size - 1] = ft_strjoin(paragraph[size - 1], str)) == 0)
-		return (-1);
-	// printf("paragraph[%d] : %s\nsize : %d\n", 0, paragraph[0], sizeof_paragraph(paragraph));
-	free(tmp);
-	return (0);
-}
-
-char			**semi_colon_split(char *line)		//	!
+t_list				*split_separator(char *line)		//	!
 {
 	t_word_block		word;
-	char				**ret;
-	char				**tmp;
-	char				**spt;
+	t_list				*ret;
+	char				*buf;
+	char				*tmp;
+	char				**split;
 
-	ret = empty_split();
+	buf = ft_strdup("");
 	while ((word = get_word(&line)).word)
 	{
 		if (need_split(word))
-		{
-			if ((ret = join_paragraph((tmp = ret), (spt = ft_split(word.word, ';')))) == 0)
-				return (NULL);
-			free_paragraph(tmp, sizeof_paragraph(tmp));
-			free_paragraph(spt, sizeof_paragraph(spt));
-		}
+			split_and_save_node(&ret, buf, word.word);
 		else
 		{
-			if (join_tail(ret, word.word) == -1)
-				return (NULL);
-			word_free(&word);
+			tmp = buf;
+			buf = ft_strjoin(buf, word.word);
+			free(tmp);
+			if (word.space_has)
+			{
+				tmp = buf;
+				buf = ft_strjoin(buf, " ");
+				free(tmp);
+			}
 		}
 	}
 	return (ret);

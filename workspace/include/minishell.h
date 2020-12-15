@@ -29,6 +29,14 @@
 # define REV_REDIR	3		// < 가 들어온 경우
 # define D_REDIR	4		// >> 가 들어온 경우
 
+# define ECHO		1
+# define CD			2
+# define PWD		3
+# define EXPORT		4
+# define UNSET		5
+# define ENV		6
+# define EXIT		7
+
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"
 # define COLOR_YELLOW	"\x1b[33m"
@@ -55,8 +63,8 @@ typedef struct	s_argu
 
 typedef struct	s_inputs
 {
-	int				sep;
-	char			*command;
+	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
+	int				command;		// 0 is not expected command
 	char			*str;
 	struct s_inputs	*next;
 }				t_inputs;
@@ -71,6 +79,6 @@ typedef struct  s_word_block
 
 void	command_branch(char *command);
 void	skip_space(char **str);
-char	**semi_colon_split(char *line);
+t_list	*split_separator(char *line);
 
 #endif
