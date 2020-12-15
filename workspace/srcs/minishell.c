@@ -69,7 +69,7 @@ int	main(int argc, char **argv, char **envp)
 		{
 			skip_space(lst);
 			printf("line[%d] : %s\n", i++, *lst);
-			command_branch(*lst);
+			command_branch(*lst); // 만들어진 문자리스트 && t_argu
 			lst++;
 		}
 	}
