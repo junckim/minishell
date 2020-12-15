@@ -315,11 +315,8 @@ int				sizeof_paragraph(char **paragraph)
 	int			size;
 
 	size = 0;
-	while (*paragraph)
-	{
-		paragraph++;
+	while (paragraph[size])
 		size++;
-	}
 	return (size);
 }
 
@@ -347,22 +344,27 @@ char			**join_paragraph(char **dest, char **src)
 
 	dest_size = sizeof_paragraph(dest);
 	src_size = sizeof_paragraph(src);
-	if ((ret = (char **)malloc(sizeof(char *) * (dest_size + src_size + 1))) == 0)
+	if ((ret = (char **)malloc(sizeof(char *) * (dest_size + src_size))) == 0)
 		return (NULL);
 	i = -1;
 	while (++i < dest_size)
 	{
-		if ((ret[i] = ft_strdup(dest[i])) == 0)
+		if (i == dest_size - 1)
+		{
+			if ((ret[i] = ft_strjoin(dest[i], src[0])) == 0)
+				return (free_paragraph(ret, i));
+		}
+		else if ((ret[i] = ft_strdup(dest[i])) == 0)
 			return (free_paragraph(ret, i));
 	}
-	j = -1;
+	j = 0;
 	while (++j < src_size)
 	{
 		if ((ret[i] = ft_strdup(src[j])) == 0)
 			return (free_paragraph(ret, i));
 		i++;
 	}
-	ret[dest_size + src_size] = 0;
+	ret[dest_size + src_size - 1] = 0;
 	return (ret);
 }
 
@@ -373,8 +375,13 @@ int				join_tail(char **paragraph, char *str)			//	error -1
 
 	size = sizeof_paragraph(paragraph);
 	tmp = paragraph[size - 1];
+	// printf("str : %s\nsize : %d\n", str, size);
+	// for (int i = 0 ;i < size; i++) {
+		// printf("para[%d] : %s\n", i, paragraph[i]);
+	// }
 	if ((paragraph[size - 1] = ft_strjoin(paragraph[size - 1], str)) == 0)
 		return (-1);
+	// printf("paragraph[%d] : %s\nsize : %d\n", 0, paragraph[0], sizeof_paragraph(paragraph));
 	free(tmp);
 	return (0);
 }
@@ -398,9 +405,8 @@ char			**semi_colon_split(char *line)		//	!
 		}
 		else
 		{
-			if (join_tail((tmp = ret), word.word) == -1)
+			if (join_tail(ret, word.word) == -1)
 				return (NULL);
-			free_paragraph(tmp, sizeof_paragraph(tmp));
 			word_free(&word);
 		}
 	}
