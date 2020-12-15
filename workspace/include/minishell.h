@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/14 21:49:34 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/15 19:39:38 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@
 # include <string.h>
 # include "../libs/libft/libft.h"
 # include "../libs/libftprintf/include/ft_printf.h"
+
+# define SEMI		0
+# define PIPE		1
+# define REDIR		2
+# define REV_REDIR	3
+# define D_REDIR	4
 
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"
@@ -46,6 +52,14 @@ typedef struct	s_argu
 	char	**argv;
 	char	**envp;
 }				t_argu;
+
+typedef struct	s_inputs
+{
+	int				sep;
+	char			*command;
+	char			*str;
+	struct s_inputs	*next;
+}				t_inputs;
 
 typedef struct  s_word_block
 {

@@ -46,10 +46,11 @@ void	make_prompt_msg(t_argu items)
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_argu	argu;
-	char	*input;
-	char	**lst;
-	char	**tmp;
+	t_argu		argu;
+	char		*input;
+	char		**lst;
+	char		**tmp;
+	t_inputs	*lst;
 	int		i;		// ! erase later
 
 	argu.status = 1;
