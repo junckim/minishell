@@ -43,21 +43,37 @@ void	make_prompt_msg(char *path)
 	ft_printf(COLOR_RESET);
 }
 
-
+void	add_newenv(t_env *env, char *str)
+{
+	t_env	*head;
+	t_env	*elem;
+	char	*point;
+	
+	point = ft_strchr(str, '=');
+	elem = malloc(sizeof(t_env));
+	if (env)
+	{
+		while (env->next)
+			env = env->next;
+		env->next = elem;
+	}
+	else
+		env = elem;
+	*point = '\0';
+	elem->key = str;
+	elem->value = point + 1;
+	elem->next = NULL;
+}
 
 t_env	make_env(char **envp)
 {
 	t_env	*env;
+	t_env	*test;
 	char	*point;
 
 	while (*envp)
 	{
-		point = ft_strchr(*envp, '=');
-		printf("%s\n", *envp);
-		printf("%p\n", *envp);
-		printf("%p\n", point);
-		printf("%d\n",(int)(point - *envp));
-		printf("%s\n", *envp + (int)(point - *envp));
+		env = add_newenv(env, *envp);
 		envp++;
 	}
 	return (*env);
