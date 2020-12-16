@@ -60,13 +60,13 @@ typedef struct	s_env
 	struct s_env	*next;
 }				t_env;
 
-// typedef struct	s_inputs
-// {
-// 	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
-// 	int				command;		// 0 is not expected command
-// 	char			*str;
-// 	struct s_inputs	*next;
-// }				t_inputs;
+typedef struct	s_inputs
+{
+	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
+	int				command;		// 0 is not expected command
+	char			*str;
+	struct s_inputs	*next;
+}				t_inputs;
 
 typedef struct  s_word_block
 {

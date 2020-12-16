@@ -410,11 +410,6 @@ void				parse_command(char **line, int *command, char **str, int *sep)
 	{
 		if (word.sep != -1)								// 구분자가 나온 경우
 		{
-<<<<<<< HEAD
-		//	make_node(buf, D_REDIR);
-			node->sep = D_REDIR;
-			i++;
-=======
 			word_join(&cmd, &word);						// ? 뒤에 매개변수 free
 			(*command) = cmd_to_int(cmd.word);			// ? 안에서 free 해주자
 			(*str) = 0;
@@ -427,7 +422,6 @@ void				parse_command(char **line, int *command, char **str, int *sep)
 			(*command) = cmd_to_int(cmd.word);
 			get_str_and_sep(line, str, sep);
 			break ;
->>>>>>> d4cc070c47cd50ef814cbd7bcfc6de025b0bcf54
 		}
 	}
 }

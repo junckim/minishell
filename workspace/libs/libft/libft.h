@@ -14,17 +14,9 @@
 # define LIBFT_H
 # include <stdlib.h>
 
-typedef struct	s_inputs
-{
-	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
-	int				command;		// 0 is not expected command
-	char			*str;
-	struct s_inputs	*next;
-}				t_inputs;
-
 typedef struct	s_list
 {
-	t_inputs		*content;
+	void			*content;
 	struct s_list	*next;
 }				t_list;
 
