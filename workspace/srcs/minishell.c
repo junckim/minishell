@@ -68,9 +68,9 @@ int	main(int argc, char **argv, char **envp)
 	t_env		env;
 	int			status;
 	char		*input;
-	char		*tmp;
-	t_list		*lst;
 	char		*path;
+	t_list		*lst;
+	t_list		*cur;
 	int			i;		// ! erase later
 
 	status = 1;
@@ -82,14 +82,14 @@ int	main(int argc, char **argv, char **envp)
 		get_input(&input);
 		printf("input test : %s\n", input);
 		lst = split_separator(input);
-		tmp = lst;
 		i = 0;
-		while (*lst)
+		cur = lst;
+		while (cur)
 		{
-			skip_space(lst);
-			printf("line[%d] : %s\n", i++, *lst);
-			command_branch(*lst); // 만들어진 문자리스트 && t_argu
-			lst++;
+			// skip_space(cur);
+			printf("line[%d]\ncommand : %d\nstr : %s\nsep : %d\n", i++, cur->content->command, cur->content->str, cur->content->sep);
+			// command_branch(*cur); // 만들어진 문자리스트 && t_argu
+			cur = cur->next;
 		}
 	}*/
 	return (0);

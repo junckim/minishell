@@ -30,7 +30,7 @@ OBJS = $(SRCS:.c=.o)
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@make -C ${UTILS}libft
+	@make bonus -C ${UTILS}libft
 	@make -C ${UTILS}libftprintf
 	@${CC} ${LIBFT_FLAGS} ${OBJS} -o ${NAME}
 	@echo ----------make success minishell----------
