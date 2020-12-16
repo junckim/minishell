@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 15:06:27 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/11 15:24:51 by kimjoocha        ###   ########.fr       */
+/*   Updated: 2020/12/16 14:54:06 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int		ft_isset(const char *str, const char *set)
 
 	while (*set)
 	{
-		tmp = str;
+		tmp = (char *)str;
 		while (*str)
 		{
 			if (*set == *str)
@@ -76,7 +76,7 @@ void	get_double_quotation(t_word_block *ret, char **ref)
 	{
 		if (line[i] == ret->quotation)
 			break ;
-		else if (ft_isset(line[i], "\\"))
+		else if (ft_isset(&line[i], "\\"))
 			i++;
 	}
 	if (line[i] == 0)
@@ -104,9 +104,9 @@ void	get_basic(t_word_block *ret, char **ref)
 	i = -1;
 	while (line[++i])
 	{
-		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
+		if (ft_isset(&line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
-		else if (ft_isset(line[i], "\\"))
+		else if (ft_isset(&line[i], "\\"))
 			i++;
 	}
 	if (ft_isspace(line[i]))
@@ -314,16 +314,16 @@ void				split_and_save_node(t_list **ret, char *buf, char *str)
 	{
 		if (str[i] == '>' && i != ft_strlen(str) - 1 && str[i + 1] != '>')
 		{
-			make_node(buf, D_REDIR)
-			node.sep = D_REDIR;
+			make_node(buf, D_REDIR);
+			node->sep = D_REDIR;
 			i++;
 		}
 		else if (str[i] == '>')
-			node.sep = REDIR;
+			node->sep = REDIR;
 		else if (str[i] == '<')
-			node.sep = REV_REDIR;
+			node->sep = REV_REDIR;
 		else if (str[i] == '|')
-			node.sep = PIPE;
+			node->sep = PIPE;
 		
 	}
 }
