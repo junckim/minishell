@@ -28,15 +28,15 @@ void	get_input(char **input)
 	*input = str;
 }
 
-void	make_prompt_msg(t_argu items)
+void	make_prompt_msg(char *path)
 {
-	char *path;
+	char *last;
 
-	path = ft_strrchr(items.cur_path, '/');
+	path = ft_strrchr(path, '/');
 	ft_printf(COLOR_MAGENTA);
 	ft_printf("dir :");
 	ft_printf(COLOR_BCYAN);
-	ft_printf("%s", path);
+	ft_printf("%s", last);
 	ft_printf(COLOR_BRED);
 	ft_printf(" @~"COLOR_BYELLOW"=+"COLOR_BWHITE"=+"
 			COLOR_BGREEN"=+>");
@@ -44,21 +44,41 @@ void	make_prompt_msg(t_argu items)
 }
 
 
+
+t_env	make_env(char **envp)
+{
+	t_env	*env;
+	char	*point;
+
+	while (*envp)
+	{
+		point = ft_strchr(*envp, '=');
+		printf("%s\n", *envp);
+		printf("%p\n", *envp);
+		printf("%p\n", point);
+		printf("%d\n",(int)(point - *envp));
+		printf("%s\n", *envp + (int)(point - *envp));
+		envp++;
+	}
+	return (*env);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
-	t_argu		argu;
+	t_env		env;
+	int			status;
 	char		*input;
-	char		**tmp;
+	char		*tmp;
 	t_list		*lst;
+	char		*path;
 	int			i;		// ! erase later
 
-	argu.status = 1;
-	argu.argv = argv;
-	argu.envp = envp;
-	argu.cur_path = getcwd(NULL, 0);
-	while(argu.status)
+	status = 1;
+	env = make_env(envp);
+/*	path = getcwd(NULL, 0);
+	while(status)
 	{
-		make_prompt_msg(argu);
+		make_prompt_msg(path);
 		get_input(&input);
 		printf("input test : %s\n", input);
 		lst = split_separator(input);
@@ -71,6 +91,6 @@ int	main(int argc, char **argv, char **envp)
 			command_branch(*lst); // 만들어진 문자리스트 && t_argu
 			lst++;
 		}
-	}
+	}*/
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 15:06:27 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/16 14:54:06 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/16 17:52:22 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,7 +314,7 @@ void				split_and_save_node(t_list **ret, char *buf, char *str)
 	{
 		if (str[i] == '>' && i != ft_strlen(str) - 1 && str[i + 1] != '>')
 		{
-			make_node(buf, D_REDIR);
+		//	make_node(buf, D_REDIR);
 			node->sep = D_REDIR;
 			i++;
 		}

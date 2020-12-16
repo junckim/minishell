@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/15 19:57:38 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/16 17:49:37 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,12 @@
 # define COLOR_BWHITE	"\x1b[97m"
 # define COLOR_RESET	"\x1b[0m"
 
-typedef struct	s_argu
+typedef struct	s_env
 {
-	int		status;
-	char	*cur_path;
-	char	**argv;
-	char	**envp;
-}				t_argu;
+	char			*key;
+	char			*value;
+	struct s_env	*next;
+}				t_env;
 
 typedef struct	s_inputs
 {
