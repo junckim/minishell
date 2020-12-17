@@ -7,6 +7,39 @@ void	signal_handler(int signo)
 	printf("get signal\n");
 }
 
+void	init_check(t_check *check)
+{
+	check->slash = 0;
+	check->quo = 0;
+	check->B_quo = 0;
+}
+
+int		check_word_input(char *str, char c)
+{
+	int		flag;
+
+	flag = 0;
+	printf("%s\n", str);
+	while (str)
+	{
+		if (*str == c && flag == 0)
+			flag = 1;
+		if (*str == c && flag == 1)
+			flag = 0;
+		str++;
+	}
+	return (flag);
+}
+
+void	check_input(char **input)
+{
+	t_check	check;
+
+	init_check(&check);
+	if (check_word_input(*input, '"'))
+		;
+}
+
 void	get_input(char **input)
 {
 	int		ret;
@@ -26,6 +59,7 @@ void	get_input(char **input)
 		}
 	}
 	*input = str;
+	check_input(input);
 }
 
 void	make_prompt_msg()
