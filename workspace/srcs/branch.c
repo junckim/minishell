@@ -315,21 +315,14 @@ t_list				*split_separator(char *line)		//	!
 {
 	t_list			*ret;
 	t_inputs		*content;
-	t_list			*tmp;
 
-	ret = (t_list *)malloc(sizeof(t_list));
+	ret = NULL;
 	while (*line)
 	{
 		content = (t_inputs *)malloc(sizeof(t_inputs));
 		parse_command(&line, &(content->command), &(content->str), &(content->sep));
-		printf("==content==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
-		// printf("before ft_lstadd_back\n");
-		tmp = ft_lstnew(content);
-		if (tmp == 0)
-			printf("tmp is null\n");
-		else
-			ft_lstadd_back(&ret, tmp);
-		// printf("after ft_lstadd_back\n");
+		printf("==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
+		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);
 }
