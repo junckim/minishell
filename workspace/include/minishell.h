@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/16 17:49:37 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/17 17:47:38 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,6 @@
 # define COLOR_BCYAN	"\x1b[96m"
 # define COLOR_BWHITE	"\x1b[97m"
 # define COLOR_RESET	"\x1b[0m"
-
-typedef struct	s_env
-{
-	char			*key;
-	char			*value;
-	struct s_env	*next;
-}				t_env;
 
 typedef struct	s_inputs
 {
