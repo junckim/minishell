@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/18 15:27:52 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/18 15:49:51 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,10 @@
 # define REDIR		2		// > 가 들어온 경우
 # define REV_REDIR	3		// < 가 들어온 경우
 # define D_REDIR	4		// >> 가 들어온 경우
+
+# define BQU		1		// "
+# define SQU		2		// '
+# define BSL		3		// \
 
 # define ECHO		1
 # define CD			2

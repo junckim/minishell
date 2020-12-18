@@ -7,41 +7,29 @@ void	signal_handler(int signo)
 	printf("get signal\n");
 }
 
-void	init_check(t_check *check)
+int		check_input(char *str)
 {
-	check->slash = 0;
-	check->quo = 0;
-	check->B_quo = 0;
-}
-
-int		check_word_input(char *str, char c)
-{
-	int		flag;
+	int	flag;
 
 	flag = 0;
 	while (*str)
 	{
-		if (*str == c && flag == 0)
-			flag = 1;
-		else if (*str == c && flag == 1)
+		if (*str == '"' && flag == 0)
+			flag = BQU;
+		else if (*str == '\'' && flag == 0)
+			flag = SQU;
+		else if (*str == '"' && flag == 1)
 			flag = 0;
+		else if (*str == '\'' && flag == 2)
+			flag = 0;
+		else if (*str == '\\' && flag == 0 && *(str + 1) == 0)
+			flag = BSL;
 		str++;
 	}
 	return (flag);
 }
 
-void	check_input(char **input)
-{
-	int		aa;
-	t_check	check;
-
-	init_check(&check);
-	if ((aa = check_word_input(*input, '"')))
-	{
-		check.B_quo = 1;
-	}
-	printf("%d\n", check.B_quo);
-}
+void	more_input(char **input);
 
 void	get_input(char **input)
 {
@@ -62,7 +50,33 @@ void	get_input(char **input)
 		}
 	}
 	*input = str;
-	check_input(input);
+	more_input(input);
+}
+
+void	BSL_doing(char **input)
+{
+	char	*tmp;
+	char	*more;
+
+	tmp = ft_substr(*input, 0, ft_strlen(*input) - 1);
+	free(*input);
+	get_input(&more);
+	*input = ft_strjoin(tmp, more);
+	free(more);
+	free(tmp);
+}
+
+void	more_input(char **input)
+{
+	int	flag;
+	int	len;
+	char	*tmp;
+	char	*more;
+
+	if ((flag = check_input(*input)))
+		write(1, ">", 1);
+	if (flag == BSL)
+		BSL_doing(input);
 }
 
 void	make_prompt_msg()
