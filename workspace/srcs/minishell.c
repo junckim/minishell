@@ -19,12 +19,11 @@ int		check_word_input(char *str, char c)
 	int		flag;
 
 	flag = 0;
-	printf("%s\n", str);
-	while (str)
+	while (*str)
 	{
 		if (*str == c && flag == 0)
 			flag = 1;
-		if (*str == c && flag == 1)
+		else if (*str == c && flag == 1)
 			flag = 0;
 		str++;
 	}
@@ -33,11 +32,15 @@ int		check_word_input(char *str, char c)
 
 void	check_input(char **input)
 {
+	int		aa;
 	t_check	check;
 
 	init_check(&check);
-	if (check_word_input(*input, '"'))
-		;
+	if ((aa = check_word_input(*input, '"')))
+	{
+		check.B_quo = 1;
+	}
+	printf("%d\n", check.B_quo);
 }
 
 void	get_input(char **input)

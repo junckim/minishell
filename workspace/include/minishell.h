@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/17 19:04:56 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/18 15:27:52 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,6 @@
 # define COLOR_BCYAN	"\x1b[96m"
 # define COLOR_BWHITE	"\x1b[97m"
 # define COLOR_RESET	"\x1b[0m"
-
-typedef struct	s_check
-{
-	int		slash;
-	int		quo;
-	int		B_quo;
-}				t_check;
 
 typedef struct	s_inputs
 {
