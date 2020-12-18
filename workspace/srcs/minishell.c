@@ -101,6 +101,7 @@ int	main(int argc, char **argv, char **envp)
 	int			status;
 	char		*input;
 	t_list		*lst;
+	t_env		*env;
 	t_list		*cur;
 	int			i;		// ! erase later
 
