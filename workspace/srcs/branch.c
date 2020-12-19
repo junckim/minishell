@@ -19,7 +19,7 @@ int		ft_isspace(char c)
 	return (0);
 }
 
-int		ft_isset(const char c, const char *set)
+int		ft_isset(char c, const char *set)
 {
 	while (*set)
 	{
@@ -65,6 +65,11 @@ void	get_single_quotation(t_word_block *ret, char **ref)
 	(*ref) += (i + 1);
 }
 
+/*
+* *		큰따옴표로 묶인 단어 파싱
+* *		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
+**		param  : 필요한 정보를 저장할 구조체, 원본 글
+*/
 void	get_double_quotation(t_word_block *ret, char **ref)
 {
 	char	*line;
@@ -77,8 +82,8 @@ void	get_double_quotation(t_word_block *ret, char **ref)
 	{
 		if (line[i] == ret->quotation)
 			break ;
-		else if (ft_isset(line[i], "\\"))
-			i++;
+		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"'))
+			line[i - 1] = -1;
 	}
 	if (line[i] == 0)
 	{
@@ -218,36 +223,46 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 }
 
 /*
+* *		두 문자열을 비교해준다
+* *		뒤에 들어오는 문자열의 대문자는 소문자로 인식한다
+**		param  : 비교할 두 문자열
+**		return : 두 문자열의 차이값
+*/
+int					strcmp_ignore_upper(char *str1, char *str2)
+{
+	int			i;
+
+	i = 0;
+	while (str1[i] && str2[i])
+	{
+		if (str1[i] - str2[i] && str1[i] - (str2[i] - 'A' + 'a'))
+			return (str1[i] - str2[i]);
+		i++;
+	}
+	return (str1[i] - str2[i]);
+}
+
+/*
 * *		스트링을 읽고 어떤 cmd인지 해당 번호를 반환
+* *		워드를 프리해줌
 **		param  : 커맨드 문자열
 **		return : 디파인된 커맨드 넘버
 */
 int					cmd_to_int(char *cmd)
 {
-	if (ft_strlen(cmd) == 4 && (ft_strncmp(cmd, "echo", 4) == 0 || ft_strncmp(cmd, "Echo", 4) == 0 ||
-								ft_strncmp(cmd, "eCho", 4) == 0 || ft_strncmp(cmd, "ecHo", 4) == 0 ||
-								ft_strncmp(cmd, "echO", 4) == 0 || ft_strncmp(cmd, "ECho", 4) == 0 ||
-								ft_strncmp(cmd, "EcHo", 4) == 0 || ft_strncmp(cmd, "EchO", 4) == 0 ||
-								ft_strncmp(cmd, "eCHo", 4) == 0 || ft_strncmp(cmd, "eChO", 4) == 0 ||
-								ft_strncmp(cmd, "ecHO", 4) == 0 || ft_strncmp(cmd, "ECHo", 4) == 0 ||
-								ft_strncmp(cmd, "EChO", 4) == 0 || ft_strncmp(cmd, "EcHO", 4) == 0 ||
-								ft_strncmp(cmd, "eCHO", 4) == 0 || ft_strncmp(cmd, "ECHO", 4) == 0))
+	int		ret;
+
+	if (ft_strlen(cmd) == 4 && strcmp_ignore_upper("echo", cmd) == 0)
 		return (ECHO);
 	else if (ft_strlen(cmd) == 2 && ft_strncmp(cmd, "cd", 2) == 0)
 		return (CD);
-	else if  (ft_strlen(cmd) == 3 && (ft_strncmp(cmd, "pwd", 3) == 0 || ft_strncmp(cmd, "Pwd", 3) == 0 ||
-									  ft_strncmp(cmd, "pWd", 3) == 0 || ft_strncmp(cmd, "pwD", 3) == 0 ||
-									  ft_strncmp(cmd, "PWd", 3) == 0 || ft_strncmp(cmd, "PwD", 3) == 0 ||
-									  ft_strncmp(cmd, "pWD", 3) == 0 || ft_strncmp(cmd, "PWD", 3) == 0))
+	else if  (ft_strlen(cmd) == 3 && strcmp_ignore_upper("pwd", cmd) == 0)
 		return (PWD);
 	else if (ft_strlen(cmd) == 6 && ft_strncmp(cmd, "export", 6) == 0)
 		return (EXPORT);
 	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
 		return (UNSET);
-	else if (ft_strlen(cmd) == 3 && (ft_strncmp(cmd, "env", 3) == 0 || ft_strncmp(cmd, "Env", 3) == 0 ||
-									 ft_strncmp(cmd, "eNv", 3) == 0 || ft_strncmp(cmd, "enV", 3) == 0 ||
-									 ft_strncmp(cmd, "ENv", 3) == 0 || ft_strncmp(cmd, "EnV", 3) == 0 ||
-									 ft_strncmp(cmd, "eNV", 3) == 0 || ft_strncmp(cmd, "ENV", 3) == 0))
+	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd))
 		return (ENV);
 	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
 		return (EXIT);
@@ -321,7 +336,7 @@ t_list				*split_separator(char *line)		//	!
 	{
 		content = (t_inputs *)malloc(sizeof(t_inputs));
 		parse_command(&line, &(content->command), &(content->str), &(content->sep));
-		printf("==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
+		printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n\n", content->command, content->str, content->sep);
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);
