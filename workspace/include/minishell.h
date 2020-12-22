@@ -39,7 +39,8 @@
 # define EXPORT		4
 # define UNSET		5
 # define ENV		6
-# define EXIT		7
+# define LS			7
+# define EXIT		8
 
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"

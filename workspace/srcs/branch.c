@@ -262,8 +262,10 @@ int					cmd_to_int(char *cmd)
 		return (EXPORT);
 	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
 		return (UNSET);
-	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd))
+	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd) == 0)
 		return (ENV);
+	else if (ft_strlen(cmd) == 2 && strcmp_ignore_upper("ls", cmd) == 0)
+		return (LS);
 	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
 		return (EXIT);
 	return (-1);
@@ -314,6 +316,7 @@ void				parse_command(char **line, int *command, char **str, int *sep)
 		word_join(&cmd, &word);
 		if (cmd.quotation == 0 && cmd.space_has)		// 띄어쓰기가 나온 경우
 		{
+			printf("cmd : %s\n", cmd.word);
 			(*command) = cmd_to_int(cmd.word);
 			get_str_and_sep(line, str, sep);
 			break ;
