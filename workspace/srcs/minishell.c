@@ -101,13 +101,13 @@ int	main(int argc, char **argv, char **envp)
 	int			status;
 	char		*input;
 	t_list		*lst;
-	t_env		*env;
 	t_list		*cur;
 	int			i;		// ! erase later
 
 	status = 1;
 	while(status)
 	{
+		signal(SIGINT, (void *)signal_handler);
 		make_prompt_msg();
 		get_input(&input);
 		printf("input test : %s\n", input);
