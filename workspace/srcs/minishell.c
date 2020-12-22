@@ -1,12 +1,6 @@
 #include "../include/minishell.h"
 #include <stdio.h>
 
-void	signal_handler(int signo)
-{
-	printf("\n%d\n", signo);
-	printf("get signal\n");
-}
-
 int		check_input(char *str)
 {
 	int	flag;
@@ -96,6 +90,12 @@ void	make_prompt_msg()
 	ft_printf(COLOR_RESET);
 }
 
+void	signal_handler(int signo)
+{
+	write(1, "\n", 1);
+	make_prompt_msg();
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int			status;
@@ -104,10 +104,10 @@ int	main(int argc, char **argv, char **envp)
 	t_list		*cur;
 	int			i;		// ! erase later
 
+	signal(SIGINT, (void *)signal_handler);
 	status = 1;
 	while(status)
 	{
-		signal(SIGINT, (void *)signal_handler);
 		make_prompt_msg();
 		get_input(&input);
 		printf("input test : %s\n", input);
