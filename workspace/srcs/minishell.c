@@ -112,8 +112,8 @@ int	main(int argc, char **argv, char **envp)
 		make_prompt_msg();
 		get_input(&input);
 		printf("input test : %s\n", input);
-	/*	lst = split_separator(input);
-		i = 0;
+		lst = split_separator(input);
+	/*	i = 0;
 		cur = lst;
 		while (cur)
 		{

@@ -30,6 +30,48 @@ int		ft_isset(char c, const char *set)
 	return (0);
 }
 
+int		ft_cnt_minus(const char *s)
+{
+	int		ret;
+
+	ret = 0;
+	while (*s)
+	{
+		if (*s == -1)
+			ret++;
+		s++;
+	}
+	return (ret);
+}
+
+/*
+* *		문자열 중간에 삽입된 -1을 삭제
+**		param  : 문자열 원본
+**		return : 가공된 문자열
+*/
+char	*ft_except_strdup(const char *s)
+{
+	size_t	len;
+	char	*res;
+	char	*temp;
+
+	len = ft_strlen(s) - ft_cnt_minus(s);
+	if ((res = (char *)malloc(sizeof(char) * (len + 1))) == NULL)
+		return (NULL);
+	temp = res;
+	while (*s)
+	{
+		if (*s == -1)
+		{
+			s++;
+			continue ;
+		}
+		*temp++ = *s++;
+	}
+	*temp = 0;
+	return (res);
+}
+
 void		get_str_to_idx(t_word_block *ret, char *line, int i)
 {
 	char		tmp;
@@ -37,7 +79,7 @@ void		get_str_to_idx(t_word_block *ret, char *line, int i)
 	tmp = line[i];
 	line[i] = 0;
 	free(ret->word);
-	ret->word = ft_strdup(line);
+	ret->word = ft_except_strdup(line);
 	line[i] = tmp;
 }
 
@@ -65,6 +107,26 @@ void	get_single_quotation(t_word_block *ret, char **ref)
 	(*ref) += (i + 1);
 }
 
+int		get_index_double(t_word_block *ret, char **ref)
+{
+	char	*line;
+	int		i;
+
+	line = *ref;
+	i = -1;
+	while (line[++i])
+	{
+		if (line[i] == ret->quotation)
+			break ;
+		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"'))
+		{
+			line[i] = -1;
+			i++;
+		}
+	}
+	return (i);
+}
+
 /*
 * *		큰따옴표로 묶인 단어 파싱
 * *		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
@@ -77,14 +139,7 @@ void	get_double_quotation(t_word_block *ret, char **ref)
 
 	(*ref)++;
 	line = *ref;
-	i = -1;
-	while (line[++i])
-	{
-		if (line[i] == ret->quotation)
-			break ;
-		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"'))
-			line[i - 1] = -1;
-	}
+	i = get_index_double(ret, ref);
 	if (line[i] == 0)
 	{
 		printf("Wait standard input\t-\tget_quotation\n");
@@ -113,7 +168,7 @@ int		sep_to_int(char sep, char next)
 	return (-1);
 }
 
-void	get_basic(t_word_block *ret, char **ref)
+int		get_index_basic(t_word_block *ret, char **ref)
 {
 	char	*line;
 	int		i;
@@ -122,21 +177,35 @@ void	get_basic(t_word_block *ret, char **ref)
 	i = -1;
 	while (line[++i])
 	{
-		if (ft_isset(line[i], "\'\""))
+		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
 		else if (ft_isset(line[i], "|><;") && i != ft_strlen(line) - 1)
 		{
 			ret->sep = sep_to_int(line[i], line[i + 1]);
 			break ;
 		}
-		else if ((ft_isset(line[i], "|><;") && i == ft_strlen(line) - 1) || ft_isspace(line[i]))
-		{
-			ret->sep = sep_to_int(line[i], 0);
-			break ;
-		}
 		else if (ft_isset(line[i], "\\"))
+		{
+			line[i] = -1;
 			i++;
+		}
 	}
+	return (i);
+}
+
+/*
+* *		따옴표가 아닌 부분을 파싱
+* *		구분자가 나오기 전까지 파싱
+* *		생략해야하는 \는 -1로 치환해서 처리
+**		param  : 단어 블록 원본, 라인 주솟값
+*/
+void	get_basic(t_word_block *ret, char **ref)
+{
+	char	*line;
+	int		i;
+
+	line = *ref;
+	i = get_index_basic(ret, ref);
 	if (ft_isspace(line[i]))
 		ret->space_has = 1;
 	else if (line[i] == 0)
@@ -282,7 +351,7 @@ void				get_str_and_sep(char **line, char **str, int *sep)
 
 	skip_space(line);
 	word_init(&string);
-	while ((word = get_word(line)).word)		// 무한 루프
+	while ((word = get_word(line)).word)
 	{
 		word_join(&string, &word);
 		if (string.sep != -1)
@@ -314,9 +383,8 @@ void				parse_command(char **line, int *command, char **str, int *sep)
 			break ;
 		}
 		word_join(&cmd, &word);
-		if (cmd.quotation == 0 && cmd.space_has)		// 띄어쓰기가 나온 경우
+		if (cmd.space_has)		// 띄어쓰기, NULL가 나온 경우
 		{
-			printf("cmd : %s\n", cmd.word);
 			(*command) = cmd_to_int(cmd.word);
 			get_str_and_sep(line, str, sep);
 			break ;
