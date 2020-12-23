@@ -60,6 +60,11 @@ void	BSL_doing(char **input)
 	free(tmp);
 }
 
+void	SQU_doing(char **input)
+{
+
+}
+
 void	more_input(char **input)
 {
 	int	flag;
@@ -71,6 +76,8 @@ void	more_input(char **input)
 		write(1, ">", 1);
 	if (flag == BSL)
 		BSL_doing(input);
+	if (flag == SQU)
+		SQU_doing(input);
 }
 
 void	make_prompt_msg()
