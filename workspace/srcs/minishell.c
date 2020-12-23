@@ -96,17 +96,61 @@ void	signal_handler(int signo)
 	make_prompt_msg();
 }
 
+t_env	*make_env_new(char *envp)
+{
+	t_env	*env;
+	char	*path;
+	char	*key;
+	char	*value;
+
+	path = ft_strchr(envp, '=');
+	key = envp;
+	value = path + 1;
+	*path = 0;
+	if ((env = malloc(sizeof(t_env))) == 0)
+		return (0);
+	env->key = key;
+	env->value = value;
+	env->next = NULL;
+	return (env);
+}
+
+void	add_envlst(t_env *env, char *envp)
+{
+	t_env	*elem;
+
+	elem = make_env_new(envp);
+	while (env->next)
+		env = env->next;
+	env->next = elem;
+}
+
+t_env	*make_envlst(char **envp)
+{
+	t_env	*env;
+
+	env = make_env_new(*envp);
+	envp++;
+	while (*envp)
+	{
+		add_envlst(env, *envp);
+		envp++;
+	}
+	return (env);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int			status;
 	char		*input;
-	t_env		env;
+	t_env		*env;
 	t_list		*lst;
 	t_list		*cur;
 	int			i;		// ! erase later
 
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
+	env = make_envlst(envp);
 	while(status)
 	{
 		make_prompt_msg();
