@@ -12,24 +12,6 @@
 
 #include "../include/minishell.h"
 
-int		ft_isspace(char c)
-{
-	if (c == 32 || (c > 7 && c < 13))
-		return (1);
-	return (0);
-}
-
-int		ft_isset(char c, const char *set)
-{
-	while (*set)
-	{
-		if (*set == c)
-			return (1);
-		set++;
-	}
-	return (0);
-}
-
 int		ft_cnt_minus(const char *s)
 {
 	int		ret;

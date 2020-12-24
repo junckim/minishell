@@ -12,8 +12,40 @@
 
 #include "../include/minishell.h"
 
-void	skip_space(char **str)
+void		skip_space(char **str)
 {
 	while (**str == 32 || (**str > 7 && **str < 13))
 		(*str)++;
+}
+
+int         atoi(const char *fd)
+{
+    int     ret;
+
+    ret = 0;
+    while (*fd)
+    {
+        ret *= 10;
+        ret += (*fd) - '0';
+        fd++;
+    }
+    return (ret);
+}
+
+int		ft_isspace(char c)
+{
+	if (c == 32 || (c > 7 && c < 13))
+		return (1);
+	return (0);
+}
+
+int		ft_isset(char c, const char *set)
+{
+	while (*set)
+	{
+		if (*set == c)
+			return (1);
+		set++;
+	}
+	return (0);
 }

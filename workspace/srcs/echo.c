@@ -1,18 +1,5 @@
 #include "../include/minishell.h"
 
-int         ctoi(const char *fd)
-{
-    int     ret;
-
-    ret = 0;
-    while (*fd)
-    {
-        ret *= 10;
-        ret += (*fd) - '0';
-        fd++;
-    }
-    return (ret);
-}
 /*
 * *     echo 함수, str은 다 가공된 채로 들어온다
 **      param  : argv[자기자신, fd, str]
@@ -37,12 +24,26 @@ int             main(int argc, char *argv[], char *envp[])
         else
             break ;
     }
-    write(ctoi(argv[1]), str, ft_strlen(str));
+    write(atoi(argv[1]), str, ft_strlen(str));
     if (flag == 0)
         write(1, "\n", 1);
 }
 
 /*
+int         atoi(const char *fd)
+{
+    int     ret;
+
+    ret = 0;
+    while (*fd)
+    {
+        ret *= 10;
+        ret += (*fd) - '0';
+        fd++;
+    }
+    return (ret);
+}
+
 int		ft_isspace(char c)
 {
 	if (c == 32 || (c > 7 && c < 13))

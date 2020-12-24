@@ -85,5 +85,8 @@ typedef struct  s_word_block
 void	command_branch(char *command);
 void	skip_space(char **str);
 t_list	*split_separator(char *line, t_env *env);
+int		atoi(const char *fd);
+int		ft_isspace(char c);
+int		ft_isset(char c, const char *set);
 
 #endif
