@@ -488,7 +488,7 @@ void				parse_command(char **line, t_inputs **content, t_env *env)
 **		param  : 한 줄
 **		return : 리스트
 */
-t_list				*split_separator(char *line, t_env *env)		//	!
+t_list				*split_separator(char *line, t_env *env)		//	! add header
 {
 	t_list			*ret;
 	t_inputs		*content;
