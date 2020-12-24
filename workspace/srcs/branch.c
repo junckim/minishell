@@ -269,7 +269,6 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 	dest->space_has = srcs->space_has;
 	dest->sep = srcs->sep;
 	dest->quotation = srcs->quotation;
-	dest->fd = srcs->fd;
 	word_free(srcs);
 }
 
@@ -486,7 +485,6 @@ t_list				*split_separator(char *line, t_env *env)		//	! add header
 			content->command = cmd_to_int("");
 			get_str_and_sep(&line, &content, env);
 		}
-		printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);

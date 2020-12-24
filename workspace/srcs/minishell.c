@@ -153,7 +153,6 @@ int	main(int argc, char **argv, char **envp)
 	t_env		*env;
 	t_list		*lst;
 	t_list		*cur;
-	int			i;		// ! erase later
 
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
@@ -164,15 +163,14 @@ int	main(int argc, char **argv, char **envp)
 		get_input(&input);
 		printf("input test : %s\n", input);
 		lst = split_separator(input, env);
-	/*	i = 0;
 		cur = lst;
 		while (cur)
 		{
-			// skip_space(cur);
-			printf("line[%d]\ncommand : %d\nstr : %s\nsep : %d\n", i++, cur->content->command, cur->content->str, cur->content->sep);
-			// command_branch(*cur); // 만들어진 문자리스트 && t_argu
+			printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", ((t_inputs *)(cur->content))->command, ((t_inputs *)(cur->content))->str, ((t_inputs *)(cur->content))->sep);
+			//				fd를 확인해줄 함수가 있어야할 듯?
+			//		branch_command((t_inputs *)(cur->content));		// cmd 별로 각 명령을 수행해 줌
 			cur = cur->next;
-		}*/
+		}
 	}
 	return (0);
 }

@@ -70,7 +70,7 @@ typedef struct	s_inputs
 	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
 	int				command;		// 0 is not expected command
 	char			*str;
-	struct s_inputs	*next;
+	int				fd;
 }				t_inputs;
 
 typedef struct  s_word_block
@@ -79,7 +79,6 @@ typedef struct  s_word_block
     char    *word;			//	단어 / NULL이면 더 가져올 것이 없다
 	int		space_has;		//	뒤에 공백이 있는가? 0 == 문자 / 1 == 공백 / 2 == 마지막 단어
 	int		sep;			//	구분자 없으면 -1;
-    int     fd;             // 어디에다가 출력을 할 것인가? > < >> |
 }               t_word_block;
 
 void	command_branch(char *command);
