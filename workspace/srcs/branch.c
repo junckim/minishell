@@ -482,8 +482,9 @@ t_list				*split_separator(char *line, t_env *env)		//	! add header
 			parse_command(&line, &content, env);
 		else
 		{
-			content->command = cmd_to_int("");
+			content->command = cmd_to_int(ft_strdup(""));
 			get_str_and_sep(&line, &content, env);
+			// printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
 		}
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
