@@ -321,30 +321,119 @@ int					cmd_to_int(char *cmd)
 {
 	int		ret;
 
+	ret = -1;
 	if (ft_strlen(cmd) == 4 && strcmp_ignore_upper("echo", cmd) == 0)
-		return (ECHO);
+		ret = ECHO;
 	else if (ft_strlen(cmd) == 2 && ft_strncmp(cmd, "cd", 2) == 0)
-		return (CD);
+		ret = CD;
 	else if  (ft_strlen(cmd) == 3 && strcmp_ignore_upper("pwd", cmd) == 0)
-		return (PWD);
+		ret = PWD;
 	else if (ft_strlen(cmd) == 6 && ft_strncmp(cmd, "export", 6) == 0)
-		return (EXPORT);
+		ret = EXPORT;
 	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
-		return (UNSET);
+		ret = UNSET;
 	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd) == 0)
-		return (ENV);
+		ret = ENV;
 	else if (ft_strlen(cmd) == 2 && strcmp_ignore_upper("ls", cmd) == 0)
-		return (LS);
+		ret = LS;
 	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
-		return (EXIT);
-	return (-1);
+		ret = EXIT;
+	free(cmd);
+	return (ret);
+}
+
+/*
+* *		환경변수가 끝나는 다음 인덱스를 반환
+**		param  : 단어, $의 위치
+**		return : 환경변수가 끝나는 다음 인덱스
+*/
+int					end_env_index(char *word, int i)
+{
+	while (word[++i])
+	{
+		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?')
+			break;
+	}
+	return (i);
+}
+
+char				*find_env(char *find, t_env *env)
+{
+	t_env	*cur;
+
+	cur = env;
+	while (cur)
+	{
+		if (ft_strlen(cur->key) == ft_strlen(find) && ft_strncmp(cur->key, find, ft_strlen(find)) == 0)
+		{
+			free(find);
+			return (ft_strdup(cur->value));
+		}
+		cur = cur->next;
+	}
+	free(find);
+	return (ft_strdup(""));
+}
+
+int					env_strdup(char **word, int start, int end, char *val)
+{
+	int			ret;
+	char		tmp;
+	char		*new;
+	char		*ttmp;
+	char		*tttmp;
+
+	tmp = (*word)[start];
+	(*word)[start] = 0;
+	new = ft_strdup((*word));
+	(*word)[start] = tmp;
+	ttmp = new;
+	new = ft_strjoin(new, val);
+	free(val);
+	free(ttmp);
+	ret = ft_strlen(new) - 1;
+	ttmp = new;
+	new = ft_strjoin(new, (tttmp = ft_strdup(&((*word)[end]))));
+	free(ttmp);
+	free(tttmp);
+	free(*word);
+	(*word) = new;
+	return (ret);
+}
+
+/*
+* *		환경변수를 찾으면 치환
+**		param  : 수정해줄 단어, 환경변수 목록
+*/
+void				change_env(t_word_block *word, t_env *env)
+{
+	int		i;
+	int		j;
+	char	tmp;
+	char	*find;
+
+	i = -1;
+	while ((word->word)[++i])
+	{
+		if ((word->word)[i] == '$' && (word->word)[i + 1] != 0)
+		{
+			// if ((word->word)[i + 1] == '?')
+			j = end_env_index(word->word, i);
+			tmp = (word->word)[j];
+			(word->word)[j] = 0;
+			find = ft_strdup(&((word->word)[i + 1]));
+			(word->word)[j] = tmp;
+			find = find_env(find, env);					// free(find);
+			i = env_strdup(&(word->word), i, j, find);	// free(word->word), free(find), return 마지막 인덱스
+		}
+	}
 }
 
 /*
 * *		커맨드는 저장을 했다. 남은 문자열로 str, sep을 저장하자
-**		param  : 남은 줄, input->str, input->sep
+**		param  : 남은 줄, content
 */
-void				get_str_and_sep(char **line, char **str, int *sep)
+void				get_str_and_sep(char **line, t_inputs **content, t_env *env)
 {
 	t_word_block	string;
 	t_word_block	word;
@@ -353,40 +442,42 @@ void				get_str_and_sep(char **line, char **str, int *sep)
 	word_init(&string);
 	while ((word = get_word(line)).word)
 	{
+		change_env(&word, env);
 		word_join(&string, &word);
 		if (string.sep != -1)
 			break ;
 	}
-	(*sep) = string.sep;
-	(*str) = string.word;
+	(*content)->sep = string.sep;
+	(*content)->str = string.word;
 }
 
 /*
 * *		줄을 받아다 inputs 구조체의 요소들을 저장, 줄은 넘어가면서 사용
 **		param  : 줄, 커맨드, 스트링, 구분자
 */
-void				parse_command(char **line, int *command, char **str, int *sep)
+void				parse_command(char **line, t_inputs **content, t_env *env)
 {
 	t_word_block	cmd;
 	t_word_block	word;
 	char			*tmp;
 
 	word_init(&cmd);
-	while ((word = get_word(line)).word)				// ? 구분자까지만 파싱
+	while ((word = get_word(line)).word)						// ? 구분자까지만 파싱
 	{
-		if (word.sep != -1)								// 구분자가 나온 경우
+		change_env(&word, env);
+		if (word.sep != -1)										// 구분자가 나온 경우
 		{
-			word_join(&cmd, &word);						// ? 뒤에 매개변수 free
-			(*command) = cmd_to_int(cmd.word);			// ? 안에서 free 해주자
-			(*str) = ft_strdup("");
-			(*sep) = cmd.sep;
+			word_join(&cmd, &word);								// ? 뒤에 매개변수 free
+			(*content)->command = cmd_to_int(cmd.word);			// ? 안에서 free 해주자
+			(*content)->str = ft_strdup("");
+			(*content)->sep = cmd.sep;
 			break ;
 		}
 		word_join(&cmd, &word);
 		if (cmd.space_has)		// 띄어쓰기, NULL가 나온 경우
 		{
-			(*command) = cmd_to_int(cmd.word);
-			get_str_and_sep(line, str, sep);
+			(*content)->command = cmd_to_int(cmd.word);
+			get_str_and_sep(line, content, env);
 			break ;
 		}
 	}
@@ -397,7 +488,7 @@ void				parse_command(char **line, int *command, char **str, int *sep)
 **		param  : 한 줄
 **		return : 리스트
 */
-t_list				*split_separator(char *line)		//	!
+t_list				*split_separator(char *line, t_env *env)		//	!
 {
 	t_list			*ret;
 	t_inputs		*content;
@@ -406,8 +497,14 @@ t_list				*split_separator(char *line)		//	!
 	while (*line)
 	{
 		content = (t_inputs *)malloc(sizeof(t_inputs));
-		parse_command(&line, &(content->command), &(content->str), &(content->sep));
-		printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n\n", content->command, content->str, content->sep);
+		if (ret == NULL || ((t_inputs *)(ret->content))->sep == SEMI || ((t_inputs *)(ret->content))->sep == PIPE)
+			parse_command(&line, &content, env);
+		else
+		{
+			content->command = cmd_to_int("");
+			get_str_and_sep(&line, &content, env);
+		}
+		printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);
