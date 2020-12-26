@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/26 23:27:57 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/27 00:45:31 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 
 # define BQU		1		// "
 # define SQU		2		// '
-# define BSL		3		// \
+# define BSL		3		// "\"
 
 # define ECHO		1
 # define CD			2
