@@ -1,5 +1,4 @@
 #include "../include/minishell.h"
-#include <stdio.h>
 
 int		check_input(char *str)
 {

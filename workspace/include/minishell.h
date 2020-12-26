@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/18 19:45:29 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/26 23:27:57 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <string.h>
 # include "../libs/libft/libft.h"
 # include "../libs/libftprintf/include/ft_printf.h"
+
+# include <stdio.h>
 
 # define SEMI		0		// 세미콜론 or 널문자
 # define PIPE		1		// | 가 들어온 경우
