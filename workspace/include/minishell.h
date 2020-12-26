@@ -20,6 +20,7 @@
 # include <dirent.h>
 # include <errno.h>
 # include <string.h>
+# include <fcntl.h>
 # include "../libs/libft/libft.h"
 # include "../libs/libftprintf/include/ft_printf.h"
 
@@ -67,12 +68,18 @@ typedef struct	s_env				//for envp
 	struct s_env	*next;
 }				t_env;
 
+typedef struct	s_pair
+{
+	int		fd;
+	int		redir;
+}				t_pair;
+
 typedef struct	s_inputs
 {
 	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
 	int				command;		// 0 is not expected command
 	char			*str;
-	int				fd;
+	t_pair			*pr;
 }				t_inputs;
 
 typedef struct  s_word_block

@@ -193,9 +193,7 @@ void	get_basic(t_word_block *ret, char **ref)
 	else if (line[i] == 0)
 		ret->space_has = 2;
 	get_str_to_idx(ret, line, i);
-	if (line[i] == '>' && i != (int)ft_strlen(line) && line[i + 1] == '>')
-		i++;
-	if (ret->sep == -1)
+	if (ret->sep == -1 || ret->sep == REDIR || ret->sep == D_REDIR || ret->sep == REV_REDIR)
 		(*ref) += i;
 	else
 		(*ref) += (i + 1);
@@ -411,58 +409,127 @@ void				change_env(t_word_block *word, t_env *env)
 }
 
 /*
+* *		스트링에 있는 워드 이름의 파일을 생성하고 fd를 반환
+* *		> 빈파일로 일단 만듦
+**		param  : sep이 닮긴 pr, 스트링
+*/
+void				make_fd(t_pair *pr, t_word_block string)
+{
+	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND);
+}
+
+/*
+* *		리다이렉션을 처리해서 반환
+* *		> 파일을 만들고 초기화
+**		param  : 리다이렉션이 처음에 나온는 라인
+**		return : 없으면 널
+*/
+//		!		36 lines
+t_pair				*is_redir(char **ref, t_env *env)
+{
+	t_pair			*pr;
+	t_word_block	word;
+	t_word_block	string;
+
+	word_init(&string);
+	skip_space(ref);
+	pr = (t_pair *)malloc(sizeof(t_pair));
+	while ((*ref)[0] != 0 && (pr->redir = sep_to_int((*ref)[0], (*ref)[1])) != -1)
+	{
+		if (pr->redir == SEMI || pr->redir == PIPE)
+		{
+			free(pr);
+			pr = 0;
+			break ;
+		}
+		else if (pr->redir == D_REDIR)
+			(*ref) += 2;
+		else
+			(*ref) += 1;
+		skip_space(ref);
+		while ((word = get_word(ref)).word)
+		{
+			if (word.quotation != '\'')
+				change_env(&word, env);
+			word_join(&string, &word);
+			if (string.sep != -1 || string.space_has != 0)
+				break ;
+		}
+		make_fd(pr, string);
+		if (string.sep == SEMI || string.sep == PIPE || string.sep == -1)
+			break ;
+		free(pr);
+		pr = 0;
+		skip_space(ref);
+	}
+	return (pr);
+}
+
+/*
 * *		커맨드는 저장을 했다. 남은 문자열로 str, sep을 저장하자
 **		param  : 남은 줄, content
 */
-void				get_str_and_sep(char **line, t_inputs **content, t_env *env)
+t_pair				*get_str_and_sep(char **line, t_inputs **content, t_env *env)
 {
 	t_word_block	string;
 	t_word_block	word;
+	t_pair			*pr;
 
 	skip_space(line);
+	pr = is_redir(line, env);
 	word_init(&string);
 	while ((word = get_word(line)).word)
 	{
 		if (word.quotation != '\'')
 			change_env(&word, env);
 		word_join(&string, &word);
-		if (string.sep != -1)
+		if (string.sep == REDIR || string.sep == D_REDIR || string.sep == REV_REDIR)
+		{
+			string.sep = -1;
+			free(pr);
+			pr = is_redir(line, env);
+		}
+		if (string.sep == SEMI || string.sep == PIPE)
 			break ;
 	}
 	(*content)->sep = string.sep;
 	(*content)->str = string.word;
+	return (pr);
 }
 
 /*
 * *		줄을 받아다 inputs 구조체의 요소들을 저장, 줄은 넘어가면서 사용
 **		param  : 줄, 커맨드, 스트링, 구분자
 */
-void				parse_command(char **line, t_inputs **content, t_env *env)
+//		!		26 lines
+t_pair				*parse_command(char **line, t_inputs **content, t_env *env)
 {
 	t_word_block	cmd;
 	t_word_block	word;
+	t_pair			*pr;
 
+	pr = 0;
 	word_init(&cmd);
-	while ((word = get_word(line)).word)						// ? 구분자까지만 파싱
+	while ((word = get_word(line)).word)															// ? 구분자까지만 파싱, 리다이렉션은 냅둔다
 	{
 		if (word.quotation != '\'')
 			change_env(&word, env);
-		if (word.sep != -1)										// 구분자가 나온 경우
+		word_join(&cmd, &word);
+		if (cmd.sep == PIPE || cmd.sep == SEMI)														// 커맨드 얻고 끝나는 경우
 		{
-			word_join(&cmd, &word);								// ? 뒤에 매개변수 free
-			(*content)->command = cmd_to_int(cmd.word);			// ? 안에서 free 해주자
+			(*content)->command = cmd_to_int(cmd.word);												// ? 안에서 free 해주자
 			(*content)->str = ft_strdup("");
 			(*content)->sep = cmd.sep;
 			break ;
 		}
-		word_join(&cmd, &word);
-		if (cmd.space_has)		// 띄어쓰기, NULL가 나온 경우
+		if (cmd.space_has || cmd.sep == REDIR || cmd.sep == D_REDIR || cmd.sep == REV_REDIR)		// 커맨드를 얻고 스트링을 얻어야하는 경우
 		{
 			(*content)->command = cmd_to_int(cmd.word);
-			get_str_and_sep(line, content, env);
+			pr = get_str_and_sep(line, content, env);
 			break ;
 		}
 	}
+	return (pr);
 }
 
 /*
@@ -474,18 +541,21 @@ t_list				*split_separator(char *line, t_env *env)		//	! add header
 {
 	t_list			*ret;
 	t_inputs		*content;
+	t_pair			*pr;
+	t_pair			*tmp;
 
 	ret = NULL;
 	while (*line)
 	{
 		content = (t_inputs *)malloc(sizeof(t_inputs));
-		if (ret == NULL || ((t_inputs *)(ret->content))->sep == SEMI || ((t_inputs *)(ret->content))->sep == PIPE)
-			parse_command(&line, &content, env);
-		else
+		pr = is_redir(&line, env);
+		if ((tmp = parse_command(&line, &content, env)))
 		{
-			content->command = cmd_to_int(ft_strdup(""));
-			get_str_and_sep(&line, &content, env);
+			if (pr != 0)
+				free(pr);
+			pr = tmp;
 		}
+		content->pr = pr;
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);

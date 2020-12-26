@@ -181,8 +181,7 @@ int	main(int argc, char **argv, char **envp)
 		cur = lst;
 		while (cur)
 		{
-			printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", ((t_inputs *)(cur->content))->command, ((t_inputs *)(cur->content))->str, ((t_inputs *)(cur->content))->sep);
-			//				fd를 확인해줄 함수가 있어야할 듯?
+			printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\nfd : %d\nredir : %d\n", ((t_inputs *)(cur->content))->command, ((t_inputs *)(cur->content))->str, ((t_inputs *)(cur->content))->sep, ((t_inputs *)(cur->content))->pr->fd, ((t_inputs *)(cur->content))->pr->redir);
 			//		branch_command((t_inputs *)(cur->content));		// cmd 별로 각 명령을 수행해 줌
 			cur = cur->next;
 		}
