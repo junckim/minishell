@@ -19,6 +19,7 @@ void	make_prompt_msg()
 
 void	signal_handler(int signo)
 {
+	signo = 0;
 	write(1, "\n", 1);
 	make_prompt_msg();
 }
@@ -165,6 +166,7 @@ int	main(int argc, char **argv, char **envp)
 	t_list		*lst;
 	t_list		*cur;
 
+	argc = 0; argv = 0;
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
 	env = make_envlst(envp);

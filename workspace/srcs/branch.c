@@ -161,7 +161,7 @@ int		get_index_basic(t_word_block *ret, char **ref)
 	{
 		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
-		else if (ft_isset(line[i], "|><;") && i != ft_strlen(line) - 1)
+		else if (ft_isset(line[i], "|><;") && i != (int)ft_strlen(line) - 1)
 		{
 			ret->sep = sep_to_int(line[i], line[i + 1]);
 			break ;
@@ -193,7 +193,7 @@ void	get_basic(t_word_block *ret, char **ref)
 	else if (line[i] == 0)
 		ret->space_has = 2;
 	get_str_to_idx(ret, line, i);
-	if (line[i] == '>' && i != ft_strlen(line) && line[i + 1] == '>')
+	if (line[i] == '>' && i != (int)ft_strlen(line) && line[i + 1] == '>')
 		i++;
 	if (ret->sep == -1)
 		(*ref) += i;
@@ -423,7 +423,8 @@ void				get_str_and_sep(char **line, t_inputs **content, t_env *env)
 	word_init(&string);
 	while ((word = get_word(line)).word)
 	{
-		change_env(&word, env);
+		if (word.quotation != '\'')
+			change_env(&word, env);
 		word_join(&string, &word);
 		if (string.sep != -1)
 			break ;
@@ -440,12 +441,12 @@ void				parse_command(char **line, t_inputs **content, t_env *env)
 {
 	t_word_block	cmd;
 	t_word_block	word;
-	char			*tmp;
 
 	word_init(&cmd);
 	while ((word = get_word(line)).word)						// ? 구분자까지만 파싱
 	{
-		change_env(&word, env);
+		if (word.quotation != '\'')
+			change_env(&word, env);
 		if (word.sep != -1)										// 구분자가 나온 경우
 		{
 			word_join(&cmd, &word);								// ? 뒤에 매개변수 free
@@ -484,7 +485,6 @@ t_list				*split_separator(char *line, t_env *env)		//	! add header
 		{
 			content->command = cmd_to_int(ft_strdup(""));
 			get_str_and_sep(&line, &content, env);
-			// printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\n", content->command, content->str, content->sep);
 		}
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
