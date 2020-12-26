@@ -1,84 +1,5 @@
 #include "../include/minishell.h"
 
-int		check_input(char *str)
-{
-	int	flag;
-
-	flag = 0;
-	while (*str)
-	{
-		if (*str == '"' && flag == 0)
-			flag = BQU;
-		else if (*str == '\'' && flag == 0)
-			flag = SQU;
-		else if (*str == '"' && flag == 1)
-			flag = 0;
-		else if (*str == '\'' && flag == 2)
-			flag = 0;
-		else if (*str == '\\' && flag == 0 && *(str + 1) == 0)
-			flag = BSL;
-		str++;
-	}
-	return (flag);
-}
-
-void	more_input(char **input);
-
-void	get_input(char **input)
-{
-	int		ret;
-	char	buf[2];
-	char	*str;
-	char	*temp;
-
-	buf[1] = 0;
-	str = ft_strjoin("", "");
-	while ((ret = read(0, buf, 1)) && buf[0] != '\n')
-	{
-		if (buf[0] != '\n' && ret != 0)
-		{
-			temp = ft_strjoin(str, buf);
-			free(str);
-			str = temp;
-		}
-	}
-	*input = str;
-	more_input(input);
-}
-
-void	BSL_doing(char **input)
-{
-	char	*tmp;
-	char	*more;
-
-	tmp = ft_substr(*input, 0, ft_strlen(*input) - 1);
-	free(*input);
-	get_input(&more);
-	*input = ft_strjoin(tmp, more);
-	free(more);
-	free(tmp);
-}
-
-void	SQU_doing(char **input)
-{
-
-}
-
-void	more_input(char **input)
-{
-	int	flag;
-	int	len;
-	char	*tmp;
-	char	*more;
-
-	if ((flag = check_input(*input)))
-		write(1, ">", 1);
-	if (flag == BSL)
-		BSL_doing(input);
-	if (flag == SQU)
-		SQU_doing(input);
-}
-
 void	make_prompt_msg()
 {
 	char	*path;
@@ -145,6 +66,97 @@ t_env	*make_envlst(char **envp)
 	return (env);
 }
 
+int		check_input(char *str)
+{
+	int	flag;
+
+	flag = 0;
+	while (*str)
+	{
+		if (*str == '"' && flag == 0)
+			flag = BQU;
+		else if (*str == '\'' && flag == 0)
+			flag = SQU;
+		else if (*str == '"' && flag == 1)
+			flag = 0;
+		else if (*str == '\'' && flag == 2)
+			flag = 0;
+		else if (*str == '\\' && flag == 0 && *(str + 1) == 0)
+			flag = BSL;
+		str++;
+	}
+	return (flag);
+}
+
+int		get_input(char **input)
+{
+	int		ret;
+	char	buf[2];
+	char	*str;
+	char	*temp;
+
+	buf[1] = 0;
+	str = ft_strjoin("", "");
+	while ((ret = read(0, buf, 1)) && buf[0] != '\n')
+	{
+		if (buf[0] != '\n' && ret != 0)
+		{
+			temp = ft_strjoin(str, buf);
+			free(str);
+			str = temp;
+		}
+	}
+	*input = str;
+	return (check_input(str));
+}
+
+void	BSL_doing(char **input)
+{
+	int		flag;
+	char	*tmp;
+	char	*more;
+
+	write(1, ">", 1);
+	tmp = ft_substr(*input, 0, ft_strlen(*input) - 1);
+	free(*input);
+	flag = get_input(&more);
+	*input = ft_strjoin(tmp, more);
+	free(more);
+	free(tmp);
+	if (flag == BSL)
+		BSL_doing(input);
+}
+
+void	quo_doing(char **input, int quo)
+{
+	int		flag;
+	char	*temp;
+	char	*more;
+	
+	write(1, ">", 1);
+	temp = ft_strjoin(*input, "\n");
+	free(*input);
+	flag = get_input(&more);
+	*input = ft_strjoin(temp, more);
+	free(more);
+	free(temp);
+	if (flag != quo)
+		quo_doing(input, quo);
+}
+
+void	input_sequence(char **input)
+{
+	int	flag;
+
+	flag = get_input(input);
+	if (flag == BSL)
+		BSL_doing(input);
+	else if (flag == SQU)
+		quo_doing(input, SQU);
+	else if (flag == BQU)
+		quo_doing(input, BQU);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int			status;
@@ -159,7 +171,7 @@ int	main(int argc, char **argv, char **envp)
 	while(status)
 	{
 		make_prompt_msg();
-		get_input(&input);
+		input_sequence(&input);
 		printf("input test : %s\n", input);
 		lst = split_separator(input, env);
 		cur = lst;
