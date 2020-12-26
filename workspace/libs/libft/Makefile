@@ -31,4 +31,4 @@ re : fclean all
 bonus : $(OBJS) $(OBJSBONUS)
 	@ar rc $(NAME) $(OBJS) $(OBJSBONUS)
 	@ranlib $(NAME)
-	@echo make bonus
+	@echo ---------------make libft bonus---------------
