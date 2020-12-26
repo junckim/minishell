@@ -74,7 +74,9 @@ int		check_input(char *str)
 	flag = 0;
 	while (*str)
 	{
-		if (*str == '"' && flag == 0)
+		if (*str == '\\' && *(str + 1) != 0)
+			str++;
+		else if (*str == '"' && flag == 0)
 			flag = BQU;
 		else if (*str == '\'' && flag == 0)
 			flag = SQU;
