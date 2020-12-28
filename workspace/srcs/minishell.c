@@ -135,8 +135,11 @@ void	quo_doing(char **input, int quo)
 	int		flag;
 	char	*temp;
 	char	*more;
-	
-	write(1, ">", 1);
+
+	if (quo == SQU)
+		write(1, "quote>", 6);
+	else
+		write(1, "D_quote>", 8);
 	temp = ft_strjoin(*input, "\n");
 	free(*input);
 	flag = get_input(&more);
