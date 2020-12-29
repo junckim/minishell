@@ -415,7 +415,7 @@ void				change_env(t_word_block *word, t_env *env)
 */
 void				make_fd(t_pair *pr, t_word_block string)
 {
-	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND);
+	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND | O_EXCL);
 }
 
 /*
