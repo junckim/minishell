@@ -76,7 +76,7 @@ typedef struct	s_pair
 
 typedef struct	s_inputs
 {
-	int				sep;			// SEMI / PIPE / REDIR / REV_REDIR / D_REDIR
+	int				sep;			// SEMI / PIPE
 	int				command;		// 0 is not expected command
 	char			*str;
 	t_pair			*pr;
