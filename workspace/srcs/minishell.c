@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
+/*   Updated: 2020/12/29 22:12:43 by joockim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
-void	make_prompt_msg()
+void	make_prompt_msg(void)
 {
 	char	*path;
 	char	*last;
@@ -67,6 +79,20 @@ t_env	*make_envlst(char **envp)
 	return (env);
 }
 
+char	*get_value(t_env *env, char *key)
+{
+	char	*value;
+
+	value = NULL;
+	while (env)
+	{
+		if (!ft_strncmp(key, env->key, ft_strlen(key)))
+			value = env->value;
+		env = env->next;
+	}
+	return (value);
+}
+
 int		check_input(char *str)
 {
 	int	flag;
@@ -113,7 +139,7 @@ int		get_input(char **input)
 	return (check_input(str));
 }
 
-void	BSL_doing(char **input)
+void	slash_doing(char **input)
 {
 	int		flag;
 	char	*tmp;
@@ -127,7 +153,7 @@ void	BSL_doing(char **input)
 	free(more);
 	free(tmp);
 	if (flag == BSL)
-		BSL_doing(input);
+		slash_doing(input);
 }
 
 void	quo_doing(char **input, int quo)
@@ -156,7 +182,7 @@ void	input_sequence(char **input)
 
 	flag = get_input(input);
 	if (flag == BSL)
-		BSL_doing(input);
+		slash_doing(input);
 	else if (flag == SQU)
 		quo_doing(input, SQU);
 	else if (flag == BQU)
