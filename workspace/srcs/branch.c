@@ -571,6 +571,7 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	t_commands		*ret;
 
 	ret = (t_commands *)err_malloc(sizeof(t_commands));
+	ret->str = 0;
 	parse_node(ref, ret, env);
 	return (ret);
 }
