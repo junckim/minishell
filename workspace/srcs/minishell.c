@@ -191,11 +191,11 @@ void	input_sequence(char **input)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int			status;
-	char		*input;
-	t_env		*env;
-	t_list		*lst;
-	t_list		*cur;
+	int				status;
+	char			*input;
+	t_env			*env;
+	t_commands		*lst;
+	t_commands		*cur;
 
 	argc = 0; argv = 0;
 	signal(SIGINT, (void *)signal_handler);
@@ -210,8 +210,6 @@ int	main(int argc, char **argv, char **envp)
 		cur = lst;
 		while (cur)
 		{
-			printf("\n==inputs==\ncommand : %d\nstr : %s\nsep : %d\nfd : %d\nredir : %d\n", ((t_inputs *)(cur->content))->command, ((t_inputs *)(cur->content))->str, ((t_inputs *)(cur->content))->sep, ((t_inputs *)(cur->content))->pr->fd, ((t_inputs *)(cur->content))->pr->redir);
-			//		branch_command((t_inputs *)(cur->content));		// cmd 별로 각 명령을 수행해 줌
 			cur = cur->next;
 		}
 	}

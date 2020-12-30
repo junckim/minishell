@@ -537,17 +537,15 @@ t_pair				*parse_command(char **line, t_inputs **content, t_env *env)
 **		param  : 한 줄
 **		return : 리스트
 */
-t_list				*split_separator(char *line, t_env *env)		//	! add header
+t_commands			*split_separator(char *line, t_env *env)		//	! add header
 {
-	t_list			*ret;
-	t_inputs		*content;
-	t_pair			*pr;
-	t_pair			*tmp;
+	t_commands		*ret;
+	t_commands		*node;
 
 	ret = NULL;
 	while (*line)
 	{
-		content = (t_inputs *)malloc(sizeof(t_inputs));
+		node = (t_commands *)malloc(sizeof(t_commands));
 		pr = is_redir(&line, env);
 		if ((tmp = parse_command(&line, &content, env)))
 		{
@@ -555,7 +553,7 @@ t_list				*split_separator(char *line, t_env *env)		//	! add header
 				free(pr);
 			pr = tmp;
 		}
-		content->pr = pr;
+		node->pr = pr;
 		ft_lstadd_back(&ret, ft_lstnew(content));
 	}
 	return (ret);

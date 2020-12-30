@@ -68,19 +68,16 @@ typedef struct	s_env				//for envp
 	struct s_env	*next;
 }				t_env;
 
-typedef struct	s_pair
-{
-	int		fd;
-	int		redir;
-}				t_pair;
-
-typedef struct	s_inputs
+typedef struct	s_commands
 {
 	int				sep;			// SEMI / PIPE
 	int				command;		// 0 is not expected command
 	char			*str;
-	t_pair			*pr;
-}				t_inputs;
+	int				fd;
+	int				redir;			// REDIR D_REDIR REV_REDIR
+	t_commands		*pipe;
+	t_commands		*next;			// by semicolon
+}				t_commands;
 
 typedef struct  s_word_block
 {
