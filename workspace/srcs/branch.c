@@ -533,61 +533,98 @@ void				change_env(t_word_block *word, t_env *env)
 // 	return (pr);
 // }
 
-void				word_add_space(t_word_block *cmd)
-{
-
-}
-
-
 /*
-* *		노드에 필요한 정보 저장
+* *		|; 이전까지를 하나의 노드로 만들고, 노드에 sep str 저장
 */
 void				parse_node(char **ref, t_commands *node, t_env *env)
 {
-	char			*line;
-	t_word_block	cmd;
 	t_word_block	word;
-	int				flag = 0;		// 커맨드 저장!
+	t_word_block	part;
 
-	word_init(&cmd);
-	while ((word = get_word(ref)).word)
+	word_init(&word);
+	while ((part = get_word(ref)).word)		// < > ; | 또는 공백 직전까지 파싱
 	{
-		if (word.quotation != '\'')
-			change_env(&word, env);			// 환경변수 치환
-		printf("word : %s\nline : %s\n", word.word, *ref);
-		word_join(&cmd, &word);
-		if (cmd.space_has == 1)
-			word_add_space(&cmd);
-		if (cmd.sep == PIPE || cmd.sep == SEMI)
+		if (part.quotation != '\'')
+			change_env(&part, env);			// 환경변수 치환
+		printf("part : %s\nline : %s\n", part.word, *ref);
+		word_join(&word, &part);
+		if (word.space_has != 0 || word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
+		{
+			make_strsadd(node->str, word.word, 0);
+			if (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
+				make_strsadd(node->str, 0, word.sep);
+		}
+		if (word.sep == PIPE || word.sep == SEMI)
+		{
+			node->sep = word.sep;
 			break ;
-		if (**ref == '>' || **ref == '<')
-			work_redir(ref, node);
+		}
 	}
-	node->str = cmd.word;
-}
-
-t_commands			*make_commands_new(char **ref, t_env *env)
-{
-	t_commands		*ret;
-
-	ret = (t_commands *)err_malloc(sizeof(t_commands));
-	ret->str = 0;
-	parse_node(ref, ret, env);
-	return (ret);
 }
 
 /*
-* *		한 줄을 리스트의 형태로 바꿔주자. 구분자는 | < > >> 이다.
-**		param  : 한 줄
-**		return : 리스트
+* *		커맨드 노드를 만듦, 초기화
+**		param  : line의 주솟값, 환경변수
+**		return : 노드
+*/
+t_commands			*make_commands_new(char **ref, t_env *env)
+{
+	t_commands		*node;
+
+	node = (t_commands *)err_malloc(sizeof(t_commands));
+	node->sep = -1;
+	node->command = -1;
+	node->str = 0;
+	node->fd[0] = 0;
+	node->fd[1] = 1;
+	node->redir = -1;
+	node->pipe = 0;
+	node->next = 0;
+	parse_node(ref, node, env);
+	get_fd(node);
+	return (node);
+}
+
+void				commandsadd(t_commands **lst, t_commands *new)
+{
+	t_commands		*res;
+
+	if (new == 0 || lst == 0)
+		return ;
+	if (*lst == 0)
+	{
+		*lst = new;
+		return ;
+	}
+	res = lstlast_next(*lst);
+	if (new->sep == PIPE)
+	{
+		res = lstlast_pipe(res);
+		res->pipe = new;
+	}
+	else
+		res->next = new;
+}
+
+/*
+* *		한 줄을 리스트의 형태로 바꿔주자.
+* *		노드 (;)  노드 (;) 노드 (;) 노드 (널)
+* *		(파이프) (파이프)		  (파이프)
+* *		노드	  노드			   노드
+* *		(널)	 (널)			  (널)
+**		param  : 한 줄, 환경변수
+**		return : 링크드리스트
 */
 t_commands			*split_separator(char *line, t_env *env)		//	! add header
 {
 	t_commands		*ret;
 	t_commands		*node;
 
-	ret = make_commands_new(&line, env);
-	// while (*line)
-	// 	add_commandslst(ret, &line, env);
+	ret = 0;
+	while (*line)
+	{
+		node = make_commands_new(&line, env);
+		commandsadd(&ret, node);
+	}
 	return (ret);
 }

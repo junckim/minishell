@@ -91,7 +91,7 @@ typedef struct  s_word_block
     char    quotation;		//	기본 == 0 / 작은 따옴표 / 큰 따옴표
     char    *word;			//	단어 / NULL이면 더 가져올 것이 없다
 	int		space_has;		//	뒤에 공백이 있는가? 0 == 문자 / 1 == 공백 / 2 == 마지막 단어
-	int		sep;			//	구분자 없으면 -1;
+	int		sep;			//	구분자(|;><>>공백) 없으면 -1;
 }               t_word_block;
 
 void		command_branch(char *command);
