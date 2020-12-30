@@ -68,15 +68,22 @@ typedef struct	s_env				//for envp
 	struct s_env	*next;
 }				t_env;
 
+typedef struct s_str
+{
+	int		redir;
+	char	*str;
+	struct s_str *next;
+}				t_str;
+
 typedef struct	s_commands
 {
-	int				sep;			// SEMI / PIPE
-	int				command;		// 0 is not expected command
-	char			*str;
-	int				fd;
-	int				redir;			// REDIR D_REDIR REV_REDIR
-	t_commands		*pipe;
-	t_commands		*next;			// by semicolon
+	int						sep;			// SEMI / PIPE
+	int						command;		// 0 is not expected command
+	t_str					*str;
+	int						fd[2];			// 0 write - 1 read
+	int						redir;			// REDIR D_REDIR REV_REDIR
+	struct s_commands		*pipe;
+	struct s_commands		*next;			// by semicolon
 }				t_commands;
 
 typedef struct  s_word_block
@@ -87,11 +94,11 @@ typedef struct  s_word_block
 	int		sep;			//	구분자 없으면 -1;
 }               t_word_block;
 
-void	command_branch(char *command);
-void	skip_space(char **str);
-t_list	*split_separator(char *line, t_env *env);
-int		atoi(const char *fd);
-int		ft_isspace(char c);
-int		ft_isset(char c, const char *set);
-void	*err_malloc(unsigned int n);
+void		command_branch(char *command);
+void		skip_space(char **str);
+t_commands	*split_separator(char *line, t_env *env);
+int			ft_atoi(const char *fd);
+int			ft_isspace(char c);
+int			ft_isset(char c, const char *set);
+void		*err_malloc(unsigned int n);
 #endif

@@ -16,11 +16,11 @@ CC = gcc
 
 UTILS = ./libs/
 
-CFLAGS = -Werror -Wextra -Wall
+#CFLAGS = -Werror -Wextra -Wall
 
 LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 
-FLAGS = $(CFLAGS) $(LIBFT_FLAGS)
+FLAGS = $(LIBFT_FLAGS)
 
 SRCS = $(addprefix ./srcs/, \
 	branch.c \

@@ -18,7 +18,7 @@ void		skip_space(char **str)
 		(*str)++;
 }
 
-int         atoi(const char *fd)
+int         ft_atoi(const char *fd)
 {
     int     ret;
 

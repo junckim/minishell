@@ -100,7 +100,7 @@ int		get_index_double(t_word_block *ret, char **ref)
 	{
 		if (line[i] == ret->quotation)
 			break ;
-		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"'))
+		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"' || line[i + 1] == '$'))
 		{
 			line[i] = -1;
 			i++;
@@ -235,6 +235,7 @@ t_word_block	get_word(char **ref)
 	}
 	else
 		get_basic(&ret, ref);
+	skip_space(ref);
 	return (ret);
 }
 
@@ -276,19 +277,19 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 **		param  : 비교할 두 문자열
 **		return : 두 문자열의 차이값
 */
-int					strcmp_ignore_upper(char *str1, char *str2)
-{
-	int			i;
+// int					strcmp_ignore_upper(char *str1, char *str2)
+// {
+// 	int			i;
 
-	i = 0;
-	while (str1[i] && str2[i])
-	{
-		if (str1[i] - str2[i] && str1[i] - (str2[i] - 'A' + 'a'))
-			return (str1[i] - str2[i]);
-		i++;
-	}
-	return (str1[i] - str2[i]);
-}
+// 	i = 0;
+// 	while (str1[i] && str2[i])
+// 	{
+// 		if (str1[i] - str2[i] && str1[i] - (str2[i] - 'A' + 'a'))
+// 			return (str1[i] - str2[i]);
+// 		i++;
+// 	}
+// 	return (str1[i] - str2[i]);
+// }
 
 /*
 * *		스트링을 읽고 어떤 cmd인지 해당 번호를 반환
@@ -296,30 +297,30 @@ int					strcmp_ignore_upper(char *str1, char *str2)
 **		param  : 커맨드 문자열
 **		return : 디파인된 커맨드 넘버
 */
-int					cmd_to_int(char *cmd)
-{
-	int		ret;
+// int					cmd_to_int(char *cmd)
+// {
+// 	int		ret;
 
-	ret = -1;
-	if (ft_strlen(cmd) == 4 && strcmp_ignore_upper("echo", cmd) == 0)
-		ret = ECHO;
-	else if (ft_strlen(cmd) == 2 && ft_strncmp(cmd, "cd", 2) == 0)
-		ret = CD;
-	else if  (ft_strlen(cmd) == 3 && strcmp_ignore_upper("pwd", cmd) == 0)
-		ret = PWD;
-	else if (ft_strlen(cmd) == 6 && ft_strncmp(cmd, "export", 6) == 0)
-		ret = EXPORT;
-	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
-		ret = UNSET;
-	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd) == 0)
-		ret = ENV;
-	else if (ft_strlen(cmd) == 2 && strcmp_ignore_upper("ls", cmd) == 0)
-		ret = LS;
-	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
-		ret = EXIT;
-	free(cmd);
-	return (ret);
-}
+// 	ret = -1;
+// 	if (ft_strlen(cmd) == 4 && strcmp_ignore_upper("echo", cmd) == 0)
+// 		ret = ECHO;
+// 	else if (ft_strlen(cmd) == 2 && ft_strncmp(cmd, "cd", 2) == 0)
+// 		ret = CD;
+// 	else if  (ft_strlen(cmd) == 3 && strcmp_ignore_upper("pwd", cmd) == 0)
+// 		ret = PWD;
+// 	else if (ft_strlen(cmd) == 6 && ft_strncmp(cmd, "export", 6) == 0)
+// 		ret = EXPORT;
+// 	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
+// 		ret = UNSET;
+// 	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd) == 0)
+// 		ret = ENV;
+// 	else if (ft_strlen(cmd) == 2 && strcmp_ignore_upper("ls", cmd) == 0)
+// 		ret = LS;
+// 	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
+// 		ret = EXIT;
+// 	free(cmd);
+// 	return (ret);
+// }
 
 /*
 * *		환경변수가 끝나는 다음 인덱스를 반환
@@ -413,10 +414,10 @@ void				change_env(t_word_block *word, t_env *env)
 * *		> 빈파일로 일단 만듦
 **		param  : sep이 닮긴 pr, 스트링
 */
-void				make_fd(t_pair *pr, t_word_block string)
-{
-	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND | O_EXCL);
-}
+// void				make_fd(t_pair *pr, t_word_block string)
+// {
+// 	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND | O_EXCL);
+// }
 
 /*
 * *		리다이렉션을 처리해서 반환
@@ -425,111 +426,153 @@ void				make_fd(t_pair *pr, t_word_block string)
 **		return : 없으면 널
 */
 //		!		36 lines
-t_pair				*is_redir(char **ref, t_env *env)
-{
-	t_pair			*pr;
-	t_word_block	word;
-	t_word_block	string;
+// t_pair				*is_redir(char **ref, t_env *env)
+// {
+// 	t_pair			*pr;
+// 	t_word_block	word;
+// 	t_word_block	string;
 
-	word_init(&string);
-	skip_space(ref);
-	pr = (t_pair *)malloc(sizeof(t_pair));
-	while ((*ref)[0] != 0 && (pr->redir = sep_to_int((*ref)[0], (*ref)[1])) != -1)
-	{
-		if (pr->redir == SEMI || pr->redir == PIPE)
-		{
-			free(pr);
-			pr = 0;
-			break ;
-		}
-		else if (pr->redir == D_REDIR)
-			(*ref) += 2;
-		else
-			(*ref) += 1;
-		skip_space(ref);
-		while ((word = get_word(ref)).word)
-		{
-			if (word.quotation != '\'')
-				change_env(&word, env);
-			word_join(&string, &word);
-			if (string.sep != -1 || string.space_has != 0)
-				break ;
-		}
-		make_fd(pr, string);
-		if (string.sep == SEMI || string.sep == PIPE || string.sep == -1)
-			break ;
-		free(pr);
-		pr = 0;
-		skip_space(ref);
-	}
-	return (pr);
-}
+// 	word_init(&string);
+// 	skip_space(ref);
+// 	pr = (t_pair *)malloc(sizeof(t_pair));
+// 	while ((*ref)[0] != 0 && (pr->redir = sep_to_int((*ref)[0], (*ref)[1])) != -1)
+// 	{
+// 		if (pr->redir == SEMI || pr->redir == PIPE)
+// 		{
+// 			free(pr);
+// 			pr = 0;
+// 			break ;
+// 		}
+// 		else if (pr->redir == D_REDIR)
+// 			(*ref) += 2;
+// 		else
+// 			(*ref) += 1;
+// 		skip_space(ref);
+// 		while ((word = get_word(ref)).word)
+// 		{
+// 			if (word.quotation != '\'')
+// 				change_env(&word, env);
+// 			word_join(&string, &word);
+// 			if (string.sep != -1 || string.space_has != 0)
+// 				break ;
+// 		}
+// 		make_fd(pr, string);
+// 		if (string.sep == SEMI || string.sep == PIPE || string.sep == -1)
+// 			break ;
+// 		free(pr);
+// 		pr = 0;
+// 		skip_space(ref);
+// 	}
+// 	return (pr);
+// }
 
 /*
 * *		커맨드는 저장을 했다. 남은 문자열로 str, sep을 저장하자
 **		param  : 남은 줄, content
 */
-t_pair				*get_str_and_sep(char **line, t_inputs **content, t_env *env)
-{
-	t_word_block	string;
-	t_word_block	word;
-	t_pair			*pr;
+// t_pair				*get_str_and_sep(char **line, t_inputs **content, t_env *env)
+// {
+// 	t_word_block	string;
+// 	t_word_block	word;
+// 	t_pair			*pr;
 
-	skip_space(line);
-	pr = is_redir(line, env);
-	word_init(&string);
-	while ((word = get_word(line)).word)
-	{
-		if (word.quotation != '\'')
-			change_env(&word, env);
-		word_join(&string, &word);
-		if (string.sep == REDIR || string.sep == D_REDIR || string.sep == REV_REDIR)
-		{
-			string.sep = -1;
-			free(pr);
-			pr = is_redir(line, env);
-		}
-		if (string.sep == SEMI || string.sep == PIPE)
-			break ;
-	}
-	(*content)->sep = string.sep;
-	(*content)->str = string.word;
-	return (pr);
-}
+// 	skip_space(line);
+// 	pr = is_redir(line, env);
+// 	word_init(&string);
+// 	while ((word = get_word(line)).word)
+// 	{
+// 		if (word.quotation != '\'')
+// 			change_env(&word, env);
+// 		word_join(&string, &word);
+// 		if (string.sep == REDIR || string.sep == D_REDIR || string.sep == REV_REDIR)
+// 		{
+// 			string.sep = -1;
+// 			free(pr);
+// 			pr = is_redir(line, env);
+// 		}
+// 		if (string.sep == SEMI || string.sep == PIPE)
+// 			break ;
+// 	}
+// 	(*content)->sep = string.sep;
+// 	(*content)->str = string.word;
+// 	return (pr);
+// }
 
 /*
 * *		줄을 받아다 inputs 구조체의 요소들을 저장, 줄은 넘어가면서 사용
 **		param  : 줄, 커맨드, 스트링, 구분자
 */
 //		!		26 lines
-t_pair				*parse_command(char **line, t_inputs **content, t_env *env)
+// t_pair				*parse_command(char **line, t_inputs **content, t_env *env)
+// {
+// 	t_word_block	cmd;
+// 	t_word_block	word;
+// 	t_pair			*pr;
+
+// 	pr = 0;
+// 	word_init(&cmd);
+// 	while ((word = get_word(line)).word)															// ? 구분자까지만 파싱, 리다이렉션은 냅둔다
+// 	{
+// 		if (word.quotation != '\'')
+// 			change_env(&word, env);
+// 		word_join(&cmd, &word);
+// 		if (cmd.sep == PIPE || cmd.sep == SEMI)														// 커맨드 얻고 끝나는 경우
+// 		{
+// 			(*content)->command = cmd_to_int(cmd.word);												// ? 안에서 free 해주자
+// 			(*content)->str = ft_strdup("");
+// 			(*content)->sep = cmd.sep;
+// 			break ;
+// 		}
+// 		if (cmd.space_has || cmd.sep == REDIR || cmd.sep == D_REDIR || cmd.sep == REV_REDIR)		// 커맨드를 얻고 스트링을 얻어야하는 경우
+// 		{
+// 			(*content)->command = cmd_to_int(cmd.word);
+// 			pr = get_str_and_sep(line, content, env);
+// 			break ;
+// 		}
+// 	}
+// 	return (pr);
+// }
+
+void				word_add_space(t_word_block *cmd)
 {
+
+}
+
+
+/*
+* *		노드에 필요한 정보 저장
+*/
+void				parse_node(char **ref, t_commands *node, t_env *env)
+{
+	char			*line;
 	t_word_block	cmd;
 	t_word_block	word;
-	t_pair			*pr;
+	int				flag = 0;		// 커맨드 저장!
 
-	pr = 0;
 	word_init(&cmd);
-	while ((word = get_word(line)).word)															// ? 구분자까지만 파싱, 리다이렉션은 냅둔다
+	while ((word = get_word(ref)).word)
 	{
 		if (word.quotation != '\'')
-			change_env(&word, env);
+			change_env(&word, env);			// 환경변수 치환
+		printf("word : %s\nline : %s\n", word.word, *ref);
 		word_join(&cmd, &word);
-		if (cmd.sep == PIPE || cmd.sep == SEMI)														// 커맨드 얻고 끝나는 경우
-		{
-			(*content)->command = cmd_to_int(cmd.word);												// ? 안에서 free 해주자
-			(*content)->str = ft_strdup("");
-			(*content)->sep = cmd.sep;
+		if (cmd.space_has == 1)
+			word_add_space(&cmd);
+		if (cmd.sep == PIPE || cmd.sep == SEMI)
 			break ;
-		}
-		if (cmd.space_has || cmd.sep == REDIR || cmd.sep == D_REDIR || cmd.sep == REV_REDIR)		// 커맨드를 얻고 스트링을 얻어야하는 경우
-		{
-			(*content)->command = cmd_to_int(cmd.word);
-			pr = get_str_and_sep(line, content, env);
-			break ;
-		}
+		if (**ref == '>' || **ref == '<')
+			work_redir(ref, node);
 	}
-	return (pr);
+	node->str = cmd.word;
+}
+
+t_commands			*make_commands_new(char **ref, t_env *env)
+{
+	t_commands		*ret;
+
+	ret = (t_commands *)err_malloc(sizeof(t_commands));
+	parse_node(ref, ret, env);
+	return (ret);
 }
 
 /*
@@ -542,19 +585,8 @@ t_commands			*split_separator(char *line, t_env *env)		//	! add header
 	t_commands		*ret;
 	t_commands		*node;
 
-	ret = NULL;
-	while (*line)
-	{
-		node = (t_commands *)malloc(sizeof(t_commands));
-		pr = is_redir(&line, env);
-		if ((tmp = parse_command(&line, &content, env)))
-		{
-			if (pr != 0)
-				free(pr);
-			pr = tmp;
-		}
-		node->pr = pr;
-		ft_lstadd_back(&ret, ft_lstnew(content));
-	}
+	ret = make_commands_new(&line, env);
+	// while (*line)
+	// 	add_commandslst(ret, &line, env);
 	return (ret);
 }
