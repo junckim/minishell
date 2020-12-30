@@ -61,7 +61,7 @@ void		get_str_to_idx(t_word_block *ret, char *line, int i)
 	tmp = line[i];
 	line[i] = 0;
 	free(ret->word);
-	ret->word = ft_except_strdup(line);
+	ret->word = ft_strdup(line);
 	line[i] = tmp;
 }
 
@@ -178,7 +178,7 @@ int		get_index_basic(t_word_block *ret, char **ref)
 /*
 * *		따옴표가 아닌 부분을 파싱
 * *		구분자가 나오기 전까지 파싱
-* *		생략해야하는 \는 -1로 치환해서 처리
+* *		생략해야하는 \는 -1로 치환해서 저장
 **		param  : 단어 블록 원본, 라인 주솟값
 */
 void	get_basic(t_word_block *ret, char **ref)
@@ -249,19 +249,16 @@ void	word_free(t_word_block *word)
 /*
 * *		두 단어를 조인해줌. 소스는 프리.
 * *		워드는 조인하고, 나머지는 뒤에 붙은 단어의 것을 상속받는다
-* *		사이에 공백이 있는 경우, 공백 하나 추가
+* *		-1 처리
 **		param  : 조인할 두 단어
 */
 void	word_join(t_word_block *dest, t_word_block *srcs)
 {
 	char		*tmp;
 
-	if (dest->space_has == 1)
-	{
-		tmp = dest->word;
-		dest->word = ft_strjoin(dest->word, " ");
-		free(tmp);
-	}
+	tmp = srcs->word;
+	srcs->word = ft_except_strdup(srcs->word);
+	free(tmp);
 	tmp = dest->word;
 	dest->word = ft_strjoin(dest->word, srcs->word);		// null이 들와
 	free(tmp);
@@ -381,6 +378,15 @@ int					env_strdup(char **word, int start, int end, char *val)
 	return (ret);
 }
 
+int					isvalid_env_mark(char *word, int idx)
+{
+	if (idx > 0 && word[idx - 1] != -1)
+		return (1);
+	else if (word[idx + 1] != 0)
+		return (1);
+	return (0);
+}
+
 /*
 * *		환경변수를 찾으면 치환
 **		param  : 수정해줄 단어, 환경변수 목록
@@ -395,9 +401,8 @@ void				change_env(t_word_block *word, t_env *env)
 	i = -1;
 	while ((word->word)[++i])
 	{
-		if ((word->word)[i] == '$' && (word->word)[i + 1] != 0)
+		if ((word->word)[i] == '$' && isvalid_env_mark(word->word, i))
 		{
-			// if ((word->word)[i + 1] == '?')
 			j = end_env_index(word->word, i);
 			tmp = (word->word)[j];
 			(word->word)[j] = 0;
@@ -547,19 +552,22 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 		if (part.quotation != '\'')
 			change_env(&part, env);			// 환경변수 치환
 		printf("part : %s\nline : %s\n", part.word, *ref);
-		word_join(&word, &part);
-		if (word.space_has != 0 || word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
+		word_join(&word, &part);			// -1 처리
+		if (word.space_has != 0 || word.sep != -1)
 		{
 			make_strsadd(node->str, word.word, 0);
 			if (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
 				make_strsadd(node->str, 0, word.sep);
-		}
-		if (word.sep == PIPE || word.sep == SEMI)
-		{
-			node->sep = word.sep;
-			break ;
+			else if (word.sep == PIPE || word.sep == SEMI)
+			{
+				node->sep = word.sep;
+				break ;
+			}
+			word_free(&word);
+			word_init(&word);
 		}
 	}
+	word_free(&word);
 }
 
 /*
@@ -583,6 +591,28 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	parse_node(ref, node, env);
 	get_fd(node);
 	return (node);
+}
+
+t_commands			*lstlast_next(t_commands *lst)
+{
+	while (lst)
+	{
+		if (lst->next == 0)
+			return (lst);
+		lst = lst->next;
+	}
+	return (lst);
+}
+
+t_commands			*lstlast_pipe(t_commands *lst)
+{
+	while (lst)
+	{
+		if (lst->pipe == 0)
+			return (lst);
+		lst = lst->pipe;
+	}
+	return (lst);
 }
 
 void				commandsadd(t_commands **lst, t_commands *new)
