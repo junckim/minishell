@@ -6,7 +6,7 @@
 /*   By: kimjoochan <marvin@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 15:12:06 by kimjoocha         #+#    #+#             */
-/*   Updated: 2020/12/27 00:45:31 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/30 14:19:32 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,5 +93,5 @@ t_list	*split_separator(char *line, t_env *env);
 int		atoi(const char *fd);
 int		ft_isspace(char c);
 int		ft_isset(char c, const char *set);
-
+void	*err_malloc(unsigned int n);
 #endif

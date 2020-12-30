@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 15:09:51 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/11 15:10:41 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/30 14:18:57 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,14 @@ int		ft_isset(char c, const char *set)
 		set++;
 	}
 	return (0);
+}
+
+void	*err_malloc(unsigned int n)  // error 시 exit 대신 에러 출력
+{
+	void	*ptr;
+
+	ptr = malloc(n);
+	if (ptr == NULL)
+		exit(1);
+	return (ptr);
 }
