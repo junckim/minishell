@@ -615,7 +615,7 @@ t_commands			*lstlast_pipe(t_commands *lst)
 	return (lst);
 }
 
-void				commandsadd(t_commands **lst, t_commands *new)
+void				commands_addback(t_commands **lst, t_commands *new)
 {
 	t_commands		*res;
 
@@ -654,7 +654,7 @@ t_commands			*split_separator(char *line, t_env *env)		//	! add header
 	while (*line)
 	{
 		node = make_commands_new(&line, env);
-		commandsadd(&ret, node);
+		commands_addback(&ret, node);
 	}
 	return (ret);
 }
