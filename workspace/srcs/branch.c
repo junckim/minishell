@@ -161,7 +161,7 @@ int		get_index_basic(t_word_block *ret, char **ref)
 	{
 		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
-		else if (ft_isset(line[i], "|><;") && i != (int)ft_strlen(line) - 1)
+		else if (ft_isset(line[i], "|><;"))
 		{
 			ret->sep = sep_to_int(line[i], line[i + 1]);
 			break ;
@@ -193,10 +193,12 @@ void	get_basic(t_word_block *ret, char **ref)
 	else if (line[i] == 0)
 		ret->space_has = 2;
 	get_str_to_idx(ret, line, i);
-	if (ret->sep == -1 || ret->sep == REDIR || ret->sep == D_REDIR || ret->sep == REV_REDIR)
-		(*ref) += i;
-	else
+	if (ret->sep == SEMI || ret->sep == PIPE)
+	{
 		(*ref) += (i + 1);
+	}
+	else
+		(*ref) += i;
 }
 
 void	word_init(t_word_block *word)
@@ -207,6 +209,17 @@ void	word_init(t_word_block *word)
 	word->sep = -1;
 }
 
+void			get_redir(t_word_block *word, char **ref)
+{
+	word->sep = sep_to_int((*ref)[0], (*ref)[1]);
+	free(word->word);
+	word->word = ft_strdup("");
+	if (word->sep == D_REDIR)
+		(*ref) += 2;
+	else
+		(*ref) += 1; 
+}
+
 /*
 * *		기본, "", '' 파트 단위로 단어 구조체를 파싱해줌
 **		param  : 한 줄, 사용한만큼 주소를 넘겨줄거다
@@ -214,29 +227,33 @@ void	word_init(t_word_block *word)
 */
 t_word_block	get_word(char **ref)
 {
-	t_word_block		ret;
+	t_word_block		word;
 	char				*line;
 
-	line = *ref;
 	skip_space(ref);
-	word_init(&ret);
+	line = *ref;
+	word_init(&word);
 	if (line[0] == 0)
 	{
-		ret.word = NULL;
-		return (ret);
+		free(word.word);
+		word.word = NULL;
+		return (word);
 	}
 	if (line[0] == '\'' || line[0] == '\"')
 	{
-		ret.quotation = line[0];
+		word.quotation = line[0];
 		if (line[0] == '\'')
-			get_single_quotation(&ret, ref);
+			get_single_quotation(&word, ref);
 		else
-			get_double_quotation(&ret, ref);
+			get_double_quotation(&word, ref);
 	}
+	else if (line[0] == '<' || line[0] == '>')
+		get_redir(&word, ref);					// word->word = 0 저장
 	else
-		get_basic(&ret, ref);
-	skip_space(ref);
-	return (ret);
+	{
+		get_basic(&word, ref);
+	}
+	return (word);
 }
 
 void	word_free(t_word_block *word)
@@ -538,6 +555,31 @@ void				change_env(t_word_block *word, t_env *env)
 // 	return (pr);
 // }
 
+// echo abc > abc | anjd ;
+// lst 노드 , 
+// str -> 연결시켜줄 새로운 노드 객체, 
+// redir -> > >> < 가 들어왔을 때 redirection으로 되야할 때 숫자로 저장
+void	make_strsadd(t_commands *node, char *str, int redir)
+{
+	t_str	*head;
+	t_str	*new;
+
+	new = (t_str *)err_malloc(sizeof(t_str));
+	new->redir = redir;
+	new->word = ft_strdup(str);
+	new->next = NULL;
+	if (node->str == NULL)
+		node->str = new;
+	else
+	{
+		head = node->str;
+		while (node->str->next)
+			node->str = node->str->next;
+		node->str->next = new;
+		node->str = head;
+	}
+}
+
 /*
 * *		|; 이전까지를 하나의 노드로 만들고, 노드에 sep str 저장
 */
@@ -551,23 +593,47 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 	{
 		if (part.quotation != '\'')
 			change_env(&part, env);			// 환경변수 치환
-		printf("part : %s\nline : %s\n", part.word, *ref);
+		// printf("part : %s\nline : %s\n", part.word, *ref);
 		word_join(&word, &part);			// -1 처리
 		if (word.space_has != 0 || word.sep != -1)
 		{
-			make_strsadd(node->str, word.word, 0);
-			if (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
-				make_strsadd(node->str, 0, word.sep);
-			else if (word.sep == PIPE || word.sep == SEMI)
+			if ((word.word[0] == 0) && (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR))
+				make_strsadd(node, "", word.sep);
+			else
+				make_strsadd(node, word.word, -1);
+			if (word.sep == PIPE || word.sep == SEMI)
 			{
-				node->sep = word.sep;
 				break ;
 			}
 			word_free(&word);
 			word_init(&word);
 		}
 	}
+	t_str *str = node->str;
+	while (str)
+	{
+		printf("word :%s\nredir :%d\n\n", str->word, str->redir);
+		str = str->next;
+	}
 	word_free(&word);
+}
+
+/*
+* *		리다이렉션이 있으면 fd 저장
+**		param  : str을 포함한 노드
+*/
+
+void				get_fd(t_commands *node)
+{
+	t_str	*before;
+	t_str	*head;
+
+	head = node->str;
+	before = node->str;
+	while (node->str)
+	{
+		node->str = node->str->next;
+	}
 }
 
 /*
@@ -582,7 +648,7 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	node = (t_commands *)err_malloc(sizeof(t_commands));
 	node->sep = -1;
 	node->command = -1;
-	node->str = 0;
+	node->str = NULL;
 	node->fd[0] = 0;
 	node->fd[1] = 1;
 	node->redir = -1;

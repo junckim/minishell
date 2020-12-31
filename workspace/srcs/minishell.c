@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/31 18:24:31 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/31 18:31:15 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ t_env	*get_env_pointer(t_env *env, char *key)
 void	add_change_env(t_env *env, char *key, char *value)
 {
 	t_env	*cur_env;
-	
+
 	if ((cur_env = get_env_pointer(env, key)))
 	{
 		free(cur_env->value);
@@ -122,7 +122,7 @@ void	add_change_env(t_env *env, char *key, char *value)
 		cur_env = (t_env *)err_malloc(sizeof(t_env));
 		cur_env->key = ft_strdup(key);
 		cur_env->value = ft_strdup(value);
-		cur_env->next  = NULL;
+		cur_env->next = NULL;
 		env->next = cur_env;
 	}
 }
@@ -244,6 +244,17 @@ int	main(int argc, char **argv, char **envp)
 		cur = lst;
 		while (cur)
 		{
+			if (cur->pipe)
+			{
+				pipe(cur->fd);
+				cur->pipe->fd = cur->fd;
+				pid = fork();
+				if (pid == 0)
+				{
+					cur = cur->pipe;
+					//재귀
+				}
+			}
 			cur = cur->next;
 		}
 	}

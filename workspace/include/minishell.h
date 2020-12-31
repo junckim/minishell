@@ -71,7 +71,7 @@ typedef struct	s_env				//for envp
 typedef struct s_str
 {
 	int		redir;
-	char	*str;
+	char	*word;
 	struct s_str *next;
 }				t_str;
 
