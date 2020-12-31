@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/29 22:12:43 by joockim          ###   ########.fr       */
+/*   Updated: 2020/12/31 18:24:31 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	signal_handler(int signo)
 	make_prompt_msg();
 }
 
-t_env	*make_env_new(char *envp)
+t_env	*envp_to_env(char *envp)
 {
 	t_env	*env;
 	char	*path;
@@ -49,8 +49,8 @@ t_env	*make_env_new(char *envp)
 	*path = 0;
 	if ((env = malloc(sizeof(t_env))) == 0)
 		return (0);
-	env->key = key;
-	env->value = value;
+	env->key = ft_strdup(key);
+	env->value = ft_strdup(value);
 	env->next = NULL;
 	return (env);
 }
@@ -59,7 +59,7 @@ void	add_envlst(t_env *env, char *envp)
 {
 	t_env	*elem;
 
-	elem = make_env_new(envp);
+	elem = envp_to_env(envp);
 	while (env->next)
 		env = env->next;
 	env->next = elem;
@@ -69,7 +69,7 @@ t_env	*make_envlst(char **envp)
 {
 	t_env	*env;
 
-	env = make_env_new(*envp);
+	env = envp_to_env(*envp);
 	envp++;
 	while (*envp)
 	{
@@ -86,11 +86,45 @@ char	*get_value(t_env *env, char *key)
 	value = NULL;
 	while (env)
 	{
-		if (!ft_strncmp(key, env->key, ft_strlen(key)))
+		if (!ft_strncmp(key, env->key, ft_strlen(key)) &&
+				!ft_strncmp(key, env->key, ft_strlen(env->key)))
 			value = env->value;
 		env = env->next;
 	}
 	return (value);
+}
+
+t_env	*get_env_pointer(t_env *env, char *key)
+{
+	while (env)
+	{
+		if (!ft_strncmp(key, env->key, ft_strlen(key)) &&
+				!ft_strncmp(key, env->key, ft_strlen(env->key)))
+			return (env);
+		env = env->next;
+	}
+	return (NULL);
+}
+
+void	add_change_env(t_env *env, char *key, char *value)
+{
+	t_env	*cur_env;
+	
+	if ((cur_env = get_env_pointer(env, key)))
+	{
+		free(cur_env->value);
+		cur_env->value = ft_strdup(value);
+	}
+	else
+	{
+		while (env->next)
+			env = env->next;
+		cur_env = (t_env *)err_malloc(sizeof(t_env));
+		cur_env->key = ft_strdup(key);
+		cur_env->value = ft_strdup(value);
+		cur_env->next  = NULL;
+		env->next = cur_env;
+	}
 }
 
 int		check_input(char *str)
