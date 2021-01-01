@@ -65,74 +65,23 @@ void		get_str_to_idx(t_word_block *ret, char *line, int i)
 	line[i] = tmp;
 }
 
-void	get_single_quotation(t_word_block *ret, char **ref)
+int		is_sep(char c)
 {
-	char	*line;
-	int		i;
-
-	(*ref)++;
-	line = *ref;
-	i = -1;
-	while (line[++i])
-		if (line[i] == ret->quotation)
-			break ;
-	if (line[i] == 0)
-	{
-		printf("Wait standard input\t-\tget_quotation\n");
-		return ;
-	}
-	if (ft_isspace(line[i + 1]))
-		ret->space_has = 1;
-	else if (line[i + 1] == 0)
-		ret->space_has = 2;
-	get_str_to_idx(ret, line, i);
-	(*ref) += (i + 1);
+	if (ft_isset(c, "|;><"))
+		return (1);
+	return (0);
 }
 
-int		get_index_double(t_word_block *ret, char **ref)
+char	*strdup_idx(char *line, int idx)
 {
-	char	*line;
-	int		i;
-
-	line = *ref;
-	i = -1;
-	while (line[++i])
-	{
-		if (line[i] == ret->quotation)
-			break ;
-		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"' || line[i + 1] == '$'))
-		{
-			line[i] = -1;
-			i++;
-		}
-	}
-	return (i);
-}
-
-/*
-* *		큰따옴표로 묶인 단어 파싱
-* *		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
-**		param  : 필요한 정보를 저장할 구조체, 원본 글
-*/
-void	get_double_quotation(t_word_block *ret, char **ref)
-{
-	char	*line;
-	int		i;
-
-	(*ref)++;
-	line = *ref;
-	i = get_index_double(ret, ref);
-	if (line[i] == 0)
-	{
-		printf("Wait standard input\t-\tget_quotation\n");
-		return ;
-	}
-	if (ft_isspace(line[i + 1]))
-		ret->space_has = 1;
-	else if (line[i + 1] == 0)
-		ret->space_has = 2;
-	get_str_to_idx(ret, line, i);
-	(*ref) += (i + 1);
+	char		*ret;
+	char		tmp;
+	
+	tmp  = line[idx];
+	line[idx] = 0;
+	ret = ft_strdup(line);
+	line[idx] = tmp;
+	return (ret);
 }
 
 int		sep_to_int(char sep, char next)
@@ -150,6 +99,111 @@ int		sep_to_int(char sep, char next)
 	return (-1);
 }
 
+void	get_single_quotation(t_word_block *word, char **ref)
+{
+	char	*line;
+	int		i;
+
+	(*ref)++;
+	line = *ref;
+	i = -1;
+	while (line[++i])
+		if (line[i] == word->quotation)
+			break ;
+	if (line[i] == 0)
+	{
+		printf("Wait standard input\t-\tget_quotation\n");
+		return ;
+	}
+	word->word = strdup_idx(line, i);		// i 자리 전까지 복사
+	i++;
+	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
+		word->is_conti = 1;
+	else
+	{
+		word->is_conti = 0;
+		while (ft_isspace(line[i]))
+			i++;
+		if (line[i] == 0)
+			word->sep = 0;
+		else if (is_sep(line[i]))
+		{
+			word->sep = sep_to_int(line[i], line[i + 1]);
+			i++;
+			if (word->sep == D_REDIR)
+				i++;
+		}
+		else
+			word->sep = SPACE;
+	}
+	(*ref) += i;
+	skip_space(ref);
+}
+
+int		get_index_double(t_word_block *word, char **ref)
+{
+	char	*line;
+	int		i;
+
+	line = *ref;
+	i = -1;
+	while (line[++i])
+	{
+		if (line[i] == word->quotation)
+			break ;
+		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"' || line[i + 1] == '$'))
+		{
+			line[i] = -1;
+			i++;
+		}
+	}
+	return (i);
+}
+
+/*
+* *		큰따옴표로 묶인 단어 파싱
+* *		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
+**		param  : 필요한 정보를 저장할 구조체, 원본 글
+*/
+void	get_double_quotation(t_word_block *word, char **ref)
+{
+	char	*line;
+	int		i;
+
+	(*ref)++;
+	line = *ref;
+	i = get_index_double(word, ref);		// 큰 따옴표 닫히는 위치 반환
+	if (line[i] == 0)
+	{
+		printf("Wait standard input\t-\tget_quotation\n");
+		return ;
+	}
+	word->word = strdup_idx(line, i);
+	i++;
+	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
+		word->is_conti = 1;
+	else
+	{
+		word->is_conti = 0;
+		while (ft_isspace(line[i]))
+			i++;
+		if (line[i] == 0)
+			word->sep = 0;
+		else if (is_sep(line[i]))
+		{
+			word->sep = sep_to_int(line[i], line[i + 1]);
+			i++;
+			if (word->sep == D_REDIR)
+				i++;
+		}
+		else
+			word->sep = SPACE;
+	}
+	(*ref) += i;
+	skip_space(ref);
+}
+
+
 int		get_index_basic(t_word_block *ret, char **ref)
 {
 	char	*line;
@@ -161,7 +215,7 @@ int		get_index_basic(t_word_block *ret, char **ref)
 	{
 		if (ft_isset(line[i], "\'\"") || ft_isspace(line[i]))
 			break ;
-		else if (ft_isset(line[i], "|><;"))
+		else if (is_sep(line[i]))
 		{
 			ret->sep = sep_to_int(line[i], line[i + 1]);
 			break ;
@@ -181,76 +235,75 @@ int		get_index_basic(t_word_block *ret, char **ref)
 * *		생략해야하는 \는 -1로 치환해서 저장
 **		param  : 단어 블록 원본, 라인 주솟값
 */
-void	get_basic(t_word_block *ret, char **ref)
+void	get_basic(t_word_block *word, char **ref)
 {
 	char	*line;
 	int		i;
 
 	line = *ref;
-	i = get_index_basic(ret, ref);
-	if (ft_isspace(line[i]))
-		ret->space_has = 1;
-	else if (line[i] == 0)
-		ret->space_has = 2;
-	get_str_to_idx(ret, line, i);
-	if (ret->sep == SEMI || ret->sep == PIPE)
-	{
-		(*ref) += (i + 1);
-	}
+	i = get_index_basic(word, ref);		// 끝난 다음의 위치
+	word->word = strdup_idx(line, i);
+	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
+		word->is_conti = 1;
 	else
-		(*ref) += i;
+	{
+		word->is_conti = 0;
+		while (ft_isspace(line[i]))
+			i++;
+		if (line[i] == 0)
+			word->sep = 0;
+		else if (is_sep(line[i]))
+		{
+			word->sep = sep_to_int(line[i], line[i + 1]);
+			i++;
+			if (word->sep == D_REDIR)
+				i++;
+		}
+		else
+			word->sep = SPACE;
+	}
+	(*ref) += i;
+	skip_space(ref);
 }
 
 void	word_init(t_word_block *word)
 {
-	word->quotation = 0;
+	word->quotation = -1;
 	word->word = ft_strdup("");
-	word->space_has = 0;
+	word->is_conti = -1;
 	word->sep = -1;
-}
-
-void			get_redir(t_word_block *word, char **ref)
-{
-	word->sep = sep_to_int((*ref)[0], (*ref)[1]);
-	free(word->word);
-	word->word = ft_strdup("");
-	if (word->sep == D_REDIR)
-		(*ref) += 2;
-	else
-		(*ref) += 1; 
 }
 
 /*
 * *		기본, "", '' 파트 단위로 단어 구조체를 파싱해줌
+* *		환경변수 -1 표식
+* *		공백 넘기고 뒤에 나오는 sep 확인, 단어 | ; >> < > NULL
+* *		sep이 있으면 is_conti = 0
 **		param  : 한 줄, 사용한만큼 주소를 넘겨줄거다
 **		return : 단어 구조체
 */
 t_word_block	get_word(char **ref)
 {
 	t_word_block		word;
-	char				*line;
 
-	skip_space(ref);
-	line = *ref;
 	word_init(&word);
-	if (line[0] == 0)
+	if ((*ref)[0] == 0)
 	{
 		free(word.word);
 		word.word = NULL;
 		return (word);
 	}
-	if (line[0] == '\'' || line[0] == '\"')
+	if ((*ref)[0] == '\'' || (*ref)[0] == '\"')
 	{
-		word.quotation = line[0];
-		if (line[0] == '\'')
+		word.quotation = (*ref)[0];
+		if ((*ref)[0] == '\'')
 			get_single_quotation(&word, ref);
 		else
 			get_double_quotation(&word, ref);
 	}
-	else if (line[0] == '<' || line[0] == '>')
-		get_redir(&word, ref);					// word->word = 0 저장
 	else
 	{
+		word.quotation = 0;
 		get_basic(&word, ref);
 	}
 	return (word);
@@ -258,9 +311,10 @@ t_word_block	get_word(char **ref)
 
 void	word_free(t_word_block *word)
 {
-	word->quotation = 0;
+	word->quotation = -1;
 	free(word->word);
-	word->space_has = 0;
+	word->is_conti = -1;
+	word->sep = -1;
 }
 
 /*
@@ -279,9 +333,9 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 	tmp = dest->word;
 	dest->word = ft_strjoin(dest->word, srcs->word);		// null이 들와
 	free(tmp);
-	dest->space_has = srcs->space_has;
-	dest->sep = srcs->sep;
 	dest->quotation = srcs->quotation;
+	dest->is_conti = srcs->is_conti;
+	dest->sep = srcs->sep;
 	word_free(srcs);
 }
 
@@ -431,135 +485,11 @@ void				change_env(t_word_block *word, t_env *env)
 	}
 }
 
-/*
-* *		스트링에 있는 워드 이름의 파일을 생성하고 fd를 반환
-* *		> 빈파일로 일단 만듦
-**		param  : sep이 닮긴 pr, 스트링
-*/
-// void				make_fd(t_pair *pr, t_word_block string)
-// {
-// 	pr->fd = open(string.word, O_CREAT | O_RDWR | O_APPEND | O_EXCL);
-// }
-
-/*
-* *		리다이렉션을 처리해서 반환
-* *		> 파일을 만들고 초기화
-**		param  : 리다이렉션이 처음에 나온는 라인
-**		return : 없으면 널
-*/
-//		!		36 lines
-// t_pair				*is_redir(char **ref, t_env *env)
-// {
-// 	t_pair			*pr;
-// 	t_word_block	word;
-// 	t_word_block	string;
-
-// 	word_init(&string);
-// 	skip_space(ref);
-// 	pr = (t_pair *)malloc(sizeof(t_pair));
-// 	while ((*ref)[0] != 0 && (pr->redir = sep_to_int((*ref)[0], (*ref)[1])) != -1)
-// 	{
-// 		if (pr->redir == SEMI || pr->redir == PIPE)
-// 		{
-// 			free(pr);
-// 			pr = 0;
-// 			break ;
-// 		}
-// 		else if (pr->redir == D_REDIR)
-// 			(*ref) += 2;
-// 		else
-// 			(*ref) += 1;
-// 		skip_space(ref);
-// 		while ((word = get_word(ref)).word)
-// 		{
-// 			if (word.quotation != '\'')
-// 				change_env(&word, env);
-// 			word_join(&string, &word);
-// 			if (string.sep != -1 || string.space_has != 0)
-// 				break ;
-// 		}
-// 		make_fd(pr, string);
-// 		if (string.sep == SEMI || string.sep == PIPE || string.sep == -1)
-// 			break ;
-// 		free(pr);
-// 		pr = 0;
-// 		skip_space(ref);
-// 	}
-// 	return (pr);
-// }
-
-/*
-* *		커맨드는 저장을 했다. 남은 문자열로 str, sep을 저장하자
-**		param  : 남은 줄, content
-*/
-// t_pair				*get_str_and_sep(char **line, t_inputs **content, t_env *env)
-// {
-// 	t_word_block	string;
-// 	t_word_block	word;
-// 	t_pair			*pr;
-
-// 	skip_space(line);
-// 	pr = is_redir(line, env);
-// 	word_init(&string);
-// 	while ((word = get_word(line)).word)
-// 	{
-// 		if (word.quotation != '\'')
-// 			change_env(&word, env);
-// 		word_join(&string, &word);
-// 		if (string.sep == REDIR || string.sep == D_REDIR || string.sep == REV_REDIR)
-// 		{
-// 			string.sep = -1;
-// 			free(pr);
-// 			pr = is_redir(line, env);
-// 		}
-// 		if (string.sep == SEMI || string.sep == PIPE)
-// 			break ;
-// 	}
-// 	(*content)->sep = string.sep;
-// 	(*content)->str = string.word;
-// 	return (pr);
-// }
-
-/*
-* *		줄을 받아다 inputs 구조체의 요소들을 저장, 줄은 넘어가면서 사용
-**		param  : 줄, 커맨드, 스트링, 구분자
-*/
-//		!		26 lines
-// t_pair				*parse_command(char **line, t_inputs **content, t_env *env)
-// {
-// 	t_word_block	cmd;
-// 	t_word_block	word;
-// 	t_pair			*pr;
-
-// 	pr = 0;
-// 	word_init(&cmd);
-// 	while ((word = get_word(line)).word)															// ? 구분자까지만 파싱, 리다이렉션은 냅둔다
-// 	{
-// 		if (word.quotation != '\'')
-// 			change_env(&word, env);
-// 		word_join(&cmd, &word);
-// 		if (cmd.sep == PIPE || cmd.sep == SEMI)														// 커맨드 얻고 끝나는 경우
-// 		{
-// 			(*content)->command = cmd_to_int(cmd.word);												// ? 안에서 free 해주자
-// 			(*content)->str = ft_strdup("");
-// 			(*content)->sep = cmd.sep;
-// 			break ;
-// 		}
-// 		if (cmd.space_has || cmd.sep == REDIR || cmd.sep == D_REDIR || cmd.sep == REV_REDIR)		// 커맨드를 얻고 스트링을 얻어야하는 경우
-// 		{
-// 			(*content)->command = cmd_to_int(cmd.word);
-// 			pr = get_str_and_sep(line, content, env);
-// 			break ;
-// 		}
-// 	}
-// 	return (pr);
-// }
-
 // echo abc > abc | anjd ;
 // lst 노드 , 
 // str -> 연결시켜줄 새로운 노드 객체, 
 // redir -> > >> < 가 들어왔을 때 redirection으로 되야할 때 숫자로 저장
-void	make_strsadd(t_commands *node, char *str, int redir)
+void				make_strsadd(t_commands *node, char *str, int redir)
 {
 	t_str	*head;
 	t_str	*new;
@@ -589,33 +519,43 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 	t_word_block	part;
 
 	word_init(&word);
-	while ((part = get_word(ref)).word)		// < > ; | 또는 공백 직전까지 파싱
+	skip_space(ref);
+	while ((part = get_word(ref)).word)		// < > ; | 단어 전에 띄어쓰기까지 파싱, 공백은 넘어가줌
 	{
 		if (part.quotation != '\'')
 			change_env(&part, env);			// 환경변수 치환
-		// printf("part : %s\nline : %s\n", part.word, *ref);
 		word_join(&word, &part);			// -1 처리
-		if (word.space_has != 0 || word.sep != -1)
+		if (word.is_conti == 0)
 		{
-			if ((word.word[0] == 0) && (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR))
-				make_strsadd(node, "", word.sep);
-			else
+			if (word.sep == SPACE)
 				make_strsadd(node, word.word, -1);
-			if (word.sep == PIPE || word.sep == SEMI)
+			else if (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
 			{
+				make_strsadd(node, word.word, -1);
+				make_strsadd(node, "", word.sep);
+			}
+			else if (word.sep == PIPE || word.sep == SEMI)
+			{
+				make_strsadd(node, word.word, -1);
+				node->sep = word.sep;
+				word_free(&word);
+				break ;
+			}
+			else if (word.sep == 0)
+			{
+				make_strsadd(node, word.word, -1);
+				word_free(&word);
 				break ;
 			}
 			word_free(&word);
-			word_init(&word);
 		}
 	}
-	t_str *str = node->str;
-	while (str)
-	{
-		printf("word :%s\nredir :%d\n\n", str->word, str->redir);
-		str = str->next;
-	}
-	word_free(&word);
+	// printf("sep :%d\n-------------------\n", node->sep);
+	// while (node->str)
+	// {
+	// 	printf("word :%s\nredir :%d\n\n",node->str->word, node->str->redir);
+	// 	node->str = node->str->next;
+	// }
 }
 
 /*
@@ -652,10 +592,10 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	node->fd[0] = 0;
 	node->fd[1] = 1;
 	node->redir = -1;
-	node->pipe = 0;
-	node->next = 0;
+	node->pipe = NULL;
+	node->prev = NULL;
+	node->next = NULL;
 	parse_node(ref, node, env);
-	get_fd(node);
 	return (node);
 }
 
@@ -684,6 +624,7 @@ t_commands			*lstlast_pipe(t_commands *lst)
 void				commands_addback(t_commands **lst, t_commands *new)
 {
 	t_commands		*res;
+	t_commands		*tmp;
 
 	if (new == 0 || lst == 0)
 		return ;
@@ -695,12 +636,30 @@ void				commands_addback(t_commands **lst, t_commands *new)
 	res = lstlast_next(*lst);
 	if (new->sep == PIPE)
 	{
-		res = lstlast_pipe(res);
-		res->pipe = new;
+		new->pipe = res;
+		new->prev = res->prev;
+		new->prev->next = new;
+		res->prev = NULL;
 	}
-	else
+	else if (new->sep == SEMI)
+	{
+		new->prev = res;
 		res->next = new;
+	}
 }
+
+//		테스트용 함수입니다.
+void	printf_node(t_commands *node)
+{
+	printf("===============\nsep :%d\n---------------\n", node->sep);
+	t_str		*str = node->str;
+	while (str)
+	{
+		printf("word :%s\nredir :%d\n--------------\n", str->word, str->redir);
+		str = str->next;
+	}
+}
+//		테스트용 함수입니다.
 
 /*
 * *		한 줄을 리스트의 형태로 바꿔주자.
@@ -720,6 +679,7 @@ t_commands			*split_separator(char *line, t_env *env)		//	! add header
 	while (*line)
 	{
 		node = make_commands_new(&line, env);
+		// printf_node(node);
 		commands_addback(&ret, node);
 	}
 	return (ret);

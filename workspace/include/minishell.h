@@ -26,11 +26,12 @@
 
 # include <stdio.h>
 
-# define SEMI		0		// 세미콜론 or 널문자
-# define PIPE		1		// | 가 들어온 경우
-# define REDIR		2		// > 가 들어온 경우
-# define REV_REDIR	3		// < 가 들어온 경우
-# define D_REDIR	4		// >> 가 들어온 경우
+# define SEMI		1		// 세미콜론 or 널문자
+# define PIPE		2		// | 가 들어온 경우
+# define REDIR		3		// > 가 들어온 경우
+# define REV_REDIR	4		// < 가 들어온 경우
+# define D_REDIR	5		// >> 가 들어온 경우
+# define SPACE		6		// 띄어쓰기
 
 # define BQU		1		// "
 # define SQU		2		// '
@@ -80,9 +81,10 @@ typedef struct	s_commands
 	int						sep;			// SEMI / PIPE
 	int						command;		// 0 is not expected command
 	t_str					*str;
-	int						fd[2];			// 0 write - 1 read
+	int						fd[2];			// 0 read - 1 write
 	int						redir;			// REDIR D_REDIR REV_REDIR
 	struct s_commands		*pipe;
+	struct s_commands		*prev;
 	struct s_commands		*next;			// by semicolon
 }				t_commands;
 
@@ -90,8 +92,8 @@ typedef struct  s_word_block
 {
     char    quotation;		//	기본 == 0 / 작은 따옴표 / 큰 따옴표
     char    *word;			//	단어 / NULL이면 더 가져올 것이 없다
-	int		space_has;		//	뒤에 공백이 있는가? 0 == 문자 / 1 == 공백 / 2 == 마지막 단어
-	int		sep;			//	구분자(|;><>>공백) 없으면 -1;
+	int		is_conti;		//	1이면 붙여쓰기
+	int		sep;			//	구분자(|;><>>공백NULL) 없으면 -1;
 }               t_word_block;
 
 void		command_branch(char *command);

@@ -151,6 +151,31 @@ int		check_input(char *str)
 	return (flag);
 }
 
+void	kill_process(int pid)
+{
+	if (pid == 0)
+	{
+		write(1, "exit\n", 5);
+		exit(0);
+	}
+	else
+		kill(pid, SIGKILL);
+}
+
+void	check_d(int	*ret, char *buf, char *str)
+{
+	if (ft_strlen(str))
+	{
+		*ret = 1;
+		buf[0] = 0;
+		write(1, "  \b\b", 4);
+	}
+	else
+	{
+		kill_process(0);
+	}
+}
+
 int		get_input(char **input)
 {
 	int		ret;
@@ -158,10 +183,15 @@ int		get_input(char **input)
 	char	*str;
 	char	*temp;
 
+	ret = 1;
+	buf[0] = 0;
 	buf[1] = 0;
 	str = ft_strjoin("", "");
-	while ((ret = read(0, buf, 1)) && buf[0] != '\n')
+	while (ret && buf[0] != '\n')
 	{
+		ret = read(0, buf, 1);
+		if (ret == 0)
+			check_d(&ret, buf, str);
 		if (buf[0] != '\n' && ret != 0)
 		{
 			temp = ft_strjoin(str, buf);
@@ -223,6 +253,46 @@ void	input_sequence(char **input)
 		quo_doing(input, BQU);
 }
 
+// t_str	*find_redir_node(t_commands *node)
+// {
+// 	while (node->str)
+// 	{
+// 		if (node->str->redir)
+// 			return (node->str);	
+// 		node->str = node->str->next;	
+// 	}
+// 	return (NULL);
+// }
+
+// void	get_node_fd(t_commands *node)
+// {
+// 	t_str	*redir;
+
+// 	while ((redir = find_redir_node(node))
+// 	{
+
+// 	}
+// }
+
+//		테스트용 함수입니다.
+void	print_node(t_commands *node)
+{
+	printf("===============\nsep :%d\n---------------\n", node->sep);
+	t_str		*str = node->str;
+	while (str)
+	{
+		printf("word :%s\nredir :%d\n--------------\n", str->word, str->redir);
+		str = str->next;
+	}
+}
+
+void	print_pipe(t_commands *node)
+{
+	print_node(node);
+	if (node->pipe)
+		print_pipe(node->pipe);
+}
+//		테스트용 함수입니다.
 int	main(int argc, char **argv, char **envp)
 {
 	int				status;
@@ -244,17 +314,7 @@ int	main(int argc, char **argv, char **envp)
 		cur = lst;
 		while (cur)
 		{
-			if (cur->pipe)
-			{
-				pipe(cur->fd);
-				cur->pipe->fd = cur->fd;
-				pid = fork();
-				if (pid == 0)
-				{
-					cur = cur->pipe;
-					//재귀
-				}
-			}
+			// print_pipe(cur);
 			cur = cur->next;
 		}
 	}
