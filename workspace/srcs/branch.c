@@ -550,12 +550,6 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 			word_free(&word);
 		}
 	}
-	// printf("sep :%d\n-------------------\n", node->sep);
-	// while (node->str)
-	// {
-	// 	printf("word :%s\nredir :%d\n\n",node->str->word, node->str->redir);
-	// 	node->str = node->str->next;
-	// }
 }
 
 /*
@@ -621,6 +615,10 @@ t_commands			*lstlast_pipe(t_commands *lst)
 	return (lst);
 }
 
+// echo aaa | ppp ; bbb | mmm
+// echo aaa -> sep == 2
+// ppp -> sep == 1
+
 void				commands_addback(t_commands **lst, t_commands *new)
 {
 	t_commands		*res;
@@ -634,32 +632,24 @@ void				commands_addback(t_commands **lst, t_commands *new)
 		return ;
 	}
 	res = lstlast_next(*lst);
-	if (new->sep == PIPE)
+	if (res->sep == PIPE)
 	{
 		new->pipe = res;
-		new->prev = res->prev;
-		new->prev->next = new;
-		res->prev = NULL;
+		if (res->prev)
+		{
+			new->prev = res->prev;
+			new->prev->next = new;
+			res->prev = NULL;
+		}
+		if (*lst == res)
+			*lst = new;
 	}
-	else if (new->sep == SEMI)
+	else if (res->sep == SEMI)
 	{
 		new->prev = res;
 		res->next = new;
 	}
 }
-
-//		테스트용 함수입니다.
-void	printf_node(t_commands *node)
-{
-	printf("===============\nsep :%d\n---------------\n", node->sep);
-	t_str		*str = node->str;
-	while (str)
-	{
-		printf("word :%s\nredir :%d\n--------------\n", str->word, str->redir);
-		str = str->next;
-	}
-}
-//		테스트용 함수입니다.
 
 /*
 * *		한 줄을 리스트의 형태로 바꿔주자.
@@ -679,7 +669,6 @@ t_commands			*split_separator(char *line, t_env *env)		//	! add header
 	while (*line)
 	{
 		node = make_commands_new(&line, env);
-		// printf_node(node);
 		commands_addback(&ret, node);
 	}
 	return (ret);
