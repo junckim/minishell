@@ -263,7 +263,7 @@ void	pipe_doing(t_commands *node, t_env *env)
 		error;
 	else if (pid == 0)
 	{
-		if (node->pipe)
+		if (node->pilpe)
 			pipe_doing(node->pipe, env);
 		work();
 		child;
@@ -274,6 +274,8 @@ void	pipe_doing(t_commands *node, t_env *env)
 	}
 }
 // echo aaa | bbb ; nnn
+// execve -> ls -> ls 앞에다가 환경변수 붙여서 돌리기
+//fork() -> execve() -> 실패시 -1; -1이면 while문 돌리면서 모든 경로값 가지고 ls 붙여서 실행
 void	start_work(t_commands *node, t_env *env)
 {
 	while (node)
