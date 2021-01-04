@@ -143,6 +143,19 @@ void	add_change_env(t_env *env, char *key, char *value)
 	}
 }
 
+t_env	*set_env_lst(char **envp)
+{
+	int		shlvl_tmp;
+	t_env	*env;
+	char *test;
+
+	env = make_envlst(envp);
+	add_change_env(env, "?", "0");
+	shlvl_tmp = ft_atoi(get_value(env, "SHLVL"));
+	add_change_env(env, "SHLVL", ft_itoa(++shlvl_tmp));
+	return(env);
+}
+
 /*
 **
 **			input처리
@@ -323,7 +336,7 @@ int	main(int argc, char **argv, char **envp)
 	argc = 0; argv = 0;
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
-	env = make_envlst(envp);
+	env = set_env_lst(envp);
 	while(status)
 	{
 		make_prompt_msg();
