@@ -12,6 +12,9 @@
 
 #include "../include/minishell.h"
 
+// 문자열 생성용 전역변수 -> ctrl + C에서 처리해주기 위함
+char	*g_read_str;
+
 void	make_prompt_msg(void)
 {
 	char	*path;
@@ -31,11 +34,24 @@ void	make_prompt_msg(void)
 
 void	signal_handler(int signo)
 {
+	char	*tmp;
+
 	signo = 0;
+	if (*g_read_str)
+	{
+		tmp = ft_strdup("");
+		free(g_read_str);
+		g_read_str = tmp;
+	}
 	write(1, "\n", 1);
 	make_prompt_msg();
 }
 
+/*
+**       
+**       env 관련
+**
+*/
 t_env	*envp_to_env(char *envp)
 {
 	t_env	*env;
@@ -186,21 +202,21 @@ int		get_input(char **input)
 	ret = 1;
 	buf[0] = 0;
 	buf[1] = 0;
-	str = ft_strjoin("", "");
+	g_read_str = ft_strjoin("", "");
 	while (ret && buf[0] != '\n')
 	{
 		ret = read(0, buf, 1);
 		if (ret == 0)
-			check_d(&ret, buf, str);
+			check_d(&ret, buf, g_read_str);
 		if (buf[0] != '\n' && ret != 0)
 		{
-			temp = ft_strjoin(str, buf);
-			free(str);
-			str = temp;
+			temp = ft_strjoin(g_read_str, buf);
+			free(g_read_str);
+			g_read_str = temp;
 		}
 	}
-	*input = str;
-	return (check_input(str));
+	*input = g_read_str;
+	return (check_input(g_read_str));
 }
 
 void	slash_doing(char **input)
@@ -253,26 +269,26 @@ void	input_sequence(char **input)
 		quo_doing(input, BQU);
 }
 
-void	pipe_doing(t_commands *node, t_env *env)
-{
-	pid_t	pid;
+// void	pipe_doing(t_commands *node, t_env *env)
+// {
+// 	pid_t	pid;
 
-	if (pipe(node->fd) == -1)
-		error;
-	if ((pid = fork()) == -1)
-		error;
-	else if (pid == 0)
-	{
-		if (node->pilpe)
-			pipe_doing(node->pipe, env);
-		work();
-		child;
-	}
-	else
-	{
-		wait();
-	}
-}
+// 	if (pipe(node->fd) == -1)
+// 		error;
+// 	if ((pid = fork()) == -1)
+// 		error;
+// 	else if (pid == 0)
+// 	{
+// 		if (node->pipe)
+// 			pipe_doing(node->pipe, env);
+// 		work();
+// 		child;
+// 	}
+// 	else
+// 	{
+// 		wait();
+// 	}
+// }
 // echo aaa | bbb ; nnn
 // execve -> ls -> ls 앞에다가 환경변수 붙여서 돌리기
 //fork() -> execve() -> 실패시 -1; -1이면 while문 돌리면서 모든 경로값 가지고 ls 붙여서 실행
@@ -280,11 +296,11 @@ void	start_work(t_commands *node, t_env *env)
 {
 	while (node)
 	{
-		if (node->pipe)
-			pipe_doing(node, env);
+		if (node->pipe);
+			// pipe_doing(node, env);
 		else
 		{
-			work();
+			// work();
 		}
 		
 		node = node->next;
