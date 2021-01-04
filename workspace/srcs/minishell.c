@@ -143,6 +143,11 @@ void	add_change_env(t_env *env, char *key, char *value)
 	}
 }
 
+/*
+**
+**			input처리
+**
+*/
 int		check_input(char *str)
 {
 	int	flag;
