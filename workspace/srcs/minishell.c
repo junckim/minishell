@@ -445,14 +445,15 @@ char	**str_to_argv(t_commands *node)
 
 	lst = node->str->next;
 	size = lstsize_str(lst);
-	ret = (char **)err_malloc(sizeof(char *) * (size + 1));
-	i = -1;
-	while (++i != size)
+	ret = (char **)err_malloc(sizeof(char *) * (size + 2));
+	i = 0;
+	ret[i] = ft_strdup("ls");
+	while (++i != size + 1)
 	{
 		ret[i] = lst->word;
 		lst = lst->next;
 	}
-	ret[size] = NULL;
+	ret[size + 1] = NULL;
 	return (ret);
 }
 
@@ -471,33 +472,41 @@ int		lstsize_env(t_env *lst)
 	return (i);
 }
 
+char	*triple_join(char *s1, char *s2, char *s3)
+{
+	char	*tmp;
+	char	*res;
+
+	tmp = ft_strjoin(s1, s2);
+	res = ft_strjoin(tmp, s3);
+	free(tmp);
+	return (res);
+}
 
 char	**env_to_envp(t_env *env)
 {
+	char	**work;
 	char	**ret;
-	t_env	*lst;
 	int		size;
-	int		i;
 	char	*str;
+	char	*tmp;
 
-	lst = env;
-	ret = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(lst))));
-	i = 0;
-	while (i != size)
+	work = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(env))));
+	ret = work;
+	while (env)
 	{
-		if (ft_strlen(lst->key) == 1 && ft_strncmp("?", lst->key, 1))
+		if (!ft_strncmp(env->key, "?", 1))
 		{
-			lst = lst->next;
-			continue ;
+			env = env->next;
 		}
-		ret[i] = ft_strjoin(lst->key, "=");
-		str = ret[i];
-		ret[i] = ft_strjoin(ret[i], lst->value);
-		free(str);
-		lst = lst->next;
-		i++;
+		else
+		{
+			str = triple_join(env->key, "=", env->value);
+			*work = str;
+			work++;
+			env = env->next;
+		}
 	}
-	ret[size - 1] = NULL;
 	return (ret);
 }
 
@@ -512,7 +521,7 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	int		status;
 
 	if ((pid = fork()) == -1)
-		return (-1);
+		return (-2);
 	else if (pid == 0)
 	{
 		argv = str_to_argv(node);
@@ -584,14 +593,12 @@ void	work_command(t_commands *node, t_env *env)
 		{
 			// 경로만들어서 붙어주기
 			// node->str->word = 경로 + 명령어;
-			// excute_work()
+			// excute_work(node, env);
 		}
 		else
 		{
-		// 	return (command_work(node, env, cmd));
+			// return (command_work(node, env, cmd));
 		}
-			
-		//work();
 	}
 }
 
@@ -618,10 +625,11 @@ int	main(int argc, char **argv, char **envp)
 	t_commands		*lst;
 	t_commands		*node;
 
-	argc = 0; argv = 0;
+	argc = 0;
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
 	env = set_env_lst(envp);
+	printf("test : %s\n", argv[0]);
 	while(status)
 	{
 		make_prompt_msg();
