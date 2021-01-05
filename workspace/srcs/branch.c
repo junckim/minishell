@@ -399,7 +399,7 @@ int					end_env_index(char *word, int i)
 {
 	while (word[++i])
 	{
-		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?')
+		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':')
 			break;
 	}
 	return (i);

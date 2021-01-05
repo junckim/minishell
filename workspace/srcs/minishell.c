@@ -310,6 +310,291 @@ void	input_sequence(char **input)
 // echo aaa | bbb ; nnn
 // execve -> ls -> ls 앞에다가 환경변수 붙여서 돌리기
 //fork() -> execve() -> 실패시 -1; -1이면 while문 돌리면서 모든 경로값 가지고 ls 붙여서 실행
+
+/*
+**
+**		path 받아오는 부분
+**
+*/
+
+typedef struct	s_path
+{
+	char			*path;
+	struct s_path	*next;
+}				t_path;
+
+t_path	*new_path_one(char *str)
+{
+	t_path	*res;
+
+	res = err_malloc(sizeof(t_path));
+	res->path = str;
+	res->next = NULL;
+	return (res);
+}
+
+t_path	*add_path(t_path *path, char *str)
+{
+	t_path	*head;
+	
+	head = path;
+	if (path == NULL)
+	{
+		path = new_path_one(str);
+		return (path);
+	}
+	else
+	{
+		while (path->next)
+			path = path->next;
+		path->next = new_path_one(str);
+	}
+	return (head);
+}
+
+t_path	*make_path_lst(t_env *env)
+{
+	t_path	*res;
+	char	*path;
+	char	*point;
+
+	res = NULL;
+	path = get_value(env, "PATH");
+	point = ft_strchr(path, ':');
+	while(path)
+	{
+		if (point)
+		{
+			res = add_path(res, ft_substr(path, 0, point - path));
+			path = point + 1;
+			point = ft_strchr(path, ':');
+		}
+		else
+		{
+			res = add_path(res, ft_strdup(path));
+			path = NULL;
+		}
+	}
+	return (res);
+}
+
+
+/*
+**
+**		command시작부분
+**
+*/
+
+int		strcmp_upper(const char *command, const char *str)
+{
+	int		i;
+	char	c;
+
+	i = -1;
+	while (command[++i])
+	{
+		if ('A' <= str[i] && str[i] <= 'Z')
+			c = str[i] - 'A' + 'a';
+		else
+			c = str[i];
+		if (c != command[i])
+			return (0);
+	}
+	return (1);
+}
+
+/*
+**		cd #env export unset exit
+*/
+int		is_command(char *cmd)
+{
+	if (ft_strlen(cmd) == 2 && ft_strncmp("cd", cmd, 2) == 0)
+		return (CD);
+	else if (ft_strlen(cmd) == 3 && strcmp_upper("env", cmd) == 0)
+		return (ENV);
+	else if (ft_strlen(cmd) == 6 && ft_strncmp("export", cmd, 6) == 0)
+		return (EXPORT);
+	else if (ft_strlen(cmd) == 5 && ft_strncmp("unset", cmd, 5) == 0)
+		return (UNSET);
+	else if (ft_strlen(cmd) == 4 && ft_strncmp("exit", cmd, 4) == 0)
+		return (EXIT);
+	return (-1);
+}
+
+int		lstsize_str(t_str *lst)
+{
+	int		i;
+	t_str	*move;
+
+	i = 0;
+	move = lst;
+	while (move != 0)
+	{
+		move = move->next;
+		i++;
+	}
+	return (i);
+}
+
+char	**str_to_argv(t_commands *node)
+{
+	t_str	*lst;
+	char	**ret;
+	int		size;
+	int		i;
+
+	lst = node->str->next;
+	size = lstsize_str(lst);
+	ret = (char **)err_malloc(sizeof(char *) * (size + 1));
+	i = -1;
+	while (++i != size)
+	{
+		ret[i] = lst->word;
+		lst = lst->next;
+	}
+	ret[size] = NULL;
+	return (ret);
+}
+
+int		lstsize_env(t_env *lst)
+{
+	int		i;
+	t_env	*move;
+
+	i = 0;
+	move = lst;
+	while (move != 0)
+	{
+		move = move->next;
+		i++;
+	}
+	return (i);
+}
+
+
+char	**env_to_envp(t_env *env)
+{
+	char	**ret;
+	t_env	*lst;
+	int		size;
+	int		i;
+	char	*str;
+
+	lst = env;
+	ret = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(lst))));
+	i = 0;
+	while (i != size)
+	{
+		if (ft_strlen(lst->key) == 1 && ft_strncmp("?", lst->key, 1))
+		{
+			lst = lst->next;
+			continue ;
+		}
+		ret[i] = ft_strjoin(lst->key, "=");
+		str = ret[i];
+		ret[i] = ft_strjoin(ret[i], lst->value);
+		free(str);
+		lst = lst->next;
+		i++;
+	}
+	ret[size - 1] = NULL;
+	return (ret);
+}
+
+/*
+**		echo pwd ls
+*/
+int		path_work(t_commands *node, char *path, t_env *env)
+{
+	int		pid;
+	char	**argv;
+	char	**envp;
+	int		status;
+
+	if ((pid = fork()) == -1)
+		return (-1);
+	else if (pid == 0)
+	{
+		argv = str_to_argv(node);
+		envp = env_to_envp(env);
+		execve(path, argv, envp);
+		exit(1);
+	}
+	else
+	{
+		wait(&status);
+		if (status != 0)
+			return (-1);
+	}
+	return (1);
+}
+
+
+// int		is_path(char *path)
+// {
+// 	char			*branch;
+// 	DIR				*dir;
+// 	struct dirent	*rd;
+
+// 	branch = ft_strrchr(path, '/');
+// 	branch = 0;
+// 	dir = opendir(path);
+// 	while ((rd = readdir(dir)) != NULL)
+// 	{
+// 		if (ft_strlen(branch + 1) == ft_strlen(rd->d_name) && \
+// 			ft_strncmp(rd->d_name, branch + 1, ft_strlen(rd->d_name)) == 0)
+// 			return (1);
+// 	}
+// 	closedir(dir);
+// 	return (0);
+// }
+
+/*
+**		cd #env export unset exit
+*/
+int		command_work(t_commands *node, t_env *env, int cmd)
+{
+	
+	return (1);
+}
+
+int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
+{
+	int		cmd;
+	char	*path;
+
+	path = node->str->word;
+	return (path_work(node, path, env));
+}
+
+void	work_command(t_commands *node, t_env *env)
+{
+	t_path	*path;
+	int		cmd;
+
+	printf("%s\n", node->str->word);
+	path = make_path_lst(env);
+	if (node->str->word[0] == '/')		// 절대
+	{
+		printf("ret :%d\n", excute_work(node, env));	// 성공인지 실패인지 반환
+	}
+	else								// 상대
+	{
+		if ((cmd = is_command(node->str->word)) == -1)
+		{
+			// 경로만들어서 붙어주기
+			// node->str->word = 경로 + 명령어;
+			// excute_work()
+		}
+		else
+		{
+		// 	return (command_work(node, env, cmd));
+		}
+			
+		//work();
+	}
+}
+
 void	start_work(t_commands *node, t_env *env)
 {
 	while (node)
@@ -318,7 +603,7 @@ void	start_work(t_commands *node, t_env *env)
 			// pipe_doing(node, env);
 		else
 		{
-			// work();
+			work_command(node, env);
 		}
 		
 		node = node->next;
