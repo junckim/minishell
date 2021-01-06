@@ -1,6 +1,6 @@
 #include "../include/minishell.h"
 
-int			cd_work(t_commands *node)
+int			cd_work(t_commands *node, t_env *env)
 {
 	char	*buf;
 
@@ -9,8 +9,8 @@ int			cd_work(t_commands *node)
 		printf("can not read current dir\n");
 		return (-1);
 	}
-	printf("current dir : %s\n", buf);
-	if (chdir(node->str->next) == -1)
+	add_change_env(env, "OLDPWD", buf);
+	if (chdir(node->str->next->word) == -1)
 	{
 		printf("cannot chage the path\n");
 		return (-1);
@@ -20,7 +20,8 @@ int			cd_work(t_commands *node)
 		printf("can not read current dir\n");
 		return (-1);
 	}
-	printf("current dir : %s\n", buf);
+	add_change_env(env, "PWD", buf);
+	free(buf);
 	return (1);
 }
 
@@ -38,6 +39,27 @@ int			env_work(t_env *env)
 
 int			export_work(t_commands *node, t_env *env)
 {
+	t_str	*cur;
+	char	*param;
+	char	*tmp;
+
+	cur = node->str->next;
+	while (cur)
+	{
+		param = cur->word;
+		if ((tmp = ft_strrchr(param, '=')))
+		{
+			*tmp = 0;
+			add_change_env(env, param, tmp + 1);
+			*tmp = '=';
+		}
+		cur = cur->next;
+	}
+	return (1);
+}
+
+int			unset_work(t_commands *node, t_env *env)
+{
 	return (1);
 }
 
@@ -47,13 +69,13 @@ int			export_work(t_commands *node, t_env *env)
 int			command_work(t_commands *node, t_env *env, int cmd)
 {
 	if (cmd == CD)
-		return (cd_work(node));
+		return (cd_work(node, env));
 	else if (cmd == ENV)
 		return (env_work(env));
-	// else if (cmd == EXPORT)
-	// 	return (export_work(node, env));
-	// else if (cmd == UNSET)
-	// 	return (unset_work(node, env));
+	else if (cmd == EXPORT)
+		return (export_work(node, env));
+	else if (cmd == UNSET)
+		return (unset_work(node, env));
 	// else if (cmd == EXIT)
 	// 	return (exit_work(node, env));
 	return (-1);

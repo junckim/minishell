@@ -23,6 +23,7 @@ LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 FLAGS = $(LIBFT_FLAGS)
 
 SRCS = $(addprefix ./srcs/, \
+	command_work.c \
 	branch.c \
 	utils.c \
 	minishell.c)

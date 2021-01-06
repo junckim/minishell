@@ -410,7 +410,7 @@ int		is_command(char *cmd)
 {
 	if (ft_strlen(cmd) == 2 && ft_strncmp("cd", cmd, 2) == 0)
 		return (CD);
-	else if (ft_strlen(cmd) == 3 && strcmp_upper("env", cmd) == 0)
+	else if (ft_strlen(cmd) == 3 && strcmp_upper("env", cmd))
 		return (ENV);
 	else if (ft_strlen(cmd) == 6 && ft_strncmp("export", cmd, 6) == 0)
 		return (EXPORT);
@@ -558,15 +558,6 @@ int		path_work(t_commands *node, char *path, t_env *env)
 // 	return (0);
 // }
 
-/*
-**		cd #env export unset exit
-*/
-int		command_work(t_commands *node, t_env *env, int cmd)
-{
-	
-	return (1);
-}
-
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
 {
 	int		cmd;
@@ -597,7 +588,7 @@ void	work_command(t_commands *node, t_env *env)
 		}
 		else
 		{
-			// return (command_work(node, env, cmd));
+			command_work(node, env, cmd);//			반환이 필요없나?
 		}
 	}
 }
