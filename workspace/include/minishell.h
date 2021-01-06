@@ -103,4 +103,13 @@ int			ft_atoi(const char *fd);
 int			ft_isspace(char c);
 int			ft_isset(char c, const char *set);
 void		*err_malloc(unsigned int n);
+char		**env_to_envp(t_env *env);
+int			cd_work(t_commands *node);
+int			env_work(t_env *env);
+int			export_work(t_commands *node, t_env *env);
+int			export_work(t_commands *node, t_env *env);
+int			unset_work(t_commands *node, t_env *env);
+int			exit_work(t_commands *node, t_env *env);
+int			command_work(t_commands *node, t_env *env, int cmd);
+
 #endif
