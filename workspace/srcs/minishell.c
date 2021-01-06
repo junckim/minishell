@@ -139,12 +139,14 @@ void	del_env(t_env **env, char *key)
 	}
 	while (cur)
 	{
-		if (cur->key == key)
+		if (ft_strlen(key) == ft_strlen(cur->key) && ft_strncmp(cur->key, key, ft_strlen(key)))
 		{
+			printf("key :%s\n", key);
 			free(cur->key);
 			free(cur->value);
 			prev->next = cur->next;
 			free(cur);
+			return ;
 		}
 		prev = cur;
 		cur = cur->next;
