@@ -74,6 +74,16 @@ int			unset_work(t_commands *node, t_env *env)
 	return (1);
 }
 
+void		exit_work(t_commands *node, t_env *env)
+{
+	int		num;
+
+	num = 0;
+	if (node->str->next)
+		num = ft_atoi(node->str->next->word);
+	exit(num);
+}
+
 /*
 **		cd #env export unset exit
 */
@@ -87,7 +97,7 @@ int			command_work(t_commands *node, t_env *env, int cmd)
 		return (export_work(node, env));
 	else if (cmd == UNSET)
 		return (unset_work(node, env));
-	// else if (cmd == EXIT)
-	// 	return (exit_work(node, env));
+	else if (cmd == EXIT)
+		exit_work(node, env);
 	return (-1);
 }

@@ -109,7 +109,7 @@ int			env_work(t_env *env);
 int			export_work(t_commands *node, t_env *env);
 int			export_work(t_commands *node, t_env *env);
 int			unset_work(t_commands *node, t_env *env);
-int			exit_work(t_commands *node, t_env *env);
+void		exit_work(t_commands *node, t_env *env);
 int			command_work(t_commands *node, t_env *env, int cmd);
 void		add_change_env(t_env *env, char *key, char *value);
 void		del_env(t_env **env, char *key);
