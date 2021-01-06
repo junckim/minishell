@@ -60,6 +60,17 @@ int			export_work(t_commands *node, t_env *env)
 
 int			unset_work(t_commands *node, t_env *env)
 {
+	t_str	*cur;
+	char	*param;
+
+	cur = node->str->next;
+	while (cur)
+	{
+		param = cur->word;
+		printf("param :%s\n", param);
+		del_env(&env, param);
+		cur = cur->next;
+	}
 	return (1);
 }
 

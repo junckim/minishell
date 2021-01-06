@@ -81,6 +81,7 @@ void	add_envlst(t_env *env, char *envp)
 	env->next = elem;
 }
 
+
 t_env	*make_envlst(char **envp)
 {
 	t_env	*env;
@@ -94,6 +95,7 @@ t_env	*make_envlst(char **envp)
 	}
 	return (env);
 }
+
 
 char	*get_value(t_env *env, char *key)
 {
@@ -120,6 +122,33 @@ t_env	*get_env_pointer(t_env *env, char *key)
 		env = env->next;
 	}
 	return (NULL);
+}
+
+void	del_env(t_env **env, char *key)
+{
+	t_env	*cur;
+	t_env	*prev;
+
+	if (*env == 0 || key == 0)
+		return ;
+	cur = *env;
+	if (cur->key == key)
+	{
+		*env = cur->next;
+		return ;
+	}
+	while (cur)
+	{
+		if (cur->key == key)
+		{
+			free(cur->key);
+			free(cur->value);
+			prev->next = cur->next;
+			free(cur);
+		}
+		prev = cur;
+		cur = cur->next;
+	}
 }
 
 void	add_change_env(t_env *env, char *key, char *value)
