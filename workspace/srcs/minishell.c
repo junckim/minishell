@@ -174,6 +174,21 @@ void	add_change_env(t_env *env, char *key, char *value)
 	}
 }
 
+char	*triple_join(char *s1, char *s2, char *s3); // 프로토타입 나중에 옮기면서 지우기
+
+void	add_own_path(t_env *env)
+{
+	char	*temp;
+	char	*excute_path;
+	t_env	*path_env;
+
+	path_env = get_env_pointer(env, "PATH");
+	excute_path = getcwd(0, 0); // 지금은 현재 디렉이지만 나중엔 바꿔줘야함
+	temp = triple_join(excute_path, ":", path_env->value);
+	free(path_env->value);
+	path_env->value = temp;
+}
+
 t_env	*set_env_lst(char **envp)
 {
 	int		shlvl_tmp;
@@ -184,6 +199,7 @@ t_env	*set_env_lst(char **envp)
 	add_change_env(env, "?", "0");
 	shlvl_tmp = ft_atoi(get_value(env, "SHLVL"));
 	add_change_env(env, "SHLVL", ft_itoa(++shlvl_tmp));
+	add_own_path(env);
 	return(env);
 }
 
@@ -598,12 +614,32 @@ int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반�
 	return (path_work(node, path, env));
 }
 
+void	path_excute(t_commands *node, t_env *env, t_path *path)
+{
+	int		res;
+	char	*word;
+	char	*tmp;
+
+	word = ft_strdup(node->str->word);
+	while (path)
+	{
+		tmp = triple_join(path->path, "/", word);
+		free(node->str->word);
+		node->str->word = tmp;
+		if ((res = excute_work(node, env) == 1))
+			break ;
+		path = path->next;
+	}
+	free(word);
+	word = NULL;
+}
+
 void	work_command(t_commands *node, t_env *env)
 {
 	t_path	*path;
 	int		cmd;
 
-	printf("%s\n", node->str->word);
+	printf("word : %s\n", node->str->word);
 	path = make_path_lst(env);
 	if (node->str->word[0] == '/')		// 절대
 	{
@@ -613,9 +649,7 @@ void	work_command(t_commands *node, t_env *env)
 	{
 		if ((cmd = is_command(node->str->word)) == -1)
 		{
-			// 경로만들어서 붙어주기
-			// node->str->word = 경로 + 명령어;
-			// excute_work(node, env);
+			path_excute(node, env, path);
 		}
 		else
 		{
