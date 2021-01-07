@@ -587,7 +587,6 @@ int		path_work(t_commands *node, char *path, t_env *env)
 
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
 {
-	int		cmd;
 	char	*path;
 
 	path = node->str->word;
@@ -607,10 +606,7 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 		free(node->str->word);
 		node->str->word = tmp;
 		if ((res = excute_work(node, env) == 1))
-		{
-			printf("%s\n", node->str->word);
 			return (1);
-		}
 		path = path->next;
 	}
 	free(word);
