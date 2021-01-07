@@ -614,7 +614,7 @@ int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반�
 	return (path_work(node, path, env));
 }
 
-void	path_excute(t_commands *node, t_env *env, t_path *path)
+int		path_excute(t_commands *node, t_env *env, t_path *path)
 {
 	int		res;
 	char	*word;
@@ -627,11 +627,15 @@ void	path_excute(t_commands *node, t_env *env, t_path *path)
 		free(node->str->word);
 		node->str->word = tmp;
 		if ((res = excute_work(node, env) == 1))
-			break ;
+		{
+			printf("%s\n", node->str->word);
+			return (1);
+		}
 		path = path->next;
 	}
 	free(word);
 	word = NULL;
+	return (0);
 }
 
 void	work_command(t_commands *node, t_env *env)
@@ -650,6 +654,7 @@ void	work_command(t_commands *node, t_env *env)
 		if ((cmd = is_command(node->str->word)) == -1)
 		{
 			path_excute(node, env, path);
+			printf("in ls\n");
 		}
 		else
 		{
