@@ -405,45 +405,24 @@ int					end_env_index(char *word, int i)
 	return (i);
 }
 
-char				*find_env(char *find, t_env *env)
-{
-	t_env	*cur;
-
-	cur = env;
-	while (cur)
-	{
-		if (ft_strlen(cur->key) == ft_strlen(find) && ft_strncmp(cur->key, find, ft_strlen(find)) == 0)
-		{
-			free(find);
-			return (ft_strdup(cur->value));
-		}
-		cur = cur->next;
-	}
-	free(find);
-	return (ft_strdup(""));
-}
-
 int					env_strdup(char **word, int start, int end, char *val)
 {
 	int			ret;
-	char		tmp;
+	char		c;
 	char		*new;
-	char		*ttmp;
-	char		*tttmp;
+	char		*tmp;
 
-	tmp = (*word)[start];
+	c = (*word)[start];
 	(*word)[start] = 0;
 	new = ft_strdup((*word));
-	(*word)[start] = tmp;
-	ttmp = new;
+	(*word)[start] = c;
+	tmp = new;
 	new = ft_strjoin(new, val);
-	free(val);
-	free(ttmp);
+	free(tmp);
 	ret = ft_strlen(new) - 1;
-	ttmp = new;
-	new = ft_strjoin(new, (tttmp = ft_strdup(&((*word)[end]))));
-	free(ttmp);
-	free(tttmp);
+	tmp = new;
+	new = ft_strjoin(new, &((*word)[end]));
+	free(tmp);
 	free(*word);
 	(*word) = new;
 	return (ret);
@@ -451,11 +430,47 @@ int					env_strdup(char **word, int start, int end, char *val)
 
 int					isvalid_env_mark(char *word, int idx)
 {
-	if (idx > 0 && word[idx - 1] != -1)
-		return (1);
-	else if (word[idx + 1] != 0)
-		return (1);
-	return (0);
+	if (idx > 0 && word[idx - 1] == -1)
+		return (0);
+	return (1);
+}
+
+int				change_basic(char **word, int idx, t_env *env)
+{
+	int		j;
+	char	c;
+	char	*key;
+	char	*val;
+
+	j = end_env_index(*word, idx);
+	c = (*word)[j];
+	(*word)[j] = 0;
+	key = ft_strdup(&((*word)[idx + 1]));
+	(*word)[j] = c;
+	if ((val = get_value(env, key)) == NULL)
+		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+	free(key);
+	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
+	return (idx);
+}
+
+int					change_return(char **word, int idx, t_env *env)
+{
+	int		j;
+	char	c;
+	char	*key;
+	char	*val;
+
+	j = 2;
+	c = (*word)[j];
+	(*word)[j] = 0;
+	key = ft_strdup(&((*word)[idx + 1]));
+	(*word)[j] = c;
+	if ((val = get_value(env, key)) == NULL)
+		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+	free(key);
+	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
+	return (idx);
 }
 
 /*
@@ -465,23 +480,16 @@ int					isvalid_env_mark(char *word, int idx)
 void				change_env(t_word_block *word, t_env *env)
 {
 	int		i;
-	int		j;
-	char	tmp;
-	char	*find;
 
 	i = -1;
 	while ((word->word)[++i])
 	{
+		if ((word->word)[i] == '$' && (word->word)[i + 1] == '?')
+			i = change_return(&(word->word), i, env);
+		// else if ((word->word)[i] == '$' && (word->word)[i + 1] == '{')
+		// 	change_bracelet(&(word->word), i);
 		if ((word->word)[i] == '$' && isvalid_env_mark(word->word, i))
-		{
-			j = end_env_index(word->word, i);
-			tmp = (word->word)[j];
-			(word->word)[j] = 0;
-			find = ft_strdup(&((word->word)[i + 1]));
-			(word->word)[j] = tmp;
-			find = find_env(find, env);					// free(find);
-			i = env_strdup(&(word->word), i, j, find);	// free(word->word), free(find), return 마지막 인덱스
-		}
+			i = change_basic(&(word->word), i, env);
 	}
 }
 
