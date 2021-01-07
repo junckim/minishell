@@ -334,26 +334,6 @@ void	input_sequence(char **input)
 		quo_doing(input, BQU);
 }
 
-// void	pipe_doing(t_commands *node, t_env *env)
-// {
-// 	pid_t	pid;
-
-// 	if (pipe(node->fd) == -1)
-// 		error;
-// 	if ((pid = fork()) == -1)
-// 		error;
-// 	else if (pid == 0)
-// 	{
-// 		if (node->pipe)
-// 			pipe_doing(node->pipe, env);
-// 		work();
-// 		child;
-// 	}
-// 	else
-// 	{
-// 		wait();
-// 	}
-// }
 // echo aaa | bbb ; nnn
 // execve -> ls -> ls 앞에다가 환경변수 붙여서 돌리기
 //fork() -> execve() -> 실패시 -1; -1이면 while문 돌리면서 모든 경로값 가지고 ls 붙여서 실행
@@ -654,7 +634,6 @@ void	work_command(t_commands *node, t_env *env)
 		if ((cmd = is_command(node->str->word)) == -1)
 		{
 			path_excute(node, env, path);
-			printf("in ls\n");
 		}
 		else
 		{
@@ -663,17 +642,39 @@ void	work_command(t_commands *node, t_env *env)
 	}
 }
 
+void	pipe_doing(t_commands *node, t_env *env)
+{
+	pid_t	pid;
+	int		status;
+
+	if (pipe(node->fd) == -1)
+		exit(1);   //에러처리
+	if ((pid = fork()) == -1)
+		exit(1);   //에러처리
+	else if (pid == 0)
+	{
+		if (node->pipe)
+			pipe_doing(node->pipe, env);
+		work_command(node, env);
+	}
+	else
+	{
+		wait(&status);
+	}
+}
+
 void	start_work(t_commands *node, t_env *env)
 {
 	while (node)
 	{
-		if (node->pipe);
-			// pipe_doing(node, env);
+		if (node->pipe)
+		{
+			pipe_doing(node, env);
+		}
 		else
 		{
 			work_command(node, env);
 		}
-		
 		node = node->next;
 	}
 }
@@ -683,7 +684,6 @@ int	main(int argc, char **argv, char **envp)
 	int				status;
 	char			*input;
 	t_env			*env;
-	t_commands		*lst;
 	t_commands		*node;
 
 	argc = 0;
@@ -696,8 +696,7 @@ int	main(int argc, char **argv, char **envp)
 		make_prompt_msg();
 		input_sequence(&input);
 		printf("input test : %s\n", input);
-		lst = split_separator(input, env);
-		node = lst;
+		node = split_separator(input, env);
 		start_work(node, env);
 	}
 	return (0);
