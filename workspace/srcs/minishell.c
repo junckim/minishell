@@ -619,7 +619,6 @@ void	work_command(t_commands *node, t_env *env)
 	t_path	*path;
 	int		cmd;
 
-	printf("word : %s\n", node->str->word);
 	path = make_path_lst(env);
 	if (node->str->word[0] == '/')		// 절대
 	{
@@ -687,7 +686,6 @@ int	main(int argc, char **argv, char **envp)
 	signal(SIGINT, (void *)signal_handler);
 	status = 1;
 	env = set_env_lst(envp);
-	printf("test : %s\n", argv[0]);
 	while(status)
 	{
 		make_prompt_msg();
