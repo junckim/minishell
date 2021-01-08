@@ -565,26 +565,6 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	return (1);
 }
 
-
-// int		is_path(char *path)
-// {
-// 	char			*branch;
-// 	DIR				*dir;
-// 	struct dirent	*rd;
-
-// 	branch = ft_strrchr(path, '/');
-// 	branch = 0;
-// 	dir = opendir(path);
-// 	while ((rd = readdir(dir)) != NULL)
-// 	{
-// 		if (ft_strlen(branch + 1) == ft_strlen(rd->d_name) && \
-// 			ft_strncmp(rd->d_name, branch + 1, ft_strlen(rd->d_name)) == 0)
-// 			return (1);
-// 	}
-// 	closedir(dir);
-// 	return (0);
-// }
-
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
 {
 	char	*path;

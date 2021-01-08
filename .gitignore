@@ -3,3 +3,5 @@ a.out
 minishell
 *.a
 *.swp
+.vscode
+.DS_Store
