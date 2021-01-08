@@ -469,12 +469,13 @@ char	**str_to_argv(t_commands *node)
 	char	**ret;
 	int		size;
 	int		i;
+	char	*test;
 
 	lst = node->str->next;
 	size = lstsize_str(lst);
 	ret = (char **)err_malloc(sizeof(char *) * (size + 2));
 	i = 0;
-	ret[i] = ft_strdup("ls");
+	ret[i] = ft_strdup(ft_strrchr(node->str->word, '/') + 1);
 	while (++i != size + 1)
 	{
 		ret[i] = lst->word;

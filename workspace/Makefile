@@ -6,7 +6,7 @@
 #    By: joockim <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/10 16:22:30 by joockim           #+#    #+#              #
-#    Updated: 2020/12/27 00:45:11 by joockim          ###   ########.fr        #
+#    Updated: 2021/01/09 01:31:17 by joockim          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,8 @@ NAME = minishell
 CC = gcc
 
 UTILS = ./libs/
+
+EXCUTE_PATH = ./srcs/
 
 #CFLAGS = -Werror -Wextra -Wall
 
@@ -38,6 +40,7 @@ ${NAME} : ${OBJS}
 	@make bonus -C ${UTILS}libft
 	@make -C ${UTILS}libftprintf
 	@${CC} ${FLAGS} ${OBJS} -o ${NAME}
+	@${CC} ${FLAGS} -o ${EXCUTE_PATH}pwd ${EXCUTE_PATH}excute_pwd.c
 	@echo ----------make success minishell----------
 
 clean :

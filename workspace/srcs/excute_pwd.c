@@ -14,6 +14,9 @@
 
 int main(int argc, char **argv, char **envp)
 {
-    printf("%")
+    char    *path;
+
+    path = getcwd(0, 0);
+    printf("%s\n", path);
     return (0);
 }
