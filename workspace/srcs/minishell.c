@@ -183,8 +183,8 @@ void	add_own_path(t_env *env)
 	t_env	*path_env;
 
 	path_env = get_env_pointer(env, "PATH");
-	excute_path = getcwd(0, 0); // 지금은 현재 디렉이지만 나중엔 바꿔줘야함
-	temp = triple_join(excute_path, ":", path_env->value);
+	excute_path = getcwd(0, 0); // 지금은 현재 디렉이지만 나중엔 바꿔줘
+	temp = triple_join(excute_path, "/srcs:", path_env->value);
 	free(path_env->value);
 	path_env->value = temp;
 }

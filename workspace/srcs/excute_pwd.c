@@ -14,10 +14,6 @@
 
 int main(int argc, char **argv, char **envp)
 {
-    while (*argv)
-    {
-        printf("%s\n", *argv);
-        argv++;
-    }
+    printf("%")
     return (0);
 }
