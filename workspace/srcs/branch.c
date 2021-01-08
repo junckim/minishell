@@ -461,7 +461,7 @@ int					change_return(char **word, int idx, t_env *env)
 	char	*key;
 	char	*val;
 
-	j = 2;
+	j = idx + 2;
 	c = (*word)[j];
 	(*word)[j] = 0;
 	key = ft_strdup(&((*word)[idx + 1]));
@@ -470,6 +470,35 @@ int					change_return(char **word, int idx, t_env *env)
 		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
 	free(key);
 	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
+	return (idx);
+}
+
+int					end_env_bracelet(char *word, int i)
+{
+	while (word[++i])
+	{
+		if (word[i] == '}')
+			break;
+	}
+	return (i);
+}
+
+int					change_bracelet(char **word, int idx, t_env *env)
+{
+	int		j;
+	char	c;
+	char	*key;
+	char	*val;
+
+	j = end_env_bracelet(*word, idx);
+	c = (*word)[j];
+	(*word)[j] = 0;
+	key = ft_strdup(&((*word)[idx + 2]));
+	(*word)[j] = c;
+	if ((val = get_value(env, key)) == NULL)
+		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+	free(key);
+	idx = env_strdup(word, idx, j + 1, val);	// free(word), return 마지막 인덱스
 	return (idx);
 }
 
@@ -486,9 +515,9 @@ void				change_env(t_word_block *word, t_env *env)
 	{
 		if ((word->word)[i] == '$' && (word->word)[i + 1] == '?')
 			i = change_return(&(word->word), i, env);
-		// else if ((word->word)[i] == '$' && (word->word)[i + 1] == '{')
-		// 	change_bracelet(&(word->word), i);
-		if ((word->word)[i] == '$' && isvalid_env_mark(word->word, i))
+		else if ((word->word)[i] == '$' && (word->word)[i + 1] == '{')
+			i = change_bracelet(&(word->word), i, env);
+		else if ((word->word)[i] == '$' && isvalid_env_mark(word->word, i))
 			i = change_basic(&(word->word), i, env);
 	}
 }

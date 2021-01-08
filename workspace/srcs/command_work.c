@@ -10,7 +10,15 @@ int			cd_work(t_commands *node, t_env *env)
 		return (-1);
 	}
 	add_change_env(env, "OLDPWD", buf);
-	if (chdir(node->str->next->word) == -1)
+	if (node->str->next == 0)
+	{
+		if (chdir(get_value(env, "HOME")) == -1)
+		{
+			printf("cannot chage the path\n");
+			return (-1);
+		}
+	}
+	else if (chdir(node->str->next->word) == -1)
 	{
 		printf("cannot chage the path\n");
 		return (-1);
