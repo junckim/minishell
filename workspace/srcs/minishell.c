@@ -643,7 +643,6 @@ void	pipe_doing(t_commands *node, t_env *env)
 	pid_t	pid;
 	int		status;
 
-	printf("one node : %s\n", node->str->word);
 	if (pipe(node->fd) == -1)
 		exit(1);   //에러처리
 	if ((pid = fork()) == -1)
