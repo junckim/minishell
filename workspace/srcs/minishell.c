@@ -640,10 +640,10 @@ void	pipe_doing(t_commands *node, t_env *env)
 	else if (pid == 0)
 	{
 		dup2(node->fd[1], STDOUT_FILENO);
+		close(node->fd[1]);
 		if (node->pipe)
 			pipe_doing(node->pipe, env);
 		work_command(node, env);
-		close(fd[1]);
 		exit(0);
 	}
 	else
