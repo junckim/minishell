@@ -18,5 +18,10 @@ int main(int argc, char **argv, char **envp)
 
     path = getcwd(0, 0);
     printf("%s\n", path);
+    while (*argv)
+    {
+        printf("%s\n", *argv);
+        argv++;
+    }
     return (0);
 }

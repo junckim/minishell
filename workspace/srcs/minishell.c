@@ -595,6 +595,16 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 	return (0);
 }
 
+void	get_node_fd(t_commands *node)
+{
+	while (node->str)
+	{
+		printf("%s\n", node->str->word);
+		node->str = node->str->next;
+	}
+	printf("aaa");
+}
+
 void	work_command(t_commands *node, t_env *env)
 {
 	t_path	*path;
@@ -617,7 +627,7 @@ void	work_command(t_commands *node, t_env *env)
 		}
 	}
 }
-
+// fork해서 excute로 들어갔을 때 어떻게 fd를 건네주지..? excute함수를 그냥 내부 함수로짜야할까?
 void	pipe_doing(t_commands *node, t_env *env)
 {
 	pid_t	pid;
