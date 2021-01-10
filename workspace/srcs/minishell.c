@@ -627,12 +627,16 @@ void	work_command(t_commands *node, t_env *env)
 		}
 	}
 }
-// fork해서 excute로 들어갔을 때 어떻게 fd를 건네주지..? excute함수를 그냥 내부 함수로짜야할까?
+
 void	pipe_doing(t_commands *node, t_env *env)
 {
 	pid_t	pid;
 	int		status;
+	char	buf[100];
+	int i = 0;
 
+	while (i < 100)
+		buf[i++] = 0;
 	if (pipe(node->fd) == -1)
 		exit(1);   //에러처리
 	if ((pid = fork()) == -1)
@@ -640,6 +644,7 @@ void	pipe_doing(t_commands *node, t_env *env)
 	else if (pid == 0)
 	{
 		dup2(node->fd[1], STDOUT_FILENO);
+		close(node->fd[0]);
 		close(node->fd[1]);
 		if (node->pipe)
 			pipe_doing(node->pipe, env);
@@ -648,7 +653,10 @@ void	pipe_doing(t_commands *node, t_env *env)
 	}
 	else
 	{
-		wait(&status);
+		close(node->fd[1]);
+		waitpid(pid, &status, 0);
+		read(node->fd[0], buf, 100);
+		printf("buf : %s\n", buf);
 	}
 }
 

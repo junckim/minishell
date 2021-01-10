@@ -46,6 +46,19 @@
 # define LS			7
 # define EXIT		8
 
+# define ERR_EXPORT				-2
+# define ERR_EXPORT_S			"export: `=a': not a valid identifier"		// =로 인자가 상태가 시작했을 때,
+# define ERR_EMPTY_SEMI			-3
+# define ERR_EMPTY_SEMI_S		"syntax error near unexpected token `;'"
+# define ERR_EMPTY_PIPE			-4
+# define ERR_EMPTY_PIPE_S		"syntax error near unexpected token `|'"
+# define ERR_EMPTY_REDIR		-5
+# define ERR_EMPTY_REDIR_S		"syntax error near unexpected token `>'"
+# define ERR_EMPTY_D_REDIR		-6
+# define ERR_EMPTY_D_REDIR_S	"syntax error near unexpected token `>>'"
+# define ERR_EMPTY_REV_REDIR	-7
+# define ERR_EMPTY_REV_REDIR_S	"syntax error near unexpected token `<'"
+
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"
 # define COLOR_YELLOW	"\x1b[33m"
@@ -114,5 +127,6 @@ int			command_work(t_commands *node, t_env *env, int cmd);
 void		add_change_env(t_env *env, char *key, char *value);
 void		del_env(t_env **env, char *key);
 char		*get_value(t_env *env, char *key);
+int			list_check(t_commands *lst);
 
 #endif
