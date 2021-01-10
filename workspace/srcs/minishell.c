@@ -630,6 +630,8 @@ void	work_command(t_commands *node, t_env *env)
 
 void	pipe_doing(t_commands *node, t_env *env)
 {
+	int		parent_pi[2];
+	int		child_pi[2];
 	pid_t	pid;
 	int		status;
 	char	buf[100];
@@ -637,15 +639,12 @@ void	pipe_doing(t_commands *node, t_env *env)
 
 	while (i < 100)
 		buf[i++] = 0;
-	if (pipe(node->fd) == -1)
+	if (pipe(parent_pi) == -1 || pipe(child_pi))
 		exit(1);   //에러처리
 	if ((pid = fork()) == -1)
 		exit(1);   //에러처리
 	else if (pid == 0)
 	{
-		dup2(node->fd[1], STDOUT_FILENO);
-		close(node->fd[0]);
-		close(node->fd[1]);
 		if (node->pipe)
 			pipe_doing(node->pipe, env);
 		work_command(node, env);
@@ -653,10 +652,7 @@ void	pipe_doing(t_commands *node, t_env *env)
 	}
 	else
 	{
-		close(node->fd[1]);
 		waitpid(pid, &status, 0);
-		read(node->fd[0], buf, 100);
-		printf("buf : %s\n", buf);
 	}
 }
 

@@ -340,57 +340,6 @@ void	word_join(t_word_block *dest, t_word_block *srcs)
 }
 
 /*
-* *		두 문자열을 비교해준다
-* *		뒤에 들어오는 문자열의 대문자는 소문자로 인식한다
-**		param  : 비교할 두 문자열
-**		return : 두 문자열의 차이값
-*/
-// int					strcmp_ignore_upper(char *str1, char *str2)
-// {
-// 	int			i;
-
-// 	i = 0;
-// 	while (str1[i] && str2[i])
-// 	{
-// 		if (str1[i] - str2[i] && str1[i] - (str2[i] - 'A' + 'a'))
-// 			return (str1[i] - str2[i]);
-// 		i++;
-// 	}
-// 	return (str1[i] - str2[i]);
-// }
-
-/*
-* *		스트링을 읽고 어떤 cmd인지 해당 번호를 반환
-* *		워드를 프리해줌
-**		param  : 커맨드 문자열
-**		return : 디파인된 커맨드 넘버
-*/
-// int					cmd_to_int(char *cmd)
-// {
-// 	int		ret;
-
-// 	ret = -1;
-// 	if (ft_strlen(cmd) == 4 && strcmp_ignore_upper("echo", cmd) == 0)
-// 		ret = ECHO;
-// 	else if (ft_strlen(cmd) == 2 && ft_strncmp(cmd, "cd", 2) == 0)
-// 		ret = CD;
-// 	else if  (ft_strlen(cmd) == 3 && strcmp_ignore_upper("pwd", cmd) == 0)
-// 		ret = PWD;
-// 	else if (ft_strlen(cmd) == 6 && ft_strncmp(cmd, "export", 6) == 0)
-// 		ret = EXPORT;
-// 	else if (ft_strlen(cmd) == 5 && ft_strncmp(cmd, "unset", 5) == 0)
-// 		ret = UNSET;
-// 	else if (ft_strlen(cmd) == 3 && strcmp_ignore_upper("env", cmd) == 0)
-// 		ret = ENV;
-// 	else if (ft_strlen(cmd) == 2 && strcmp_ignore_upper("ls", cmd) == 0)
-// 		ret = LS;
-// 	else if (ft_strlen(cmd) == 4 && ft_strncmp(cmd, "exit", 4) == 0)
-// 		ret = EXIT;
-// 	free(cmd);
-// 	return (ret);
-// }
-
-/*
 * *		환경변수가 끝나는 다음 인덱스를 반환
 **		param  : 단어, $의 위치
 **		return : 환경변수가 끝나는 다음 인덱스
@@ -399,7 +348,7 @@ int					end_env_index(char *word, int i)
 {
 	while (word[++i])
 	{
-		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':')
+		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':' || word[i] == ' ')
 			break;
 	}
 	return (i);
@@ -420,6 +369,7 @@ int					env_strdup(char **word, int start, int end, char *val)
 	new = ft_strjoin(new, val);
 	free(tmp);
 	ret = ft_strlen(new) - 1;
+	printf("ret : %d\n", ret);
 	tmp = new;
 	new = ft_strjoin(new, &((*word)[end]));
 	free(tmp);
