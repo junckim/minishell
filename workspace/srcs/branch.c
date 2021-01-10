@@ -348,7 +348,7 @@ int					end_env_index(char *word, int i)
 {
 	while (word[++i])
 	{
-		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':' || word[i] == ' ' || word[i] == '\'')
+		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':' || word[i] == ' ' || word[i] == '\'' || word[i] == '=')
 			break;
 	}
 	return (i);
@@ -620,21 +620,11 @@ void				commands_addback(t_commands **lst, t_commands *new)
 	res = lstlast_next(*lst);
 	if (res->sep == PIPE)
 	{
-		new->pipe = res;
-		if (res->prev)
-		{
-			new->prev = res->prev;
-			new->prev->next = new;
-			res->prev = NULL;
-		}
-		if (*lst == res)
-			*lst = new;
+		res = lstlast_pipe(*lst);
+		res->pipe = new;
 	}
 	else if (res->sep == SEMI)
-	{
-		new->prev = res;
 		res->next = new;
-	}
 }
 
 /*

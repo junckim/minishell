@@ -47,7 +47,6 @@
 # define EXIT		8
 
 # define ERR_EXPORT				-2
-# define ERR_EXPORT_S			"export: `=a': not a valid identifier"		// =로 인자가 상태가 시작했을 때,
 # define ERR_EMPTY_SEMI			-3
 # define ERR_EMPTY_SEMI_S		"syntax error near unexpected token `;'"
 # define ERR_EMPTY_PIPE			-4
@@ -94,7 +93,8 @@ typedef struct	s_commands
 	int						sep;			// SEMI / PIPE
 	int						command;		// 0 is not expected command
 	t_str					*str;
-	int						redir;			// REDIR D_REDIR REV_REDIR
+	int						redir;			//	REDIR D_REDIR REV_REDIR
+	int						fd[2];			//	read 0 write 1
 	struct s_commands		*pipe;
 	struct s_commands		*prev;
 	struct s_commands		*next;			// by semicolon
@@ -119,14 +119,13 @@ char		**env_to_envp(t_env *env);
 int			cd_work(t_commands *node, t_env *env);
 int			env_work(t_env *env);
 int			export_work(t_commands *node, t_env *env);
-int			export_work(t_commands *node, t_env *env);
-int			unset_work(t_commands *node, t_env *env);
+int			unset_work(t_commands *node, t_env **env);
 void		exit_work(t_commands *node, t_env *env);
-int			command_work(t_commands *node, t_env *env, int cmd);
+int			command_work(t_commands *node, t_env **env, int cmd);
 void		add_change_env(t_env *env, char *key, char *value);
-void		del_env(t_env **env, char *key);
 char		*get_value(t_env *env, char *key);
 int			list_check(t_commands *lst);
-void		error_check(int err_num);
+void		error_check(int err_num, char *error_message);
+t_env		*get_env_pointer(t_env *env, char *key);
 
 #endif

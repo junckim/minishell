@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/31 18:31:15 by joockim          ###   ########.fr       */
+/*   Updated: 2021/01/10 18:10:47 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,35 +122,6 @@ t_env	*get_env_pointer(t_env *env, char *key)
 		env = env->next;
 	}
 	return (NULL);
-}
-
-void	del_env(t_env **env, char *key)
-{
-	t_env	*cur;
-	t_env	*prev;
-
-	if (*env == 0 || key == 0)
-		return ;
-	cur = *env;
-	if (cur->key == key)
-	{
-		*env = cur->next;
-		return ;
-	}
-	while (cur)
-	{
-		if (ft_strlen(key) == ft_strlen(cur->key) && ft_strncmp(cur->key, key, ft_strlen(key)))
-		{
-			printf("key :%s\n", key);
-			free(cur->key);
-			free(cur->value);
-			prev->next = cur->next;
-			free(cur);
-			return ;
-		}
-		prev = cur;
-		cur = cur->next;
-	}
 }
 
 void	add_change_env(t_env *env, char *key, char *value)
@@ -605,21 +576,21 @@ void	get_node_fd(t_commands *node)
 	printf("aaa");
 }
 
-void	work_command(t_commands *node, t_env *env)
+void	work_command(t_commands *node, t_env **env)
 {
 	t_path	*path;
 	int		cmd;
 
-	path = make_path_lst(env);
+	path = make_path_lst(*env);
 	if (node->str->word[0] == '/')		// 절대
 	{
-		printf("ret :%d\n", excute_work(node, env));	// 성공인지 실패인지 반환
+		printf("ret :%d\n", excute_work(node, *env));	// 성공인지 실패인지 반환
 	}
 	else								// 상대
 	{
 		if ((cmd = is_command(node->str->word)) == -1)
 		{
-			path_excute(node, env, path);
+			path_excute(node, *env, path);
 		}
 		else
 		{
@@ -628,48 +599,45 @@ void	work_command(t_commands *node, t_env *env)
 	}
 }
 
-#define	PARENT_READ	readpipe[0]
-#define	CHILD_WRITE	readpipe[1]
-#define CHILD_READ	writepipe[0]
-#define PARENT_WRITE	writepipe[1]
-
-void	pipe_doing(t_commands *node, t_env *env)
+void	pipe_doing(t_commands *node, t_env **env)
 {
-	int		readpipe[2];
-	int		writepipe[2];
+	int		pipe1[2]; // parent
+	int		pipe2[2]; // child
 	pid_t	pid;
 	int		status;
 	char	buf[100];
-	int i = 0;
+	t_commands *cur_node;
 
-	while (i < 100)
-		buf[i++] = 0;
-	if (pipe(readpipe) == -1 || pipe(writepipe))
+	ft_memset(buf, 0, 100);
+	if (pipe(pipe1) == -1 || pipe(pipe2))
 		exit(1);   //에러처리
 	if ((pid = fork()) == -1)
 		exit(1);   //에러처리
 	else if (pid == 0)
 	{
-	// 	close(PARENT_READ);  //readpipe[0]
-	// 	close(PARENT_WRITE); // writepipe[1]
-	// 	dup2(CHILD_READ, STDIN_FILENO);  // writepipe[0]
-	// 	dup2(CHILD_WRITE, STDOUT_FILENO); // readpipe[1]
+		close(pipe1[1]);
+		close(pipe2[0]);
+		dup2(pipe1[0], STDIN_FILENO);
+		close(pipe1[0]);
+		dup2(pipe2[1], STDOUT_FILENO);
+		close(pipe2[1]);
+		work_command(node, env);
+		exit(0);
+	}						// a | b
+	else				//부모   자식1
+	{
+		close(pipe1[0]);
+		close(pipe2[1]);
+		waitpid(pid, &status, 0);
+		read(pipe2[0], buf, 100);
+		printf("buf : %s\n", buf);
+		printf("---------------------\n");
 		if (node->pipe)
 			pipe_doing(node->pipe, env);
-		work_command(node, env);
-		// close(CHILD_READ); // writepipe[0]
-		// close(CHILD_WRITE); // readpipe[1]
-		exit(0);
-	}
-	else
-	{
-		// close(CHILD_READ);  // writepipe[0]
-		// close(CHILD_WRITE);  // readpipe[1]
-		waitpid(pid, &status, 0);
 	}
 }
 
-void	start_work(t_commands *node, t_env *env)
+void	start_work(t_commands *node, t_env **env)
 {
 	while (node)
 	{
@@ -704,9 +672,9 @@ int	main(int argc, char **argv, char **envp)
 		printf("input test : %s\n", input);
 		node = split_separator(input, env);
 		if ((err_num = list_check(node)) < 0)
-			error_check(err_num);
+			error_check(err_num, "");
 		else
-			start_work(node, env);
+			start_work(node, &env);
 	}
 	return (0);
 }
