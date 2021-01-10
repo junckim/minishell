@@ -348,7 +348,7 @@ int					end_env_index(char *word, int i)
 {
 	while (word[++i])
 	{
-		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':' || word[i] == ' ')
+		if (word[i] == '.' || word[i] ==  '$' || word[i] == '?' || word[i] == ':' || word[i] == ' ' || word[i] == '\'')
 			break;
 	}
 	return (i);
@@ -369,7 +369,6 @@ int					env_strdup(char **word, int start, int end, char *val)
 	new = ft_strjoin(new, val);
 	free(tmp);
 	ret = ft_strlen(new) - 1;
-	printf("ret : %d\n", ret);
 	tmp = new;
 	new = ft_strjoin(new, &((*word)[end]));
 	free(tmp);
@@ -537,6 +536,8 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 			word_free(&word);
 		}
 	}
+	if (node->str == NULL)
+		make_strsadd(node, "", -1);
 }
 
 /*
@@ -570,8 +571,6 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	node->sep = -1;
 	node->command = -1;
 	node->str = NULL;
-	node->fd[0] = 0;
-	node->fd[1] = 1;
 	node->redir = -1;
 	node->pipe = NULL;
 	node->prev = NULL;

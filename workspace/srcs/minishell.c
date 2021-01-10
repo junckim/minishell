@@ -628,10 +628,15 @@ void	work_command(t_commands *node, t_env *env)
 	}
 }
 
+#define	PARENT_READ	readpipe[0]
+#define	CHILD_WRITE	readpipe[1]
+#define CHILD_READ	writepipe[0]
+#define PARENT_WRITE	writepipe[1]
+
 void	pipe_doing(t_commands *node, t_env *env)
 {
-	int		parent_pi[2];
-	int		child_pi[2];
+	int		readpipe[2];
+	int		writepipe[2];
 	pid_t	pid;
 	int		status;
 	char	buf[100];
@@ -639,19 +644,27 @@ void	pipe_doing(t_commands *node, t_env *env)
 
 	while (i < 100)
 		buf[i++] = 0;
-	if (pipe(parent_pi) == -1 || pipe(child_pi))
+	if (pipe(readpipe) == -1 || pipe(writepipe))
 		exit(1);   //에러처리
 	if ((pid = fork()) == -1)
 		exit(1);   //에러처리
 	else if (pid == 0)
 	{
+	// 	close(PARENT_READ);  //readpipe[0]
+	// 	close(PARENT_WRITE); // writepipe[1]
+	// 	dup2(CHILD_READ, STDIN_FILENO);  // writepipe[0]
+	// 	dup2(CHILD_WRITE, STDOUT_FILENO); // readpipe[1]
 		if (node->pipe)
 			pipe_doing(node->pipe, env);
 		work_command(node, env);
+		// close(CHILD_READ); // writepipe[0]
+		// close(CHILD_WRITE); // readpipe[1]
 		exit(0);
 	}
 	else
 	{
+		// close(CHILD_READ);  // writepipe[0]
+		// close(CHILD_WRITE);  // readpipe[1]
 		waitpid(pid, &status, 0);
 	}
 }
@@ -678,6 +691,7 @@ int	main(int argc, char **argv, char **envp)
 	char			*input;
 	t_env			*env;
 	t_commands		*node;
+	int				err_num;
 
 	argc = 0;
 	signal(SIGINT, (void *)signal_handler);
@@ -689,7 +703,10 @@ int	main(int argc, char **argv, char **envp)
 		input_sequence(&input);
 		printf("input test : %s\n", input);
 		node = split_separator(input, env);
-		start_work(node, env);
+		if ((err_num = list_check(node)) < 0)
+			error_check(err_num);
+		else
+			start_work(node, env);
 	}
 	return (0);
 }

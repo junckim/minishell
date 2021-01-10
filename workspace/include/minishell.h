@@ -94,7 +94,6 @@ typedef struct	s_commands
 	int						sep;			// SEMI / PIPE
 	int						command;		// 0 is not expected command
 	t_str					*str;
-	int						fd[2];			// 0 read - 1 write
 	int						redir;			// REDIR D_REDIR REV_REDIR
 	struct s_commands		*pipe;
 	struct s_commands		*prev;
@@ -128,5 +127,6 @@ void		add_change_env(t_env *env, char *key, char *value);
 void		del_env(t_env **env, char *key);
 char		*get_value(t_env *env, char *key);
 int			list_check(t_commands *lst);
+void		error_check(int err_num);
 
 #endif

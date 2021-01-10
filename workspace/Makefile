@@ -27,6 +27,8 @@ FLAGS = $(LIBFT_FLAGS)
 SRCS = $(addprefix ./srcs/, \
 	command_work.c \
 	branch.c \
+	list_check.c \
+	error_check.c \
 	utils.c \
 	minishell.c)
 
