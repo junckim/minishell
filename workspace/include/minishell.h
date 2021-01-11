@@ -96,7 +96,7 @@ typedef struct	s_commands
 	int						command;		// 0 is not expected command
 	t_str					*str;
 	int						redir;			//	REDIR D_REDIR REV_REDIR
-	int						fd[2];			//	read 0 write 1
+	int						fd;			//	read 0 write 1
 	struct s_commands		*pipe;
 	struct s_commands		*prev;
 	struct s_commands		*next;			// by semicolon

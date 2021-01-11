@@ -606,52 +606,35 @@ void	pipe_doing(t_commands *node, t_env **env)
 	int		p1[2];
 	pid_t	pid;
 	int		status;
-	char	buf[100];
-
-	ft_bzero(buf, 100);
-	pipe(p1);
-	// pipe(p2);
-	// 들어오자마자 현재 노드 실행 -> 이 때 STDOUT_FILENO만 바꿔주면 됨
-	// 다음 노드부터 node->pipe가 있을 때 까지만 STDOUT_FILENO와 STDIN_FILENO를 바꿔줌
-	// 마지막에서만 STDIN_FILENO만 받아와주고 STDOUT_FILENO만 그대로 유지
-	if (!(pid = fork()))
+	
+	while (node)
 	{
-		dup2(p1[1], STDOUT_FILENO);
-		work_command(node, env);
-		exit(0);
-	}
-	else
-	{
-		close(p1[1]);
-		waitpid(pid, &status, 0);
-	}
-	node = node->pipe;
-// -----------------------
-	if (!(pid = fork()))
-	{
-		dup2(p1[0], STDIN_FILENO);
-		dup2(p1[1], STDOUT_FILENO);
-		work_command(node, env);
-		exit(0);
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
-// ------------------------
-	node = node->pipe;
-	if (!(pid = fork()))
-	{
-		dup2(p1[0], STDIN_FILENO);
-		dup2(p1[1], STDOUT_FILENO);
-		work_command(node, env);
-		exit(0);
-	}
-	else 
-	{
-		close(p1[0]);
-		printf("third done\n");
-		waitpid(pid, &status, 0);
+		if (node->pipe)
+		{
+			pipe(p1);
+			node->pipe->fd = p1[0];
+		}
+		if (!(pid = fork()))
+		{
+			if (node->pipe)
+			{
+				close(p1[0]);
+				dup2(p1[1], STDOUT_FILENO);
+			}
+			if (node->fd != STDIN_FILENO && dup2(node->fd, STDIN_FILENO) < 0)
+				exit(0);
+			work_command(node, env);
+			exit(0);
+		}
+		else
+		{
+			if (node->pipe)
+				close(p1[1]);
+			if (node->fd != STDIN_FILENO)
+				close(node->fd);
+			waitpid(pid, &status, 0);
+		}
+		node = node->pipe;
 	}
 }
 // echo a | echo b | echo c

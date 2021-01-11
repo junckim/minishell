@@ -5,3 +5,4 @@ minishell
 *.swp
 .vscode
 .DS_Store
+exam04.c
