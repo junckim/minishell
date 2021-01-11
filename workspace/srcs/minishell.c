@@ -518,6 +518,7 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	char	**argv;
 	char	**envp;
 	int		status;
+	int		res;
 
 	if ((pid = fork()) == -1)
 		return (-2);
@@ -525,12 +526,13 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	{
 		argv = str_to_argv(node);
 		envp = env_to_envp(env);
-		execve(path, argv, envp);
-		exit(1);
+		int		i = -1;
+		res = execve(path, argv, envp);
+		exit(res);
 	}
 	else
 	{
-		wait(&status);
+		waitpid(pid, &status, 0);
 		if (status != 0)
 			return (-1);
 	}
@@ -601,41 +603,58 @@ void	work_command(t_commands *node, t_env **env)
 
 void	pipe_doing(t_commands *node, t_env **env)
 {
-	int		pipe1[2]; // parent
-	int		pipe2[2]; // child
+	int		p1[2];
 	pid_t	pid;
 	int		status;
 	char	buf[100];
-	t_commands *cur_node;
 
-	ft_memset(buf, 0, 100);
-	if (pipe(pipe1) == -1 || pipe(pipe2))
-		exit(1);   //에러처리
-	if ((pid = fork()) == -1)
-		exit(1);   //에러처리
-	else if (pid == 0)
+	ft_bzero(buf, 100);
+	pipe(p1);
+	// pipe(p2);
+	// 들어오자마자 현재 노드 실행 -> 이 때 STDOUT_FILENO만 바꿔주면 됨
+	// 다음 노드부터 node->pipe가 있을 때 까지만 STDOUT_FILENO와 STDIN_FILENO를 바꿔줌
+	// 마지막에서만 STDIN_FILENO만 받아와주고 STDOUT_FILENO만 그대로 유지
+	if (!(pid = fork()))
 	{
-		close(pipe1[1]);
-		close(pipe2[0]);
-		dup2(pipe1[0], STDIN_FILENO);
-		close(pipe1[0]);
-		dup2(pipe2[1], STDOUT_FILENO);
-		close(pipe2[1]);
+		dup2(p1[1], STDOUT_FILENO);
 		work_command(node, env);
 		exit(0);
-	}						// a | b
-	else				//부모   자식1
+	}
+	else
 	{
-		close(pipe1[0]);
-		close(pipe2[1]);
+		close(p1[1]);
 		waitpid(pid, &status, 0);
-		read(pipe2[0], buf, 100);
-		printf("buf : %s\n", buf);
-		printf("---------------------\n");
-		if (node->pipe)
-			pipe_doing(node->pipe, env);
+	}
+	node = node->pipe;
+// -----------------------
+	if (!(pid = fork()))
+	{
+		dup2(p1[0], STDIN_FILENO);
+		dup2(p1[1], STDOUT_FILENO);
+		work_command(node, env);
+		exit(0);
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+	}
+// ------------------------
+	node = node->pipe;
+	if (!(pid = fork()))
+	{
+		dup2(p1[0], STDIN_FILENO);
+		dup2(p1[1], STDOUT_FILENO);
+		work_command(node, env);
+		exit(0);
+	}
+	else 
+	{
+		close(p1[0]);
+		printf("third done\n");
+		waitpid(pid, &status, 0);
 	}
 }
+// echo a | echo b | echo c
 
 void	start_work(t_commands *node, t_env **env)
 {

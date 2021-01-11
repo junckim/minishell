@@ -46,6 +46,8 @@
 # define LS			7
 # define EXIT		8
 
+# define BUFSIZE	1000000
+
 # define ERR_EXPORT				-2
 # define ERR_EMPTY_SEMI			-3
 # define ERR_EMPTY_SEMI_S		"syntax error near unexpected token `;'"
@@ -127,5 +129,6 @@ char		*get_value(t_env *env, char *key);
 int			list_check(t_commands *lst);
 void		error_check(int err_num, char *error_message);
 t_env		*get_env_pointer(t_env *env, char *key);
+void		make_strsadd(t_commands *node, char *str, int redir);
 
 #endif
