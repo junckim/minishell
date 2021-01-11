@@ -532,7 +532,7 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	}
 	else
 	{
-		waitpid(pid, &status, 0);
+		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
 		if (status != 0)
 			return (-1);
 	}
@@ -606,7 +606,7 @@ void	pipe_doing(t_commands *node, t_env **env)
 	int		p1[2];
 	pid_t	pid;
 	int		status;
-	
+
 	while (node)
 	{
 		if (node->pipe)
@@ -632,7 +632,7 @@ void	pipe_doing(t_commands *node, t_env **env)
 				close(p1[1]);
 			if (node->fd != STDIN_FILENO)
 				close(node->fd);
-			waitpid(pid, &status, 0);
+			waitpid(pid, &status, 0); // -> status 업데이트 할 수 있도록
 		}
 		node = node->pipe;
 	}
