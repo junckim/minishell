@@ -33,30 +33,23 @@ void	make_prompt_msg(void)
 	ft_printf(COLOR_RESET);
 }
 
-void	signal_sigint(int signo)
+void	signal_handler(int signo)
 {
 	char	*tmp;
 
-	signo = 0;
-	if (*g_read_str)
+	write(1, "\b\b  \b\b", 6);
+	if (signo == SIGINT)
 	{
-		tmp = ft_strdup("");
-		free(g_read_str);
-		g_read_str = tmp;
+		if (*g_read_str)
+		{
+			tmp = ft_strdup("");
+			free(g_read_str);
+			g_read_str = tmp;
+		}
+		g_error_status = 1;
+		write(1, "\n", 1);
+		make_prompt_msg();
 	}
-	g_error_status = 1;
-	write(1, "\b\b  \b\b", 6);
-	write(1, "\n", 1);
-	make_prompt_msg();
-}
-
-void	signal_sigquit(int signo)
-{
-	char	*tmp;
-
-	signo = 0;
-	g_error_status = 131;
-	write(1, "\b\b  \b\b", 6);
 }
 
 /*
@@ -522,6 +515,16 @@ char	**env_to_envp(t_env *env)
 /*
 **		echo pwd ls
 */
+
+int		status_return(int status)
+{
+	if (WIFSIGNALED(status))
+		return (128 + status);
+	if (WEXITSTATUS(status) != 255)
+		return (WEXITSTATUS(status));
+	return (255); 
+}
+
 int		path_work(t_commands *node, char *path, t_env *env)
 {
 	int		pid;
@@ -540,19 +543,15 @@ int		path_work(t_commands *node, char *path, t_env *env)
 			dup2(node->fd, STDOUT_FILENO);
 		else if (node->fdflag == 2)
 			dup2(node->fd, STDIN_FILENO);
-		res = execve(path, argv, envp);  // 여기서 찾은 실행 파일에서 반환한 return값이 status로 들어감
+		res = execve(path, argv, envp);
 		exit(res);
 	}
 	else
 	{
 		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
 	}
-	if (WEXITSTATUS(status) != 255)  // 실행됐을 때 잘못된 거
-		return (WEXITSTATUS(status));
-	return (255); // 실행 된거
-} // 255는 그 경로에 파일이 없는거, 
-// 0 은 파일 찾아서 정상 작동
-// 그 외의 숫자는 전부 프로그램에서의 에러
+	return (status_return(status));
+}
 
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
 {
@@ -671,8 +670,8 @@ void	start_work(t_commands *node, t_env **env)
 
 void	signal_func(void)
 {
-	signal(SIGINT, (void *)signal_sigint);
-	signal(SIGQUIT, (void *)signal_sigquit);
+	signal(SIGINT, (void *)signal_handler);
+	signal(SIGQUIT, (void *)signal_handler);
 }
 
 void	clear_node(t_commands *node)

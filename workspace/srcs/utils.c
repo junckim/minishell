@@ -6,30 +6,30 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/11 15:09:51 by joockim           #+#    #+#             */
-/*   Updated: 2020/12/30 14:18:57 by joockim          ###   ########.fr       */
+/*   Updated: 2021/01/13 03:22:59 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void		skip_space(char **str)
+void	skip_space(char **str)
 {
 	while (**str == 32 || (**str > 7 && **str < 13))
 		(*str)++;
 }
 
-int         ft_atoi(const char *fd)
+int		ft_atoi(const char *fd)
 {
-    int     ret;
+	int	ret;
 
-    ret = 0;
-    while (*fd)
-    {
-        ret *= 10;
-        ret += (*fd) - '0';
-        fd++;
-    }
-    return (ret);
+	ret = 0;
+	while (*fd)
+	{
+		ret *= 10;
+		ret += (*fd) - '0';
+		fd++;
+	}
+	return (ret);
 }
 
 int		ft_isspace(char c)
@@ -50,7 +50,7 @@ int		ft_isset(char c, const char *set)
 	return (0);
 }
 
-void	*err_malloc(unsigned int n)  // error 시 exit 대신 에러 출력
+void	*err_malloc(unsigned int n)
 {
 	void	*ptr;
 
