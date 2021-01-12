@@ -6,3 +6,6 @@ minishell
 .vscode
 .DS_Store
 exam04.c
+pwd
+env
+echo
