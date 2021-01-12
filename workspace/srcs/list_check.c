@@ -20,6 +20,8 @@ int		node_check(t_commands *lst)
 			return (ERR_EMPTY_PIPE);
 		else if (lst->sep == SEMI)
 			return (ERR_EMPTY_SEMI);
+		else
+			return (ERR_EMPTY_NEWLINE);
 	}
 	return (1);
 }
@@ -34,6 +36,8 @@ int		pipe_check(t_commands *pipe_lst)
 				return (ERR_EMPTY_PIPE);
 			else if (pipe_lst->sep == SEMI)
 				return (ERR_EMPTY_SEMI);
+			else
+				return (ERR_EMPTY_NEWLINE);
 		}
 		pipe_lst = pipe_lst->pipe;
 	}

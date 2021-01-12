@@ -46,8 +46,6 @@
 # define LS			7
 # define EXIT		8
 
-# define BUFSIZE	1000000
-
 # define ERR_EXPORT				-2
 # define ERR_EMPTY_SEMI			-3
 # define ERR_EMPTY_SEMI_S		"syntax error near unexpected token `;'"
