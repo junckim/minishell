@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   command_work.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/12 14:21:47 by joockim           #+#    #+#             */
+/*   Updated: 2021/01/12 14:21:48 by joockim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 int			cd_work(t_commands *node, t_env *env)
 {
 	char	*buf;
 
-	if ((buf = getcwd(0, 200)) == NULL)
+	if ((buf = getcwd(0, 0)) == NULL)
 	{
 		printf("can not read current dir\n");
 		return (-1);
@@ -23,26 +35,13 @@ int			cd_work(t_commands *node, t_env *env)
 		printf("cannot chage the path\n");
 		return (-1);
 	}
-	if ((buf = getcwd(0, 200)) == NULL)
+	if ((buf = getcwd(0, 0)) == NULL)
 	{
 		printf("can not read current dir\n");
 		return (-1);
 	}
 	add_change_env(env, "PWD", buf);
 	free(buf);
-	return (1);
-}
-
-int			env_work(t_env *env)
-{
-	char		**envp;
-	int			i;
-
-	printf("env pointer %p\n", env);
-	envp = env_to_envp(env);
-	i = -1;
-	while (envp[++i])
-		ft_printf("%s\n", envp[i]);
 	return (1);
 }
 
@@ -131,14 +130,12 @@ void		exit_work(t_commands *node, t_env *env)
 }
 
 /*
-**		cd #env export unset exit
+**		cd export unset exit
 */
 int			command_work(t_commands *node, t_env **env, int cmd)
 {
 	if (cmd == CD)
 		return (cd_work(node, *env));
-	else if (cmd == ENV)
-		return (env_work(*env));
 	else if (cmd == EXPORT)
 		return (export_work(node, *env));
 	else if (cmd == UNSET)

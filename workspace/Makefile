@@ -30,9 +30,12 @@ SRCS = $(addprefix ./srcs/, \
 	list_check.c \
 	error_check.c \
 	utils.c \
+	work_redir.c \
 	minishell.c)
 
 OBJS = $(SRCS:.c=.o)
+
+EXCUTABLE = pwd echo env
 
 .phony : all clean fclean re
 
@@ -42,13 +45,16 @@ ${NAME} : ${OBJS}
 	@make bonus -C ${UTILS}libft
 	@make -C ${UTILS}libftprintf
 	@${CC} ${FLAGS} ${OBJS} -o ${NAME}
-	@${CC} ${FLAGS} -o ${EXCUTE_PATH}pwd ${EXCUTE_PATH}excute_pwd.c
+	@${CC} ${FLAGS} -o pwd ${EXCUTE_PATH}excute_pwd.c
+	@${CC} ${FLAGS} -o echo ${EXCUTE_PATH}excute_echo.c
+	@${CC} ${FLAGS} -o env ${EXCUTE_PATH}excute_env.c
 	@echo ----------make success minishell----------
 
 clean :
 	@make clean -C ${UTILS}libft
 	@make clean -C ${UTILS}libftprintf
 	@rm -f ${OBJS}
+	@rm -f ${EXCUTABLE}
 	@echo ------------do clean------------
 
 fclean : clean	

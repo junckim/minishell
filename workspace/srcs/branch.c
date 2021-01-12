@@ -12,6 +12,8 @@
 
 #include "../include/minishell.h"
 
+extern int	g_error_status;
+
 int		ft_cnt_minus(const char *s)
 {
 	int		ret;
@@ -415,7 +417,7 @@ int					change_return(char **word, int idx, t_env *env)
 	(*word)[j] = 0;
 	key = ft_strdup(&((*word)[idx + 1]));
 	(*word)[j] = c;
-	if ((val = get_value(env, key)) == NULL)
+	if ((val = ft_itoa(g_error_status)) == NULL)
 		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
 	free(key);
 	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
@@ -517,12 +519,14 @@ void				parse_node(char **ref, t_commands *node, t_env *env)
 				make_strsadd(node, word.word, -1);
 			else if (word.sep == REDIR || word.sep == D_REDIR || word.sep == REV_REDIR)
 			{
-				make_strsadd(node, word.word, -1);
+				if (ft_strlen(word.word) != 0)
+					make_strsadd(node, word.word, -1);
 				make_strsadd(node, "", word.sep);
 			}
 			else if (word.sep == PIPE || word.sep == SEMI)
 			{
-				make_strsadd(node, word.word, -1);
+				if (ft_strlen(word.word) != 0)
+					make_strsadd(node, word.word, -1);
 				node->sep = word.sep;
 				word_free(&word);
 				break ;
@@ -571,7 +575,8 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	node->sep = -1;
 	node->command = -1;
 	node->str = NULL;
-	node->redir = -1;
+	node->fd = 0;
+	node->fdflag = 0;
 	node->pipe = NULL;
 	node->prev = NULL;
 	node->next = NULL;

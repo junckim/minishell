@@ -1,24 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   excute_pwd.c                                       :+:      :+:    :+:   */
+/*   excute_env.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/08 16:08:49 by joockim           #+#    #+#             */
-/*   Updated: 2021/01/08 16:08:50 by joockim          ###   ########.fr       */
+/*   Created: 2021/01/12 19:03:12 by joockim           #+#    #+#             */
+/*   Updated: 2021/01/12 19:03:14 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int main(int argc, char **argv, char **envp)
+int		main(int argc, char *argv[], char *envp[])
 {
-    char    *path;
+	int			i;
 
-    path = getcwd(0, 0);
-    write(1, path, ft_strlen(path));
-    write(1, "\n", 1);
-    free(path);
-    return (0);
+	i = -1;
+	while (envp[++i])
+		ft_printf("%s\n", envp[i]);
+	return (0);
 }

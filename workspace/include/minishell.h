@@ -59,6 +59,8 @@
 # define ERR_EMPTY_D_REDIR_S	"syntax error near unexpected token `>>'"
 # define ERR_EMPTY_REV_REDIR	-7
 # define ERR_EMPTY_REV_REDIR_S	"syntax error near unexpected token `<'"
+# define ERR_EMPTY_NEWLINE		-8
+# define ERR_EMPTY_NEWLINE_S	"syntax error near unexpected token `newline'"
 
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"
@@ -95,8 +97,8 @@ typedef struct	s_commands
 	int						sep;			// SEMI / PIPE
 	int						command;		// 0 is not expected command
 	t_str					*str;
-	int						redir;			//	REDIR D_REDIR REV_REDIR
 	int						fd;			//	read 0 write 1
+	int						fdflag;
 	struct s_commands		*pipe;
 	struct s_commands		*prev;
 	struct s_commands		*next;			// by semicolon
@@ -119,7 +121,6 @@ int			ft_isset(char c, const char *set);
 void		*err_malloc(unsigned int n);
 char		**env_to_envp(t_env *env);
 int			cd_work(t_commands *node, t_env *env);
-int			env_work(t_env *env);
 int			export_work(t_commands *node, t_env *env);
 int			unset_work(t_commands *node, t_env **env);
 void		exit_work(t_commands *node, t_env *env);
@@ -130,5 +131,6 @@ int			list_check(t_commands *lst);
 void		error_check(int err_num, char *error_message);
 t_env		*get_env_pointer(t_env *env, char *key);
 void		make_strsadd(t_commands *node, char *str, int redir);
+int			work_redir(t_commands *node);
 
 #endif

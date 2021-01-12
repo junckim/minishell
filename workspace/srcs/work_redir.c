@@ -1,33 +1,105 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   work_redir.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/12 14:21:28 by joockim           #+#    #+#             */
+/*   Updated: 2021/01/12 14:21:30 by joockim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
-int			redir_in_node(t_commands *node)
+
+
+int			open_fd_node(t_str *cur, t_commands *node)
 {
-	t_str	*str;
+	int	fd;
 	
-	str = node->str;
-	while (str)
+	if (cur->redir == REDIR)
 	{
-		if (str->redir > 0)
-		{
-			0;
-		}
-		str = str->next;
+		node->fdflag = 1;
+		fd = open(cur->next->word, O_WRONLY | O_TRUNC | O_CREAT, 0644 | O_EXCL);
 	}
+	else if (cur->redir == REV_REDIR)
+	{
+		node->fdflag = 2;
+		fd = open(cur->next->word, O_RDONLY);
+	}
+	else if (cur->redir == D_REDIR)
+	{
+		node->fdflag = 1;
+		fd = open(cur->next->word, O_WRONLY | O_APPEND | O_CREAT, 0644 | O_EXCL);
+	}
+	return (fd);
 }
 
-int			work_redir(t_commands *lst)
+int			change_to_errcode(int define_num)
+{
+	if (define_num == PIPE)
+		return (ERR_EMPTY_PIPE);
+	else if (define_num == SEMI)
+		return (ERR_EMPTY_SEMI);
+	else if (define_num == REDIR)
+		return (ERR_EMPTY_REDIR);
+	else if (define_num == D_REDIR)
+		return (ERR_EMPTY_D_REDIR);
+	else if (define_num == REV_REDIR)
+		return (ERR_EMPTY_REV_REDIR);
+	return (ERR_EMPTY_NEWLINE);
+}
+
+t_str		*del_str_node(t_str *prev, t_str *cur_node, t_str **head)
+{
+	if (prev == NULL)
+		*head = cur_node->next->next;
+	else
+		prev->next = cur_node->next->next;
+	free(cur_node->next->word);
+	free(cur_node->next);
+	free(cur_node->word);
+	free(cur_node);
+	return (prev);
+}
+
+int			work_redir(t_commands *node)
 {
 	int		err_num;
-	while (lst)
+	t_str	*head;
+	t_str	*prev;
+	
+	head = node->str;
+	prev = NULL;
+	while (node->str)
 	{
-		if ((err_num = redir_in_node(lst)) < 0)
+		if (node->str->redir != -1)
 		{
-			error_check(err_num, "");
+			if (node->str->next == NULL)
+			{
+				error_check(change_to_errcode(node->sep), "");
+				return (-1);
+			}
+			else if (node->str->next->redir != -1)
+			{
+				error_check(change_to_errcode(node->str->next->redir), "");
+				return (-1);
+			}
+			else
+			{
+				node->fd = open_fd_node(node->str, node);
+				node->str = del_str_node(prev, node->str, &head);
+			}
 		}
-		if (lst->pipe)
-		{
-			go_pipe(lst->pipe);
-		}
-		lst = lst->next;
+		prev = node->str;
+		if (node->str != NULL)
+			node->str = node->str->next;
+		else
+			node->str = head;
 	}
+	node->str = head;
+	if (node->str == 0)
+		make_strsadd(node, "", -1);
+	return (0);
 }

@@ -14,6 +14,7 @@
 
 // 문자열 생성용 전역변수 -> ctrl + C에서 처리해주기 위함
 char	*g_read_str;
+int		g_error_status;
 
 void	make_prompt_msg(void)
 {
@@ -32,7 +33,7 @@ void	make_prompt_msg(void)
 	ft_printf(COLOR_RESET);
 }
 
-void	signal_handler(int signo)
+void	signal_sigint(int signo)
 {
 	char	*tmp;
 
@@ -43,8 +44,19 @@ void	signal_handler(int signo)
 		free(g_read_str);
 		g_read_str = tmp;
 	}
+	g_error_status = 130;
+	write(1, "\b\b  \b\b", 6);
 	write(1, "\n", 1);
 	make_prompt_msg();
+}
+
+void	signal_sigquit(int signo)
+{
+	char	*tmp;
+
+	signo = 0;
+	g_error_status = 131;
+	write(1, "\b\b  \b\b", 6);
 }
 
 /*
@@ -155,7 +167,8 @@ void	add_own_path(t_env *env)
 
 	path_env = get_env_pointer(env, "PATH");
 	excute_path = getcwd(0, 0); // 지금은 현재 디렉이지만 나중엔 바꿔줘
-	temp = triple_join(excute_path, "/srcs:", path_env->value);
+	printf("%s\n", excute_path);
+	temp = triple_join(excute_path, ":", path_env->value);
 	free(path_env->value);
 	path_env->value = temp;
 }
@@ -167,7 +180,7 @@ t_env	*set_env_lst(char **envp)
 	char *test;
 
 	env = make_envlst(envp);
-	add_change_env(env, "?", "0");
+	g_error_status = 0;
 	shlvl_tmp = ft_atoi(get_value(env, "SHLVL"));
 	add_change_env(env, "SHLVL", ft_itoa(++shlvl_tmp));
 	add_own_path(env);
@@ -408,8 +421,6 @@ int		is_command(char *cmd)
 {
 	if (ft_strlen(cmd) == 2 && ft_strncmp("cd", cmd, 2) == 0)
 		return (CD);
-	else if (ft_strlen(cmd) == 3 && strcmp_upper("env", cmd))
-		return (ENV);
 	else if (ft_strlen(cmd) == 6 && ft_strncmp("export", cmd, 6) == 0)
 		return (EXPORT);
 	else if (ft_strlen(cmd) == 5 && ft_strncmp("unset", cmd, 5) == 0)
@@ -526,17 +537,22 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	{
 		argv = str_to_argv(node);
 		envp = env_to_envp(env);
-		int		i = -1;
+		if (node->fdflag == 1)
+			dup2(node->fd, STDOUT_FILENO);
+		else if (node->fdflag == 2)
+			dup2(node->fd, STDIN_FILENO);
+		printf("argv : %s %s\n", argv[0], argv[1]);
 		res = execve(path, argv, envp);
 		exit(res);
 	}
 	else
 	{
 		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
-		if (status != 0)
-			return (-1);
+		printf("status : %d\n", status);
+		if (status != 0)  //실행 안 된거
+			return (status);
 	}
-	return (1);
+	return (0); // 실행 된거
 }
 
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
@@ -559,23 +575,14 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 		tmp = triple_join(path->path, "/", word);
 		free(node->str->word);
 		node->str->word = tmp;
-		if ((res = excute_work(node, env) == 1))
-			return (1);
+		printf("node : %s\n", node->str->word);
+		if (!(excute_work(node, env)))
+			return (0);		// 실행 됨
 		path = path->next;
 	}
 	free(word);
 	word = NULL;
-	return (0);
-}
-
-void	get_node_fd(t_commands *node)
-{
-	while (node->str)
-	{
-		printf("%s\n", node->str->word);
-		node->str = node->str->next;
-	}
-	printf("aaa");
+	return (1);				// 실행 안 됨
 }
 
 void	work_command(t_commands *node, t_env **env)
@@ -584,21 +591,24 @@ void	work_command(t_commands *node, t_env **env)
 	int		cmd;
 
 	path = make_path_lst(*env);
+	work_redir(node);
+	printf("g_error : %d\n", g_error_status);
 	if (node->str->word[0] == '/')		// 절대
 	{
 		printf("ret :%d\n", excute_work(node, *env));	// 성공인지 실패인지 반환
 	}
 	else								// 상대
 	{
-		if ((cmd = is_command(node->str->word)) == -1)
+		if ((cmd = is_command(node->str->word)) == -1)	// env, pwd, echo
 		{
-			path_excute(node, *env, path);
+			g_error_status = path_excute(node, *env, path);
 		}
 		else
 		{
-			command_work(node, env, cmd);//			반환이 필요없나?
+			command_work(node, env, cmd);	// export, unset, exit, cd
 		}
 	}
+	printf("%s\n", node->str->word);
 }
 
 void	pipe_doing(t_commands *node, t_env **env)
@@ -655,6 +665,12 @@ void	start_work(t_commands *node, t_env **env)
 	}
 }
 
+void	signal_func(void)
+{
+	signal(SIGINT, (void *)signal_sigint);
+	signal(SIGQUIT, (void *)signal_sigquit);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int				status;
@@ -664,9 +680,9 @@ int	main(int argc, char **argv, char **envp)
 	int				err_num;
 
 	argc = 0;
-	signal(SIGINT, (void *)signal_handler);
 	status = 1;
 	env = set_env_lst(envp);
+	signal_func();
 	while(status)
 	{
 		make_prompt_msg();
