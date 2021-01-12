@@ -44,7 +44,7 @@ void	signal_sigint(int signo)
 		free(g_read_str);
 		g_read_str = tmp;
 	}
-	g_error_status = 130;
+	g_error_status = 1;
 	write(1, "\b\b  \b\b", 6);
 	write(1, "\n", 1);
 	make_prompt_msg();
@@ -305,6 +305,11 @@ void	quo_doing(char **input, int quo)
 		quo_doing(input, quo);
 }
 
+void	pipe_more(char **input)
+{
+	printf("pipe\n");
+}
+
 void	input_sequence(char **input)
 {
 	int	flag;
@@ -535,18 +540,19 @@ int		path_work(t_commands *node, char *path, t_env *env)
 			dup2(node->fd, STDOUT_FILENO);
 		else if (node->fdflag == 2)
 			dup2(node->fd, STDIN_FILENO);
-		res = execve(path, argv, envp);
-		printf("errno, path : %d %s\n", errno, path);
+		res = execve(path, argv, envp);  // 여기서 찾은 실행 파일에서 반환한 return값이 status로 들어감
 		exit(res);
 	}
 	else
 	{
 		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
-		if (status != 0)  //실행 안 된거
-			return (status);
 	}
-	return (0); // 실행 된거
-}
+	if (WEXITSTATUS(status) != 255)  // 실행됐을 때 잘못된 거
+		return (WEXITSTATUS(status));
+	return (255); // 실행 된거
+} // 255는 그 경로에 파일이 없는거, 
+// 0 은 파일 찾아서 정상 작동
+// 그 외의 숫자는 전부 프로그램에서의 에러
 
 int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
 {
@@ -568,13 +574,17 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 		tmp = triple_join(path->path, "/", word);
 		free(node->str->word);
 		node->str->word = tmp;
-		if (!(excute_work(node, env)))
-			return (0);		// 실행 됨
+		if ((res = excute_work(node, env)) != 255)
+		{
+			free(word);
+			word = NULL;
+			return (res);		// 실행 됨
+		}
 		path = path->next;
 	}
 	free(word);
 	word = NULL;
-	return (1);				// 실행 안 됨
+	return (127);				// 실행 안 됨
 }
 
 void	work_command(t_commands *node, t_env **env)
@@ -583,23 +593,26 @@ void	work_command(t_commands *node, t_env **env)
 	int		cmd;
 
 	path = make_path_lst(*env);
-	work_redir(node);
+	if (work_redir(node) == SYS_SYNTAX)
+	{
+		g_error_status = SYS_SYNTAX;
+		return ;
+	}
 	if (node->str->word[0] == '/')		// 절대
 	{
-		printf("ret :%d\n", excute_work(node, *env));	// 성공인지 실패인지 반환
+		g_error_status = excute_work(node, *env);	// 성공인지 실패인지 반환
 	}
 	else								// 상대
 	{
 		if ((cmd = is_command(node->str->word)) == -1)	// env, pwd, echo
-		{
 			g_error_status = path_excute(node, *env, path);
-		}
 		else
 		{
-			command_work(node, env, cmd);	// export, unset, exit, cd
+			g_error_status = command_work(node, env, cmd);	// export, unset, exit, cd
 		}
 	}
-	printf("%s\n", node->str->word);
+	if (g_error_status == 127)
+		error_check(SYS_CMD_NOT_FOUND, ft_strrchr(node->str->word, '/') + 1);
 }
 
 void	pipe_doing(t_commands *node, t_env **env)
@@ -662,6 +675,11 @@ void	signal_func(void)
 	signal(SIGQUIT, (void *)signal_sigquit);
 }
 
+void	clear_node(t_commands *node)
+{
+	printf("%s\n", node->str->word);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int				status;
@@ -681,9 +699,13 @@ int	main(int argc, char **argv, char **envp)
 		printf("input test : %s\n", input);
 		node = split_separator(input, env);
 		if ((err_num = list_check(node)) < 0)
+		{
 			error_check(err_num, "");
+			g_error_status = SYS_SYNTAX;
+		}
 		else
 			start_work(node, &env);
+		// clear_node(node);
 	}
 	return (0);
 }

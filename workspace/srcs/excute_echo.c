@@ -19,17 +19,20 @@ int		main(int argc, char *argv[], char *envp[])
 
 	option = 0;
 	i = 1;
-	while ((ft_strlen(argv[i]) == 2) && (!(ft_strncmp(argv[i], "-n", 2))))
+	if (argc != 1)
 	{
-		option = 1;
-		i++;
-	}
-	while (i < argc)
-	{
-		ft_printf("%s", argv[i]);
-		if (i != argc - 1)
-			ft_printf(" ");
-		i++;
+		while ((ft_strlen(argv[i]) == 2) && (!(ft_strncmp(argv[i], "-n", 2))))
+		{
+			option = 1;
+			i++;
+		}
+		while (i < argc)
+		{
+			ft_printf("%s", argv[i]);
+			if (i != argc - 1)
+				ft_printf(" ");
+			i++;
+		}
 	}
 	if (!option)
 		ft_printf("\n");

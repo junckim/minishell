@@ -28,4 +28,6 @@ void		error_check(int err_num, char *error_message)
 		ft_printf("minishell: %s\n", ERR_EMPTY_NEWLINE_S);
 	else if (err_num == ERR_EXPORT)
 		ft_printf("minishell: export: `=%s': not a valid identifier\n", error_message);
+	else if (err_num == SYS_CMD_NOT_FOUND)
+		ft_printf("minishell: %s: command not found\n", error_message);
 }

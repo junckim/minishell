@@ -14,8 +14,13 @@
 
 int		node_check(t_commands *lst)
 {
-	if (lst->str->redir == -1 && lst->str->word == 0)
-		return (-1);
+	if (lst->str->redir == -1 && ft_strlen(lst->str->word) == 0)
+	{
+		if (lst->sep == PIPE)
+			return (ERR_EMPTY_PIPE);
+		else if (lst->sep == SEMI)
+			return (ERR_EMPTY_SEMI);
+	}
 	return (1);
 }
 
@@ -23,8 +28,13 @@ int		pipe_check(t_commands *pipe_lst)
 {
 	while (pipe_lst)
 	{
-		if (ft_strlen(pipe_lst->str->word) == 0)
-			return (-1);
+		if (pipe_lst->str->redir == -1 && ft_strlen(pipe_lst->str->word) == 0)
+		{
+			if (pipe_lst->sep == PIPE)
+				return (ERR_EMPTY_PIPE);
+			else if (pipe_lst->sep == SEMI)
+				return (ERR_EMPTY_SEMI);
+		}
 		pipe_lst = pipe_lst->pipe;
 	}
 	return (1);
@@ -39,13 +49,13 @@ int		list_check(t_commands *lst)
 
 	while (lst)
 	{
+		if ((ret = node_check(lst)) != 1)
+			return (ret);
 		if (lst->pipe)
 		{
-			if ((ret = pipe_check(lst->pipe)) < 0)
-				return (ERR_EMPTY_PIPE);
+			if ((ret = pipe_check(lst->pipe)) != 1)
+				return (ret);
 		}
-		if ((ret = node_check(lst)) < 0)
-			return (ERR_EMPTY_SEMI);
 		lst = lst->next;
 	}
 	return (1);

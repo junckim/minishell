@@ -12,8 +12,6 @@
 
 #include "../include/minishell.h"
 
-
-
 int			open_fd_node(t_str *cur, t_commands *node)
 {
 	int	fd;
@@ -79,12 +77,12 @@ int			work_redir(t_commands *node)
 			if (node->str->next == NULL)
 			{
 				error_check(change_to_errcode(node->sep), "");
-				return (-1);
+				return (SYS_SYNTAX);
 			}
 			else if (node->str->next->redir != -1)
 			{
 				error_check(change_to_errcode(node->str->next->redir), "");
-				return (-1);
+				return (SYS_SYNTAX);
 			}
 			else
 			{

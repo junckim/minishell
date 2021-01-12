@@ -62,6 +62,9 @@
 # define ERR_EMPTY_NEWLINE		-8
 # define ERR_EMPTY_NEWLINE_S	"syntax error near unexpected token `newline'"
 
+# define SYS_CMD_NOT_FOUND		127
+# define SYS_SYNTAX				258
+
 # define COLOR_RED		"\x1b[31m"
 # define COLOR_GREEN	"\x1b[32m"
 # define COLOR_YELLOW	"\x1b[33m"
