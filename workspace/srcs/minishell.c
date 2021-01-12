@@ -501,22 +501,16 @@ char	**env_to_envp(t_env *env)
 	char	*str;
 	char	*tmp;
 
-	work = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(env))));
+	work = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(env)) + 1));
 	ret = work;
 	while (env)
 	{
-		if (!ft_strncmp(env->key, "?", 1))
-		{
-			env = env->next;
-		}
-		else
-		{
-			str = triple_join(env->key, "=", env->value);
-			*work = str;
-			work++;
-			env = env->next;
-		}
+		str = triple_join(env->key, "=", env->value);
+		*work = str;
+		work++;
+		env = env->next;
 	}
+	*work = NULL;
 	return (ret);
 }
 
@@ -541,14 +535,13 @@ int		path_work(t_commands *node, char *path, t_env *env)
 			dup2(node->fd, STDOUT_FILENO);
 		else if (node->fdflag == 2)
 			dup2(node->fd, STDIN_FILENO);
-		printf("argv : %s %s\n", argv[0], argv[1]);
 		res = execve(path, argv, envp);
+		printf("errno, path : %d %s\n", errno, path);
 		exit(res);
 	}
 	else
 	{
 		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
-		printf("status : %d\n", status);
 		if (status != 0)  //실행 안 된거
 			return (status);
 	}
@@ -575,7 +568,6 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 		tmp = triple_join(path->path, "/", word);
 		free(node->str->word);
 		node->str->word = tmp;
-		printf("node : %s\n", node->str->word);
 		if (!(excute_work(node, env)))
 			return (0);		// 실행 됨
 		path = path->next;
@@ -592,7 +584,6 @@ void	work_command(t_commands *node, t_env **env)
 
 	path = make_path_lst(*env);
 	work_redir(node);
-	printf("g_error : %d\n", g_error_status);
 	if (node->str->word[0] == '/')		// 절대
 	{
 		printf("ret :%d\n", excute_work(node, *env));	// 성공인지 실패인지 반환
