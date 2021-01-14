@@ -516,12 +516,22 @@ char	**env_to_envp(t_env *env)
 **		echo pwd ls
 */
 
+int		ft_exitstatus(int status)
+{
+	return ((status >> 8) & 0x000000ff);
+}
+
+int		ft_ifsignal(int status)
+{
+	return ((status & 0177) != 0177 && (status & 0177) != 0);
+}
+
 int		status_return(int status)
 {
-	if (WIFSIGNALED(status))
+	if (ft_ifsignal(status))
 		return (128 + status);
-	if (WEXITSTATUS(status) != 255)
-		return (WEXITSTATUS(status));
+	if (ft_exitstatus(status) != 255)
+		return (ft_exitstatus(status));
 	return (255); 
 }
 
