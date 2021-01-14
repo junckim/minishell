@@ -132,6 +132,7 @@ void		exit_work(t_commands *node, t_env *env)
 /*
 **		cd export unset exit
 */
+
 int			command_work(t_commands *node, t_env **env, int cmd)
 {
 	if (cmd == CD)

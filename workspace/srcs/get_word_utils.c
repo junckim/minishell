@@ -34,8 +34,8 @@ char	*strdup_idx(char *line, int idx)
 {
 	char		*ret;
 	char		tmp;
-	
-	tmp  = line[idx];
+
+	tmp = line[idx];
 	line[idx] = 0;
 	ret = ft_strdup(line);
 	line[idx] = tmp;
@@ -57,7 +57,7 @@ int		sep_to_int(char sep, char next)
 	return (-1);
 }
 
-int				not_conti(t_word_block *word, char *line, int i)
+int		not_conti(t_word_block *word, char *line, int i)
 {
 	while (ft_isspace(line[i]))
 		i++;

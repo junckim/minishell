@@ -47,7 +47,8 @@ static int	get_index_double(t_word_block *word, char **ref)
 	{
 		if (line[i] == word->quotation)
 			break ;
-		else if (line[i] == '\\' && (line[i + 1] == '\\' || line[i + 1] == '\"' || line[i + 1] == '$'))
+		else if (line[i] == '\\' && (line[i + 1] == '\\' ||\
+				line[i + 1] == '\"' || line[i + 1] == '$'))
 		{
 			line[i] = -1;
 			i++;
@@ -57,10 +58,11 @@ static int	get_index_double(t_word_block *word, char **ref)
 }
 
 /*
-* *		큰따옴표로 묶인 단어 파싱
-* *		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
+**		큰따옴표로 묶인 단어 파싱
+**		생략해야하는 \의 경우, 그 자리에 -1로 바꿔서 저장
 **		param  : 필요한 정보를 저장할 구조체, 원본 글
 */
+
 static void	get_double_quotation(t_word_block *word, char **ref)
 {
 	char	*line;
@@ -68,7 +70,7 @@ static void	get_double_quotation(t_word_block *word, char **ref)
 
 	(*ref)++;
 	line = *ref;
-	i = get_index_double(word, ref);		// 큰 따옴표 닫히는 위치 반환
+	i = get_index_double(word, ref);
 	word->word = strdup_idx(line, i);
 	i++;
 	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)

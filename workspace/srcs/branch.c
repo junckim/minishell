@@ -62,7 +62,7 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 **		param  : 한 줄, 환경변수
 **		return : 링크드리스트
 */
-t_commands			*split_separator(char *line, t_env *env)		//	! add header
+t_commands			*split_separator(char *line, t_env *env)
 {
 	t_commands		*ret;
 	t_commands		*node;
