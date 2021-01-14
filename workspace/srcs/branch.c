@@ -612,7 +612,8 @@ t_commands			*lstlast_pipe(t_commands *lst)
 
 void				commands_addback(t_commands **lst, t_commands *new)
 {
-	t_commands		*res;
+	t_commands		*last_semi;
+	t_commands		*last_node;
 	t_commands		*tmp;
 
 	if (new == 0 || lst == 0)
@@ -622,14 +623,17 @@ void				commands_addback(t_commands **lst, t_commands *new)
 		*lst = new;
 		return ;
 	}
-	res = lstlast_next(*lst);
-	if (res->sep == PIPE)
+	last_semi = lstlast_next(*lst);
+	if (last_semi->sep == PIPE)
+		last_node = lstlast_pipe(last_semi);
+	else
+		last_node = last_semi;
+	if (last_node->sep == PIPE)
 	{
-		res = lstlast_pipe(*lst);
-		res->pipe = new;
+		last_node->pipe = new;
 	}
-	else if (res->sep == SEMI)
-		res->next = new;
+	else if (last_node->sep == SEMI)
+		last_semi->next = new;
 }
 
 /*
