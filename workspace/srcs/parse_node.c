@@ -1,9 +1,5 @@
 #include "../include/minishell.h"
 
-// echo abc > abc | anjd ;
-// lst 노드 , 
-// str -> 연결시켜줄 새로운 노드 객체, 
-// redir -> > >> < 가 들어왔을 때 redirection으로 되야할 때 숫자로 저장
 void		make_strsadd(t_commands *node, char *str, int redir)
 {
 	t_str	*head;
@@ -54,9 +50,6 @@ static int	save_node(t_commands *node, t_word_block *word)
 	return (0);
 }
 
-/*
-* *		|; 이전까지를 하나의 노드로 만들고, 노드에 sep str 저장
-*/
 void		parse_node(char **ref, t_commands *node, t_env *env)
 {
 	t_word_block	word;
