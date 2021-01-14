@@ -131,7 +131,34 @@ char		*get_value(t_env *env, char *key);
 int			list_check(t_commands *lst);
 void		error_check(int err_num, char *error_message);
 t_env		*get_env_pointer(t_env *env, char *key);
-void		make_strsadd(t_commands *node, char *str, int redir);
 int			work_redir(t_commands *node);
+//		get_word.c
+t_word_block	get_word(char **ref);
+//		commands_addback.c
+void		commands_addback(t_commands **lst, t_commands *new);
+//		get_quotiation.c
+void		get_quotation(t_word_block *word, char **ref);
+//		get_basic.c
+void		get_basic(t_word_block *word, char **ref);
+//		word_init.c
+void		word_init(t_word_block *word);
+void		word_join(t_word_block *dest, t_word_block *srcs);
+void		word_free(t_word_block *word);
+//		get_word_utils.c
+void		get_str_to_idx(t_word_block *ret, char *line, int i);
+int			is_sep(char c);
+char		*strdup_idx(char *line, int idx);
+int			sep_to_int(char sep, char next);
+int			not_conti(t_word_block *word, char *line, int i);
+//		change_env.c
+void		change_env(t_word_block *word, t_env *env);
+//		change_env_utils.c
+int			end_env_index(char *word, int i);
+int			end_env_bracelet(char *word, int i);
+int			env_strdup(char **word, int start, int end, char *val);
+//		parse_node.c
+void		parse_node(char **ref, t_commands *node, t_env *env);
+void		make_strsadd(t_commands *node, char *str, int redir);
+
 
 #endif

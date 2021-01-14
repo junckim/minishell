@@ -31,6 +31,15 @@ SRCS = $(addprefix ./srcs/, \
 	error_check.c \
 	utils.c \
 	work_redir.c \
+	commands_addback.c \
+	get_word.c \
+	get_word_utils.c \
+	word_init.c \
+	get_basic.c \
+	get_quotation.c \
+	change_env.c \
+	change_env_utils.c \
+	parse_node.c \
 	minishell.c)
 
 OBJS = $(SRCS:.c=.o)
