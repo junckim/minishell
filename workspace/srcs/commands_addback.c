@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   commands_addback.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: junkang <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 19:38:50 by junkang           #+#    #+#             */
+/*   Updated: 2021/01/14 19:38:58 by junkang          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 static t_commands	*lstlast_next(t_commands *lst)
@@ -21,10 +33,6 @@ static t_commands	*lstlast_pipe(t_commands *lst)
 	}
 	return (lst);
 }
-
-// echo aaa | ppp ; bbb | mmm
-// echo aaa -> sep == 2
-// ppp -> sep == 1
 
 void				commands_addback(t_commands **lst, t_commands *new)
 {

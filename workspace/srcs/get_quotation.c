@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_quotation.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: junkang <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 19:39:25 by junkang           #+#    #+#             */
+/*   Updated: 2021/01/14 19:39:40 by junkang          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 static void	get_single_quotation(t_word_block *word, char **ref)
@@ -11,7 +23,7 @@ static void	get_single_quotation(t_word_block *word, char **ref)
 	while (line[++i])
 		if (line[i] == word->quotation)
 			break ;
-	word->word = strdup_idx(line, i);		// i 자리 전까지 복사
+	word->word = strdup_idx(line, i);
 	i++;
 	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
 		word->is_conti = 1;
