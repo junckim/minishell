@@ -39,6 +39,7 @@ void	signal_handler(int signo)
 	write(1, "\b\b  \b\b", 6);
 	if (signo == SIGINT)
 	{
+		printf("%d\n", g_error_status);
 		if (*g_read_str)
 		{
 			tmp = ft_strdup("");

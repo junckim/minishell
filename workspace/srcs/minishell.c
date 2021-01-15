@@ -83,7 +83,6 @@ int			main(int argc, char **argv, char **envp)
 	signal_func();
 	while (1)
 	{
-		make_prompt_msg();
 		input_sequence(&input);
 		node = split_separator(input, env);
 		if ((err_num = list_check(node)) < 0)

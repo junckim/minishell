@@ -106,6 +106,8 @@ void	input_sequence(char **input)
 {
 	int	flag;
 
+	if (g_error_status != 130)
+		make_prompt_msg();
 	flag = get_input(input);
 	if (flag == BSL)
 		slash_doing(input);
