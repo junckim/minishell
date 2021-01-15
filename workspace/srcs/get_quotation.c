@@ -23,6 +23,7 @@ static void	get_single_quotation(t_word_block *word, char **ref)
 	while (line[++i])
 		if (line[i] == word->quotation)
 			break ;
+	free(word->word);
 	word->word = strdup_idx(line, i);
 	i++;
 	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
@@ -71,6 +72,7 @@ static void	get_double_quotation(t_word_block *word, char **ref)
 	(*ref)++;
 	line = *ref;
 	i = get_index_double(word, ref);
+	free(word->word);
 	word->word = strdup_idx(line, i);
 	i++;
 	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
