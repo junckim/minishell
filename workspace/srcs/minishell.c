@@ -93,6 +93,8 @@ int			main(int argc, char **argv, char **envp)
 		else
 			start_work(node, &env);
 		free_all_node(&node);
+		free(input);
+		input = NULL;
 	}
 	return (0);
 	argv = 0;

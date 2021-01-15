@@ -25,7 +25,6 @@ t_commands			*make_commands_new(char **ref, t_env *env)
 	node->fd = 0;
 	node->fdflag = 0;
 	node->pipe = NULL;
-	node->prev = NULL;
 	node->next = NULL;
 	parse_node(ref, node, env);
 	return (node);

@@ -44,6 +44,7 @@ void			get_basic(t_word_block *word, char **ref)
 
 	line = *ref;
 	i = get_index_basic(word, ref);
+	free(word->word);
 	word->word = strdup_idx(line, i);
 	if (ft_isspace(line[i]) == 0 && line[i] != 0 && is_sep(line[i]) == 0)
 		word->is_conti = 1;

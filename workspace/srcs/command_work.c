@@ -19,6 +19,7 @@ static int	cd_work(t_commands *node, t_env *env)
 	if ((buf = getcwd(0, 0)) == NULL)
 		return (-1);
 	add_change_env(env, "OLDPWD", buf);
+	free(buf);
 	if (node->str->next == 0)
 	{
 		if (chdir(get_value(env, "HOME")) == -1)
@@ -30,6 +31,7 @@ static int	cd_work(t_commands *node, t_env *env)
 		return (-1);
 	add_change_env(env, "PWD", buf);
 	free(buf);
+	buf = NULL;
 	return (1);
 }
 

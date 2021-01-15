@@ -12,11 +12,26 @@
 
 #include "../include/minishell.h"
 
+void	free_path(t_path **path)
+{
+	t_path	*tmp;
+
+	while (*path)
+	{
+		tmp = *path;
+		*path = (*path)->next;
+		free(tmp->path);
+		tmp->path = NULL;
+		free(tmp);
+		tmp = NULL;
+	}
+}
+
 t_path	*new_path_one(char *str)
 {
 	t_path	*res;
 
-	res = err_malloc(sizeof(t_path));
+	res = (t_path *)err_malloc(sizeof(t_path));
 	res->path = str;
 	res->next = NULL;
 	return (res);
@@ -49,7 +64,7 @@ t_path	*make_path_lst(t_env *env)
 
 	res = NULL;
 	if ((path = get_value(env, "PATH")) == NULL)
-		return ((res = add_path(res, "")));
+		return (add_path(res, ft_strdup("")));
 	point = ft_strchr(path, ':');
 	while (path)
 	{

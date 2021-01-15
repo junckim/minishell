@@ -30,6 +30,8 @@ void	make_prompt_msg(void)
 	ft_printf(" @~"COLOR_BYELLOW"=+"COLOR_BWHITE"=+"
 			COLOR_BGREEN"=+>");
 	ft_printf(COLOR_RESET);
+	free(path);
+	path = NULL;
 }
 
 void	signal_handler(int signo)

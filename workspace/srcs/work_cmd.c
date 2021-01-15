@@ -94,12 +94,11 @@ void	work_command(t_commands *node, t_env **env)
 	if (work_redir(node) == SYS_SYNTAX)
 	{
 		g_error_status = SYS_SYNTAX;
+		free_path(&path);
 		return ;
 	}
 	if (node->str->word[0] == '/')
-	{
 		g_error_status = excute_work(node, *env);
-	}
 	else
 	{
 		if ((cmd = is_command(node->str->word)) == -1)
@@ -111,4 +110,5 @@ void	work_command(t_commands *node, t_env **env)
 	}
 	if (g_error_status == 127)
 		error_check(SYS_CMD_NOT_FOUND, ft_strrchr(node->str->word, '/') + 1);
+	free_path(&path);
 }

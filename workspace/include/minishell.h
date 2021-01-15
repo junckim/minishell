@@ -107,7 +107,6 @@ typedef struct	s_commands
 	int						fd;
 	int						fdflag;
 	struct s_commands		*pipe;
-	struct s_commands		*prev;
 	struct s_commands		*next;
 }				t_commands;
 
@@ -209,6 +208,7 @@ t_env			*get_env_pointer(t_env *env, char *key);
 /*
 **		free_nodes.c
 */
+void			free_path(t_path **path);
 void			free_all_node(t_commands **node);
 
 int				work_redir(t_commands *node);

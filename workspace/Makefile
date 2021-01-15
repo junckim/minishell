@@ -18,7 +18,7 @@ UTILS = ./libs/
 
 EXCUTE_PATH = ./srcs/
 
-CFLAGS = -Werror -Wextra -Wall
+CFLAGS = -Werror -Wextra -Wall -g
 
 LIBFT_FLAGS = -L ${UTILS}libft -lft -L ${UTILS}libftprintf -lftprintf
 
