@@ -79,6 +79,12 @@
 # define COLOR_BWHITE	"\x1b[97m"
 # define COLOR_RESET	"\x1b[0m"
 
+typedef struct	s_path
+{
+	char			*path;
+	struct s_path	*next;
+}				t_path;
+
 typedef struct	s_env				//for envp
 {
 	char			*key;
@@ -113,25 +119,82 @@ typedef struct  s_word_block
 	int		sep;			//	구분자(|;><>>공백NULL) 없으면 -1;
 }               t_word_block;
 
-void		command_branch(char *command);
+// utils.c
 void		skip_space(char **str);
-t_commands	*split_separator(char *line, t_env *env);
 int			ft_atoi(const char *fd);
 int			ft_isspace(char c);
 int			ft_isset(char c, const char *set);
 void		*err_malloc(unsigned int n);
+
+void		make_prompt_msg(void);
+void		signal_handler(int signo);
+void		signal_func(void);
+t_env		*envp_to_env(char *envp);
+void		add_envlst(t_env *env, char *envp);
+t_env		*make_envlst(char **envp);
+char		*get_value(t_env *env, char *key);
+t_env		*get_env_pointer(t_env *env, char *key);
+void		add_change_env(t_env *env, char *key, char *value);
+void		add_own_path(t_env *env);
+t_env		*set_env_lst(char **envp);
+
+void	kill_process(int pid);
+void	check_d(int	*ret, char *buf, char *str);
+
+// input_sequence.c
+int		check_input(char *str);
+int		get_input(char **input);
+void	slash_doing(char **input);
+void	quo_doing(char **input, int quo);
+void	input_sequence(char **input);
+
+// make_path_lst.c
+t_path	*new_path_one(char *str);
+t_path	*add_path(t_path *path, char *str);
+t_path	*make_path_lst(t_env *env);
+
+int		strcmp_upper(const char *command, const char *str);
+int		is_command(char *cmd);
+int		lstsize_str(t_str *lst);
+char	**str_to_argv(t_commands *node);
+int		lstsize_env(t_env *lst);
+char	*triple_join(char *s1, char *s2, char *s3);
+char	**env_to_envp(t_env *env);
+
+int		ft_exitstatus(int status);
+int		ft_ifsignal(int status);
+
+int		path_work(t_commands *node, char *path, t_env *env);
+int		excute_work(t_commands *node, t_env *env);
+int		path_excute(t_commands *node, t_env *env, t_path *path);
+void	work_command(t_commands *node, t_env **env);
+void	pipe_doing(t_commands *node, t_env **env);
+void	start_work(t_commands *node, t_env **env);
+
+
+void		command_branch(char *command);
+t_commands	*split_separator(char *line, t_env *env);
 char		**env_to_envp(t_env *env);
-int			cd_work(t_commands *node, t_env *env);
-int			export_work(t_commands *node, t_env *env);
-int			unset_work(t_commands *node, t_env **env);
-void		exit_work(t_commands *node, t_env *env);
-int			command_work(t_commands *node, t_env **env, int cmd);
 void		add_change_env(t_env *env, char *key, char *value);
 char		*get_value(t_env *env, char *key);
 int			list_check(t_commands *lst);
 void		error_check(int err_num, char *error_message);
 t_env		*get_env_pointer(t_env *env, char *key);
+
+// free_nodes.c
+void		clear_str_node(t_str **str);
+void		pipe_clear(t_commands **node);
+void		clear_node(t_commands **node);
+void		free_all_node(t_commands **node);
+
 int			work_redir(t_commands *node);
+
+// -------------------------------------------------
+
+//		command_work.c
+int			command_work(t_commands *node, t_env **env, int cmd);
+//		unset_work.c
+int				unset_work(t_commands *node, t_env **env);
 //		get_word.c
 t_word_block	get_word(char **ref);
 //		commands_addback.c

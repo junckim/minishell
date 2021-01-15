@@ -15,7 +15,7 @@
 int			open_fd_node(t_str *cur, t_commands *node)
 {
 	int	fd;
-	
+
 	if (cur->redir == REDIR)
 	{
 		node->fdflag = 1;
@@ -29,7 +29,8 @@ int			open_fd_node(t_str *cur, t_commands *node)
 	else if (cur->redir == D_REDIR)
 	{
 		node->fdflag = 1;
-		fd = open(cur->next->word, O_WRONLY | O_APPEND | O_CREAT, 0644 | O_EXCL);
+		fd = open(cur->next->word, O_WRONLY | O_APPEND\
+								| O_CREAT, 0644 | O_EXCL);
 	}
 	return (fd);
 }
@@ -62,33 +63,40 @@ t_str		*del_str_node(t_str *prev, t_str *cur_node, t_str **head)
 	return (prev);
 }
 
+int			check_redir(t_commands *node, t_str *prev, t_str *head)
+{
+	if (node->str->next == NULL)
+	{
+		error_check(change_to_errcode(node->sep), "");
+		return (SYS_SYNTAX);
+	}
+	else if (node->str->next->redir != -1)
+	{
+		error_check(change_to_errcode(node->str->next->redir), "");
+		return (SYS_SYNTAX);
+	}
+	else
+	{
+		node->fd = open_fd_node(node->str, node);
+		node->str = del_str_node(prev, node->str, &head);
+	}
+	return (0);
+}
+
 int			work_redir(t_commands *node)
 {
 	int		err_num;
 	t_str	*head;
 	t_str	*prev;
-	
+
 	head = node->str;
 	prev = NULL;
 	while (node->str)
 	{
 		if (node->str->redir != -1)
 		{
-			if (node->str->next == NULL)
-			{
-				error_check(change_to_errcode(node->sep), "");
+			if (check_redir(node, prev, head) == SYS_SYNTAX)
 				return (SYS_SYNTAX);
-			}
-			else if (node->str->next->redir != -1)
-			{
-				error_check(change_to_errcode(node->str->next->redir), "");
-				return (SYS_SYNTAX);
-			}
-			else
-			{
-				node->fd = open_fd_node(node->str, node);
-				node->str = del_str_node(prev, node->str, &head);
-			}
 		}
 		prev = node->str;
 		if (node->str != NULL)

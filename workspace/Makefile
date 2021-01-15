@@ -26,7 +26,8 @@ FLAGS = $(LIBFT_FLAGS)
 
 SRCS = $(addprefix ./srcs/, \
 	command_work.c \
-	branch.c \
+	unset_work.c \
+	split_separator.c \
 	list_check.c \
 	error_check.c \
 	utils.c \
@@ -40,6 +41,9 @@ SRCS = $(addprefix ./srcs/, \
 	change_env.c \
 	change_env_utils.c \
 	parse_node.c \
+	make_path_lst.c \
+	free_nodes.c \
+	input_sequence.c \
 	minishell.c)
 
 OBJS = $(SRCS:.c=.o)

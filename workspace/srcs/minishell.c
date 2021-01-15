@@ -52,6 +52,12 @@ void	signal_handler(int signo)
 	}
 }
 
+void	signal_func(void)
+{
+	signal(SIGINT, (void *)signal_handler);
+	signal(SIGQUIT, (void *)signal_handler);
+}
+
 /*
 **       
 **       env 관련
@@ -185,29 +191,6 @@ t_env	*set_env_lst(char **envp)
 **			input처리
 **
 */
-int		check_input(char *str)
-{
-	int	flag;
-
-	flag = 0;
-	while (*str)
-	{
-		if (*str == '\\' && *(str + 1) != 0)
-			str++;
-		else if (*str == '"' && flag == 0)
-			flag = BQU;
-		else if (*str == '\'' && flag == 0)
-			flag = SQU;
-		else if (*str == '"' && flag == 1)
-			flag = 0;
-		else if (*str == '\'' && flag == 2)
-			flag = 0;
-		else if (*str == '\\' && flag == 0 && *(str + 1) == 0)
-			flag = BSL;
-		str++;
-	}
-	return (flag);
-}
 
 void	kill_process(int pid)
 {
@@ -220,7 +203,7 @@ void	kill_process(int pid)
 		kill(pid, SIGKILL);
 }
 
-void	check_d(int	*ret, char *buf, char *str)
+void	check_d(int *ret, char *buf, char *str)
 {
 	if (ft_strlen(str))
 	{
@@ -233,160 +216,6 @@ void	check_d(int	*ret, char *buf, char *str)
 		kill_process(0);
 	}
 }
-
-int		get_input(char **input)
-{
-	int		ret;
-	char	buf[2];
-	char	*str;
-	char	*temp;
-
-	ret = 1;
-	buf[0] = 0;
-	buf[1] = 0;
-	g_read_str = ft_strjoin("", "");
-	while (ret && buf[0] != '\n')
-	{
-		ret = read(0, buf, 1);
-		if (ret == 0)
-			check_d(&ret, buf, g_read_str);
-		if (buf[0] != '\n' && ret != 0)
-		{
-			temp = ft_strjoin(g_read_str, buf);
-			free(g_read_str);
-			g_read_str = temp;
-		}
-	}
-	*input = g_read_str;
-	return (check_input(g_read_str));
-}
-
-void	slash_doing(char **input)
-{
-	int		flag;
-	char	*tmp;
-	char	*more;
-
-	write(1, ">", 1);
-	tmp = ft_substr(*input, 0, ft_strlen(*input) - 1);
-	free(*input);
-	flag = get_input(&more);
-	*input = ft_strjoin(tmp, more);
-	free(more);
-	free(tmp);
-	if (flag == BSL)
-		slash_doing(input);
-}
-
-void	quo_doing(char **input, int quo)
-{
-	int		flag;
-	char	*temp;
-	char	*more;
-
-	if (quo == SQU)
-		write(1, "quote>", 6);
-	else
-		write(1, "D_quote>", 8);
-	temp = ft_strjoin(*input, "\n");
-	free(*input);
-	flag = get_input(&more);
-	*input = ft_strjoin(temp, more);
-	free(more);
-	free(temp);
-	if (flag != quo)
-		quo_doing(input, quo);
-}
-
-void	pipe_more(char **input)
-{
-	printf("pipe\n");
-}
-
-void	input_sequence(char **input)
-{
-	int	flag;
-
-	flag = get_input(input);
-	if (flag == BSL)
-		slash_doing(input);
-	else if (flag == SQU)
-		quo_doing(input, SQU);
-	else if (flag == BQU)
-		quo_doing(input, BQU);
-}
-
-// echo aaa | bbb ; nnn
-// execve -> ls -> ls 앞에다가 환경변수 붙여서 돌리기
-//fork() -> execve() -> 실패시 -1; -1이면 while문 돌리면서 모든 경로값 가지고 ls 붙여서 실행
-
-/*
-**
-**		path 받아오는 부분
-**
-*/
-
-typedef struct	s_path
-{
-	char			*path;
-	struct s_path	*next;
-}				t_path;
-
-t_path	*new_path_one(char *str)
-{
-	t_path	*res;
-
-	res = err_malloc(sizeof(t_path));
-	res->path = str;
-	res->next = NULL;
-	return (res);
-}
-
-t_path	*add_path(t_path *path, char *str)
-{
-	t_path	*head;
-	
-	head = path;
-	if (path == NULL)
-	{
-		path = new_path_one(str);
-		return (path);
-	}
-	else
-	{
-		while (path->next)
-			path = path->next;
-		path->next = new_path_one(str);
-	}
-	return (head);
-}
-
-t_path	*make_path_lst(t_env *env)
-{
-	t_path	*res;
-	char	*path;
-	char	*point;
-
-	res = NULL;
-	path = get_value(env, "PATH");
-	point = ft_strchr(path, ':');
-	while(path)
-	{
-		if (point)
-		{
-			res = add_path(res, ft_substr(path, 0, point - path));
-			path = point + 1;
-			point = ft_strchr(path, ':');
-		}
-		else
-		{
-			res = add_path(res, ft_strdup(path));
-			path = NULL;
-		}
-	}
-	return (res);
-}
-
 
 /*
 **
@@ -675,64 +504,6 @@ void	start_work(t_commands *node, t_env **env)
 			work_command(node, env);
 		}
 		node = node->next;
-	}
-}
-
-void	signal_func(void)
-{
-	signal(SIGINT, (void *)signal_handler);
-	signal(SIGQUIT, (void *)signal_handler);
-}
-
-void	clear_str_node(t_str **str)
-{
-	t_str	*tmp;
-
-	while (*str)
-	{
-		tmp = *str;
-		*str = (*str)->next;
-		free(tmp->word);
-		tmp->word = NULL;
-		free(tmp);
-		tmp = NULL;
-	}
-}
-
-void	pipe_clear(t_commands **node)
-{
-	t_commands	**pipe_node;
-	t_commands	*tmp;
-
-	pipe_node = node;
-	while (*pipe_node)
-	{
-		tmp = *pipe_node;
-		clear_str_node(&(*pipe_node)->str);
-		*pipe_node = (*pipe_node)->pipe;
-		free(tmp);
-		tmp = NULL;
-	}
-}
-
-void	clear_node(t_commands **node)
-{
-	t_commands	*tmp;
-
-	tmp = *node;
-	clear_str_node(&(*node)->str);
-	*node = (*node)->next;
-	free(tmp);
-	tmp = NULL;
-}
-
-void	free_all_node(t_commands **node)
-{
-	while (*node)
-	{
-		if ((*node)->pipe)
-			pipe_clear(&(*node)->pipe);
-		clear_node(node);
 	}
 }
 

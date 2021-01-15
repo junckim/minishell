@@ -34,9 +34,9 @@ static int	change_basic(char **word, int idx, t_env *env)
 	key = ft_strdup(&((*word)[idx + 1]));
 	(*word)[j] = c;
 	if ((val = get_value(env, key)) == NULL)
-		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+		val = ft_strdup("");
 	free(key);
-	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
+	idx = env_strdup(word, idx, j, val);
 	return (idx);
 }
 
@@ -53,9 +53,9 @@ static int	change_return(char **word, int idx, t_env *env)
 	key = ft_strdup(&((*word)[idx + 1]));
 	(*word)[j] = c;
 	if ((val = ft_itoa(g_error_status)) == NULL)
-		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+		val = ft_strdup("");
 	free(key);
-	idx = env_strdup(word, idx, j, val);	// free(word), return 마지막 인덱스
+	idx = env_strdup(word, idx, j, val);
 	return (idx);
 }
 
@@ -72,17 +72,13 @@ static int	change_bracelet(char **word, int idx, t_env *env)
 	key = ft_strdup(&((*word)[idx + 2]));
 	(*word)[j] = c;
 	if ((val = get_value(env, key)) == NULL)
-		val = ft_strdup("");			// 이 경우에 프리해주긴 해야는데
+		val = ft_strdup("");
 	free(key);
-	idx = env_strdup(word, idx, j + 1, val);	// free(word), return 마지막 인덱스
+	idx = env_strdup(word, idx, j + 1, val);
 	return (idx);
 }
 
-/*
-* *		환경변수를 찾으면 치환
-**		param  : 수정해줄 단어, 환경변수 목록
-*/
-void				change_env(t_word_block *word, t_env *env)
+void		change_env(t_word_block *word, t_env *env)
 {
 	int		i;
 

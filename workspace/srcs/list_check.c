@@ -44,9 +44,6 @@ int		pipe_check(t_commands *pipe_lst)
 	return (1);
 }
 
-/*
-**		정상이면 1, 아니면 에러넘
-*/
 int		list_check(t_commands *lst)
 {
 	int			ret;

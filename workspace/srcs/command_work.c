@@ -12,40 +12,28 @@
 
 #include "../include/minishell.h"
 
-int			cd_work(t_commands *node, t_env *env)
+static int	cd_work(t_commands *node, t_env *env)
 {
 	char	*buf;
 
 	if ((buf = getcwd(0, 0)) == NULL)
-	{
-		printf("can not read current dir\n");
 		return (-1);
-	}
 	add_change_env(env, "OLDPWD", buf);
 	if (node->str->next == 0)
 	{
 		if (chdir(get_value(env, "HOME")) == -1)
-		{
-			printf("cannot change the path\n");
 			return (-1);
-		}
 	}
 	else if (chdir(node->str->next->word) == -1)
-	{
-		printf("cannot chage the path\n");
 		return (-1);
-	}
 	if ((buf = getcwd(0, 0)) == NULL)
-	{
-		printf("can not read current dir\n");
 		return (-1);
-	}
 	add_change_env(env, "PWD", buf);
 	free(buf);
 	return (1);
 }
 
-int			export_work(t_commands *node, t_env *env)
+static int	export_work(t_commands *node, t_env *env)
 {
 	t_str	*cur;
 	char	*param;
@@ -71,55 +59,7 @@ int			export_work(t_commands *node, t_env *env)
 	return (1);
 }
 
-t_env	*env_prev_cur(t_env *env, char *key, t_env **prev)
-{
-	*prev = NULL;
-	while (env)
-	{
-		if (!ft_strncmp(key, env->key, ft_strlen(key)) &&
-				!ft_strncmp(key, env->key, ft_strlen(env->key)))
-			return (env);
-		*prev = env;
-		env = env->next;
-	}
-	return (NULL);
-}
-
-int			unset_work(t_commands *node, t_env **env)
-{
-	t_str	*cur;
-	char	*param;
-	t_env	*cur_env;
-	t_env	*prev_env;
-
-	cur = node->str->next;
-	while (cur)
-	{
-		param = cur->word;
-		cur_env = env_prev_cur(*env, param, &prev_env);
-		if (cur_env)
-		{
-			if (prev_env == NULL)
-			{
-				*env = (*env)->next;
-				free(cur_env->key);
-				free(cur_env->value);
-				free(cur_env);
-			}
-			else
-			{
-				prev_env->next = cur_env->next;
-				free(cur_env->key);
-				free(cur_env->value);
-				free(cur_env);
-			}
-		}
-		cur = cur->next;
-	}
-	return (1);
-}
-
-void		exit_work(t_commands *node, t_env *env)
+static void	exit_work(t_commands *node, t_env *env)
 {
 	int		num;
 
@@ -128,10 +68,6 @@ void		exit_work(t_commands *node, t_env *env)
 		num = ft_atoi(node->str->next->word);
 	exit(num);
 }
-
-/*
-**		cd export unset exit
-*/
 
 int			command_work(t_commands *node, t_env **env, int cmd)
 {

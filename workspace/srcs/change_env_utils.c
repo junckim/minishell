@@ -12,11 +12,11 @@
 
 #include "../include/minishell.h"
 
-int					end_env_index(char *word, int i)
+int			end_env_index(char *word, int i)
 {
 	while (word[++i])
 	{
-		if (word[i] == '.' || word[i] ==  '$' ||\
+		if (word[i] == '.' || word[i] == '$' ||\
 			word[i] == '?' || word[i] == ':' ||\
 			word[i] == ' ' || word[i] == '\'' || word[i] == '=')
 			break ;
@@ -24,7 +24,7 @@ int					end_env_index(char *word, int i)
 	return (i);
 }
 
-int					end_env_bracelet(char *word, int i)
+int			end_env_bracelet(char *word, int i)
 {
 	while (word[++i])
 	{
@@ -34,7 +34,7 @@ int					end_env_bracelet(char *word, int i)
 	return (i);
 }
 
-int					env_strdup(char **word, int start, int end, char *val)
+int			env_strdup(char **word, int start, int end, char *val)
 {
 	int			ret;
 	char		c;
