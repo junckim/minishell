@@ -44,6 +44,10 @@ SRCS = $(addprefix ./srcs/, \
 	make_path_lst.c \
 	free_nodes.c \
 	input_sequence.c \
+	env_func_1.c \
+	env_func_2.c \
+	prompt_utils.c \
+	utils2.c \
 	minishell.c)
 
 OBJS = $(SRCS:.c=.o)

@@ -6,222 +6,14 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
-/*   Updated: 2021/01/10 18:10:47 by joockim          ###   ########.fr       */
+/*   Updated: 2021/01/15 18:20:49 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-// 문자열 생성용 전역변수 -> ctrl + C에서 처리해주기 위함
 char	*g_read_str;
 int		g_error_status;
-
-void	make_prompt_msg(void)
-{
-	char	*path;
-	char	*last;
-
-	path = getcwd(NULL, 0);
-	last = ft_strrchr(path, '/');
-	ft_printf(COLOR_MAGENTA);
-	ft_printf("dir :");
-	ft_printf(COLOR_BCYAN);
-	ft_printf("%s", last);
-	ft_printf(COLOR_BRED);
-	ft_printf(" @~"COLOR_BYELLOW"=+"COLOR_BWHITE"=+"
-			COLOR_BGREEN"=+>");
-	ft_printf(COLOR_RESET);
-}
-
-void	signal_handler(int signo)
-{
-	char	*tmp;
-
-	write(1, "\b\b  \b\b", 6);
-	if (signo == SIGINT)
-	{
-		if (*g_read_str)
-		{
-			tmp = ft_strdup("");
-			free(g_read_str);
-			g_read_str = tmp;
-		}
-		g_error_status = 1;
-		write(1, "\n", 1);
-		make_prompt_msg();
-	}
-}
-
-void	signal_func(void)
-{
-	signal(SIGINT, (void *)signal_handler);
-	signal(SIGQUIT, (void *)signal_handler);
-}
-
-/*
-**       
-**       env 관련
-**
-*/
-t_env	*envp_to_env(char *envp)
-{
-	t_env	*env;
-	char	*path;
-	char	*key;
-	char	*value;
-
-	path = ft_strchr(envp, '=');
-	key = envp;
-	value = path + 1;
-	*path = 0;
-	if ((env = malloc(sizeof(t_env))) == 0)
-		return (0);
-	env->key = ft_strdup(key);
-	env->value = ft_strdup(value);
-	env->next = NULL;
-	return (env);
-}
-
-void	add_envlst(t_env *env, char *envp)
-{
-	t_env	*elem;
-
-	elem = envp_to_env(envp);
-	while (env->next)
-		env = env->next;
-	env->next = elem;
-}
-
-
-t_env	*make_envlst(char **envp)
-{
-	t_env	*env;
-
-	env = envp_to_env(*envp);
-	envp++;
-	while (*envp)
-	{
-		add_envlst(env, *envp);
-		envp++;
-	}
-	return (env);
-}
-
-
-char	*get_value(t_env *env, char *key)
-{
-	char	*value;
-
-	value = NULL;
-	while (env)
-	{
-		if (!ft_strncmp(key, env->key, ft_strlen(key)) &&
-				!ft_strncmp(key, env->key, ft_strlen(env->key)))
-			value = env->value;
-		env = env->next;
-	}
-	return (value);
-}
-
-t_env	*get_env_pointer(t_env *env, char *key)
-{
-	while (env)
-	{
-		if (!ft_strncmp(key, env->key, ft_strlen(key)) &&
-				!ft_strncmp(key, env->key, ft_strlen(env->key)))
-			return (env);
-		env = env->next;
-	}
-	return (NULL);
-}
-
-void	add_change_env(t_env *env, char *key, char *value)
-{
-	t_env	*cur_env;
-
-	if ((cur_env = get_env_pointer(env, key)))
-	{
-		free(cur_env->value);
-		cur_env->value = ft_strdup(value);
-	}
-	else
-	{
-		while (env->next)
-			env = env->next;
-		cur_env = (t_env *)err_malloc(sizeof(t_env));
-		cur_env->key = ft_strdup(key);
-		cur_env->value = ft_strdup(value);
-		cur_env->next = NULL;
-		env->next = cur_env;
-	}
-}
-
-char	*triple_join(char *s1, char *s2, char *s3); // 프로토타입 나중에 옮기면서 지우기
-
-void	add_own_path(t_env *env)
-{
-	char	*temp;
-	char	*excute_path;
-	t_env	*path_env;
-
-	path_env = get_env_pointer(env, "PATH");
-	excute_path = getcwd(0, 0); // 지금은 현재 디렉이지만 나중엔 바꿔줘
-	printf("%s\n", excute_path);
-	temp = triple_join(excute_path, ":", path_env->value);
-	free(path_env->value);
-	path_env->value = temp;
-}
-
-t_env	*set_env_lst(char **envp)
-{
-	int		shlvl_tmp;
-	t_env	*env;
-	char *test;
-
-	env = make_envlst(envp);
-	g_error_status = 0;
-	shlvl_tmp = ft_atoi(get_value(env, "SHLVL"));
-	add_change_env(env, "SHLVL", ft_itoa(++shlvl_tmp));
-	add_own_path(env);
-	return(env);
-}
-
-/*
-**
-**			input처리
-**
-*/
-
-void	kill_process(int pid)
-{
-	if (pid == 0)
-	{
-		write(1, "exit\n", 5);
-		exit(0);
-	}
-	else
-		kill(pid, SIGKILL);
-}
-
-void	check_d(int *ret, char *buf, char *str)
-{
-	if (ft_strlen(str))
-	{
-		*ret = 1;
-		buf[0] = 0;
-		write(1, "  \b\b", 4);
-	}
-	else
-	{
-		kill_process(0);
-	}
-}
-
-/*
-**
-**		command시작부분
-**
-*/
 
 int		strcmp_upper(const char *command, const char *str)
 {
@@ -241,9 +33,6 @@ int		strcmp_upper(const char *command, const char *str)
 	return (1);
 }
 
-/*
-**		cd #env export unset exit
-*/
 int		is_command(char *cmd)
 {
 	if (ft_strlen(cmd) == 2 && ft_strncmp("cd", cmd, 2) == 0)
@@ -309,17 +98,6 @@ int		lstsize_env(t_env *lst)
 	return (i);
 }
 
-char	*triple_join(char *s1, char *s2, char *s3)
-{
-	char	*tmp;
-	char	*res;
-
-	tmp = ft_strjoin(s1, s2);
-	res = ft_strjoin(tmp, s3);
-	free(tmp);
-	return (res);
-}
-
 char	**env_to_envp(t_env *env)
 {
 	char	**work;
@@ -328,7 +106,8 @@ char	**env_to_envp(t_env *env)
 	char	*str;
 	char	*tmp;
 
-	work = (char **)err_malloc(sizeof(char *) * ((size = lstsize_env(env)) + 1));
+	work = (char **)err_malloc(sizeof(char *) *
+			((size = lstsize_env(env)) + 1));
 	ret = work;
 	while (env)
 	{
@@ -341,27 +120,13 @@ char	**env_to_envp(t_env *env)
 	return (ret);
 }
 
-/*
-**		echo pwd ls
-*/
-
-int		ft_exitstatus(int status)
-{
-	return ((status >> 8) & 0x000000ff);
-}
-
-int		ft_ifsignal(int status)
-{
-	return ((status & 0177) != 0177 && (status & 0177) != 0);
-}
-
 int		status_return(int status)
 {
 	if (ft_ifsignal(status))
 		return (128 + status);
 	if (ft_exitstatus(status) != 255)
 		return (ft_exitstatus(status));
-	return (255); 
+	return (255);
 }
 
 int		path_work(t_commands *node, char *path, t_env *env)
@@ -387,12 +152,12 @@ int		path_work(t_commands *node, char *path, t_env *env)
 	}
 	else
 	{
-		waitpid(pid, &status, 0); // -> 여기서도 status 업뎃
+		waitpid(pid, &status, 0);
 	}
 	return (status_return(status));
 }
 
-int		excute_work(t_commands *node, t_env *env)	// 성공인지 실패인지 반환
+int		excute_work(t_commands *node, t_env *env)
 {
 	char	*path;
 
@@ -416,13 +181,13 @@ int		path_excute(t_commands *node, t_env *env, t_path *path)
 		{
 			free(word);
 			word = NULL;
-			return (res);		// 실행 됨
+			return (res);
 		}
 		path = path->next;
 	}
 	free(word);
 	word = NULL;
-	return (127);				// 실행 안 됨
+	return (127);
 }
 
 void	work_command(t_commands *node, t_env **env)
@@ -489,7 +254,6 @@ void	pipe_doing(t_commands *node, t_env **env)
 		node = node->pipe;
 	}
 }
-// echo a | echo b | echo c
 
 void	start_work(t_commands *node, t_env **env)
 {

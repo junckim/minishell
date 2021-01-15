@@ -126,9 +126,14 @@ int			ft_isspace(char c);
 int			ft_isset(char c, const char *set);
 void		*err_malloc(unsigned int n);
 
+// prompt_utils.c
 void		make_prompt_msg(void);
 void		signal_handler(int signo);
 void		signal_func(void);
+int			ft_exitstatus(int status);
+int			ft_ifsignal(int status);
+
+// env_func_1.c && env_func_2.c
 t_env		*envp_to_env(char *envp);
 void		add_envlst(t_env *env, char *envp);
 t_env		*make_envlst(char **envp);
@@ -138,8 +143,10 @@ void		add_change_env(t_env *env, char *key, char *value);
 void		add_own_path(t_env *env);
 t_env		*set_env_lst(char **envp);
 
+// utils_2.c
 void	kill_process(int pid);
 void	check_d(int	*ret, char *buf, char *str);
+char	*triple_join(char *s1, char *s2, char *s3);
 
 // input_sequence.c
 int		check_input(char *str);
@@ -158,11 +165,8 @@ int		is_command(char *cmd);
 int		lstsize_str(t_str *lst);
 char	**str_to_argv(t_commands *node);
 int		lstsize_env(t_env *lst);
-char	*triple_join(char *s1, char *s2, char *s3);
 char	**env_to_envp(t_env *env);
 
-int		ft_exitstatus(int status);
-int		ft_ifsignal(int status);
 
 int		path_work(t_commands *node, char *path, t_env *env);
 int		excute_work(t_commands *node, t_env *env);
