@@ -47,3 +47,21 @@ void	check_d(int *ret, char *buf, char *str)
 		kill_process(0);
 	}
 }
+
+int		strcmp_upper(const char *command, const char *str)
+{
+	int		i;
+	char	c;
+
+	i = -1;
+	while (command[++i])
+	{
+		if ('A' <= str[i] && str[i] <= 'Z')
+			c = str[i] - 'A' + 'a';
+		else
+			c = str[i];
+		if (c != command[i])
+			return (0);
+	}
+	return (1);
+}

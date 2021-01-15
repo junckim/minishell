@@ -48,6 +48,8 @@ SRCS = $(addprefix ./srcs/, \
 	env_func_2.c \
 	prompt_utils.c \
 	utils2.c \
+	work_utils.c \
+	work_cmd.c \
 	minishell.c)
 
 OBJS = $(SRCS:.c=.o)

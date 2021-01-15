@@ -13,7 +13,7 @@
 #include "../include/minishell.h"
 
 extern char	*g_read_str;
-extern char	g_error_status;
+extern int	g_error_status;
 
 void	make_prompt_msg(void)
 {

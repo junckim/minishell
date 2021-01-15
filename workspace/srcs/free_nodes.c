@@ -12,7 +12,7 @@
 
 #include "../include/minishell.h"
 
-void	clear_str_node(t_str **str)
+static void	clear_str_node(t_str **str)
 {
 	t_str	*tmp;
 
@@ -27,7 +27,7 @@ void	clear_str_node(t_str **str)
 	}
 }
 
-void	pipe_clear(t_commands **node)
+static void	pipe_clear(t_commands **node)
 {
 	t_commands	**pipe_node;
 	t_commands	*tmp;
@@ -43,7 +43,7 @@ void	pipe_clear(t_commands **node)
 	}
 }
 
-void	clear_node(t_commands **node)
+static void	clear_node(t_commands **node)
 {
 	t_commands	*tmp;
 
@@ -54,7 +54,7 @@ void	clear_node(t_commands **node)
 	tmp = NULL;
 }
 
-void	free_all_node(t_commands **node)
+void		free_all_node(t_commands **node)
 {
 	while (*node)
 	{
