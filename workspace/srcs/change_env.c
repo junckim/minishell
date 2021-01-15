@@ -40,7 +40,7 @@ static int	change_basic(char **word, int idx, t_env *env)
 	return (idx);
 }
 
-static int	change_return(char **word, int idx, t_env *env)
+static int	change_return(char **word, int idx)
 {
 	int		j;
 	char	c;
@@ -86,7 +86,7 @@ void		change_env(t_word_block *word, t_env *env)
 	while ((word->word)[++i])
 	{
 		if ((word->word)[i] == '$' && (word->word)[i + 1] == '?')
-			i = change_return(&(word->word), i, env);
+			i = change_return(&(word->word), i);
 		else if ((word->word)[i] == '$' && (word->word)[i + 1] == '{')
 			i = change_bracelet(&(word->word), i, env);
 		else if ((word->word)[i] == '$' && isvalid_env_mark(word->word, i))

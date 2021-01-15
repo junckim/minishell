@@ -38,7 +38,6 @@ void				commands_addback(t_commands **lst, t_commands *new)
 {
 	t_commands		*last_semi;
 	t_commands		*last_node;
-	t_commands		*tmp;
 
 	if (new == 0 || lst == 0)
 		return ;

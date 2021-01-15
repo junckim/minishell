@@ -46,7 +46,6 @@ char	**str_to_argv(t_commands *node)
 	char	**ret;
 	int		size;
 	int		i;
-	char	*test;
 
 	lst = node->str->next;
 	size = lstsize_str(lst);
@@ -83,7 +82,6 @@ char	**env_to_envp(t_env *env)
 	char	**ret;
 	int		size;
 	char	*str;
-	char	*tmp;
 
 	work = (char **)err_malloc(sizeof(char *) *
 			((size = lstsize_env(env)) + 1));

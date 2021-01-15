@@ -16,6 +16,7 @@ int			open_fd_node(t_str *cur, t_commands *node)
 {
 	int	fd;
 
+	fd = -1;
 	if (cur->redir == REDIR)
 	{
 		node->fdflag = 1;
@@ -85,7 +86,6 @@ int			check_redir(t_commands *node, t_str *prev, t_str *head)
 
 int			work_redir(t_commands *node)
 {
-	int		err_num;
 	t_str	*head;
 	t_str	*prev;
 

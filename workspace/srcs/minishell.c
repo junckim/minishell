@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 22:11:19 by joockim           #+#    #+#             */
-/*   Updated: 2021/01/15 18:22:44 by joockim          ###   ########.fr       */
+/*   Updated: 2021/01/15 19:13:08 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ int			main(int argc, char **argv, char **envp)
 	{
 		make_prompt_msg();
 		input_sequence(&input);
-		printf("input test : %s\n", input);
 		node = split_separator(input, env);
 		if ((err_num = list_check(node)) < 0)
 		{
@@ -97,4 +96,5 @@ int			main(int argc, char **argv, char **envp)
 		free_all_node(&node);
 	}
 	return (0);
+	argv = 0;
 }

@@ -43,7 +43,6 @@ int		get_input(char **input)
 {
 	int		ret;
 	char	buf[2];
-	char	*str;
 	char	*temp;
 
 	ret = 1;

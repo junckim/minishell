@@ -6,7 +6,7 @@
 /*   By: joockim <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/12 14:21:47 by joockim           #+#    #+#             */
-/*   Updated: 2021/01/14 19:37:50 by junkang          ###   ########.fr       */
+/*   Updated: 2021/01/15 19:10:29 by joockim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static int	export_work(t_commands *node, t_env *env)
 	return (1);
 }
 
-static void	exit_work(t_commands *node, t_env *env)
+static void	exit_work(t_commands *node)
 {
 	int		num;
 
@@ -81,6 +81,6 @@ int			command_work(t_commands *node, t_env **env, int cmd)
 		return (1);
 	}
 	else if (cmd == EXIT)
-		exit_work(node, *env);
+		exit_work(node);
 	return (-1);
 }

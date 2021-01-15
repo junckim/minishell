@@ -65,7 +65,6 @@ t_env	*set_env_lst(char **envp)
 {
 	int		shlvl_tmp;
 	t_env	*env;
-	char	*test;
 
 	env = make_envlst(envp);
 	g_error_status = 0;
