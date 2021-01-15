@@ -14,19 +14,6 @@
 
 extern int	g_error_status;
 
-void				get_fd(t_commands *node)
-{
-	t_str	*before;
-	t_str	*head;
-
-	head = node->str;
-	before = node->str;
-	while (node->str)
-	{
-		node->str = node->str->next;
-	}
-}
-
 t_commands			*make_commands_new(char **ref, t_env *env)
 {
 	t_commands		*node;

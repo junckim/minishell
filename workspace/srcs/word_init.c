@@ -61,6 +61,8 @@ void		word_join(t_word_block *dest, t_word_block *srcs)
 {
 	char		*tmp;
 
+	if (!dest->word)
+		dest->word = ft_strdup("");
 	tmp = srcs->word;
 	srcs->word = ft_except_strdup(srcs->word);
 	free(tmp);
@@ -77,6 +79,7 @@ void		word_free(t_word_block *word)
 {
 	word->quotation = -1;
 	free(word->word);
+	word->word = NULL;
 	word->is_conti = -1;
 	word->sep = -1;
 }

@@ -55,7 +55,6 @@ void	add_own_path(t_env *env)
 
 	path_env = get_env_pointer(env, "PATH");
 	excute_path = getcwd(0, 0);
-	printf("%s\n", excute_path);
 	temp = triple_join(excute_path, ":", path_env->value);
 	free(path_env->value);
 	path_env->value = temp;
@@ -70,6 +69,9 @@ t_env	*set_env_lst(char **envp)
 	g_error_status = 0;
 	shlvl_tmp = ft_atoi(get_value(env, "SHLVL"));
 	add_change_env(env, "SHLVL", ft_itoa(++shlvl_tmp));
-	add_own_path(env);
+	if (ft_strncmp(get_value(env, "SHELL"), "/minishell",
+			ft_strlen("/minishell")))
+		add_own_path(env);
+	add_change_env(env, "SHELL", "/minishell");
 	return (env);
 }
