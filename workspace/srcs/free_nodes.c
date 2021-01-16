@@ -12,6 +12,9 @@
 
 #include "../include/minishell.h"
 
+extern char	*g_read_str;
+extern int	g_error_status;
+
 static void	clear_str_node(t_str **str)
 {
 	t_str	*tmp;

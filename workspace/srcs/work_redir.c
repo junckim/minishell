@@ -84,7 +84,7 @@ int			check_redir(t_commands *node, t_str *prev, t_str *head)
 	return (0);
 }
 
-int			work_redir(t_commands *node)
+int			work_redir(t_commands *node)		// redir error leaks
 {
 	t_str	*head;
 	t_str	*prev;
