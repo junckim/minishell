@@ -95,7 +95,6 @@ void	work_command(t_commands *node, t_env **env)
 	{
 		g_error_status = SYS_SYNTAX;
 		free_path(&path);
-		// free_all_node(&node);
 		return ;
 	}
 	if (node->str->word[0] == '/')

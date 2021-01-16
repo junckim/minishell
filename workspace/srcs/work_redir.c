@@ -96,7 +96,10 @@ int			work_redir(t_commands *node)		// redir error leaks
 		if (node->str->redir != -1)
 		{
 			if (check_redir(node, prev, head) == SYS_SYNTAX)
+			{
+				node->str = head;
 				return (SYS_SYNTAX);
+			}
 		}
 		prev = node->str;
 		if (node->str != NULL)
