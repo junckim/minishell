@@ -98,15 +98,16 @@ void	work_command(t_commands *node, t_env **env)
 		return ;
 	}
 	if (node->str->word[0] == '/')
-		g_error_status = excute_work(node, *env);
+	{
+		if (excute_work(node, *env) == 255)
+			g_error_status = 127;
+	}
 	else
 	{
 		if ((cmd = is_command(node->str->word)) == -1)
 			g_error_status = path_excute(node, *env, path);
 		else
-		{
 			g_error_status = command_work(node, env, cmd);
-		}
 	}
 	if (g_error_status == 127)
 		error_check(SYS_CMD_NOT_FOUND, ft_strrchr(node->str->word, '/') + 1);
