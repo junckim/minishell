@@ -32,5 +32,7 @@ void		error_check(int err_num, char *error_message)
 		error_message);
 	else if (err_num == SYS_CMD_NOT_FOUND)
 		ft_printf("%s: command not found\n", error_message);
+	else if (err_num == ERR_NO_SUCH_FILE)
+		ft_printf("cd: %s: No such file or directory\n", error_message);
 	ft_printf(COLOR_RESET);
 }

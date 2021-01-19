@@ -59,6 +59,7 @@
 # define ERR_EMPTY_REV_REDIR_S	"syntax error near unexpected token `<'"
 # define ERR_EMPTY_NEWLINE		-8
 # define ERR_EMPTY_NEWLINE_S	"syntax error near unexpected token `newline'"
+# define ERR_NO_SUCH_FILE		-9
 
 # define SYS_CMD_NOT_FOUND		127
 # define SYS_SYNTAX				258

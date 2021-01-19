@@ -27,16 +27,23 @@ static int	change_basic(char **word, int idx, t_env *env)
 	char	c;
 	char	*key;
 	char	*val;
+	int		flag;
 
+	flag = 0;
 	j = end_env_index(*word, idx);
 	c = (*word)[j];
 	(*word)[j] = 0;
 	key = ft_strdup(&((*word)[idx + 1]));
 	(*word)[j] = c;
 	if ((val = get_value(env, key)) == NULL)
+	{
+		flag = 1;
 		val = ft_strdup("");
+	}
 	free(key);
 	idx = env_strdup(word, idx, j, val);
+	if (flag == 1)
+		free(val);
 	return (idx);
 }
 
@@ -56,6 +63,7 @@ static int	change_return(char **word, int idx)
 		val = ft_strdup("");
 	free(key);
 	idx = env_strdup(word, idx, j, val);
+	free(val);
 	return (idx);
 }
 
@@ -65,16 +73,23 @@ static int	change_bracelet(char **word, int idx, t_env *env)
 	char	c;
 	char	*key;
 	char	*val;
+	int		flag;
 
+	flag = 0;
 	j = end_env_bracelet(*word, idx);
 	c = (*word)[j];
 	(*word)[j] = 0;
 	key = ft_strdup(&((*word)[idx + 2]));
 	(*word)[j] = c;
 	if ((val = get_value(env, key)) == NULL)
+	{
+		flag = 1;
 		val = ft_strdup("");
+	}
 	free(key);
 	idx = env_strdup(word, idx, j + 1, val);
+	if (flag == 1)
+		free(val);
 	return (idx);
 }
 

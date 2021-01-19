@@ -26,7 +26,10 @@ static int	cd_work(t_commands *node, t_env *env)
 			return (-1);
 	}
 	else if (chdir(node->str->next->word) == -1)
+	{
+		error_check(ERR_NO_SUCH_FILE, node->str->next->word);
 		return (-1);
+	}
 	if ((buf = getcwd(0, 0)) == NULL)
 		return (-1);
 	add_change_env(env, "PWD", buf);
